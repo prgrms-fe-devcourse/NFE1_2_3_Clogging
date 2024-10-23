@@ -3,6 +3,8 @@ import React from 'react';
 import localFont from 'next/font/local';
 import './globals.css';
 import { Navigation } from '@/components/ui/Navigation';
+import { Providers } from '@/providers/Providers';
+import Link from 'next/link';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -30,8 +32,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navigation />
-        <main>{children}</main>
+        <Providers>
+          <Navigation />
+          <main className="container">{children}</main>
+          {/* 나중에 삭제 */}
+          <Link
+            href="/style-guide"
+            className="flex items-center"
+            style={{ position: 'fixed', bottom: '10px', right: '10px' }}
+          >
+            스타일 가이드
+          </Link>
+        </Providers>
       </body>
     </html>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/common/Button';
 import { Input } from '@/components/ui/common/Input';
 import { Badge } from '@/components/ui/common/Badge';
@@ -17,7 +17,7 @@ import { Navigation } from '@/components/ui/Navigation';
 import { FormSectionItem, Textarea } from '@/components/ui/Form';
 
 const StyleGuide = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { isDarkMode } = useTheme();
 
   // Design tokens
   const designTokens: any = {
@@ -47,7 +47,7 @@ const StyleGuide = () => {
       className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white'}`}
     >
       {/* Style Guide */}
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-16">
+      <div className="w-full py-20 space-y-16">
         {/* Header Section */}
         <section>
           <h1 className="text-4xl font-bold mb-4">Clogging 스타일 가이드</h1>
