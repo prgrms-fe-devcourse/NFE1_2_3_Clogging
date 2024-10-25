@@ -2,12 +2,12 @@
 import { useTheme } from '@/contexts/ThemeContext';
 import PostCard from '@/components/PostCard/PostCard';
 import { Button } from '@/components/ui/common/Button';
-import { usePostStore } from '@/hooks/usePostStore';
+import { usePostFilter } from '@/hooks/usePostFilter';
 import { ProfileSection } from '@/components/ProfileSection/ProfileSection';
 
 const HomePage: React.FC = () => {
   const { isDarkMode } = useTheme();
-  const { sortType, setSortType, getSortedPosts } = usePostStore();
+  const { sortType, setSortType, getSortedPosts } = usePostFilter();
   const posts = getSortedPosts();
 
   return (

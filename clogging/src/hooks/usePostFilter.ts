@@ -13,14 +13,14 @@ interface Post {
   url: string;
 }
 
-interface PostStore {
+interface PostFilter {
   sortType: SortType;
   posts: Post[];
   setSortType: (type: SortType) => void;
   getSortedPosts: () => Post[];
 }
 
-export const usePostStore = create<PostStore>((set, get) => ({
+export const usePostFilter = create<PostFilter>((set, get) => ({
   sortType: 'latest',
   // 기존 샘플 데이터를 store에 포함
   posts: [
