@@ -1,8 +1,9 @@
 'use client';
 import { useTheme } from '@/contexts/ThemeContext';
-import PostCard from '@/components/post_card/PostCard';
+import PostCard from '@/components/PostCard/PostCard';
 import { Button } from '@/components/ui/common/Button';
 import { usePostStore } from '@/hooks/usePostStore';
+import { ProfileSection } from '@/components/ProfileSection/ProfileSection';
 
 const HomePage: React.FC = () => {
   const { isDarkMode } = useTheme();
@@ -16,7 +17,10 @@ const HomePage: React.FC = () => {
       }`}
     >
       <div className="container py-8">
-        {/* LNB */}
+        {/* 프로필 섹션 */}
+        <ProfileSection />
+
+        {/* 정렬 버튼 */}
         <div className="flex items-center gap-4 mb-6">
           <Button
             variant="ghost"
@@ -42,6 +46,7 @@ const HomePage: React.FC = () => {
           </Button>
         </div>
 
+        {/* 게시물 그리드 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />
