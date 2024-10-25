@@ -23,7 +23,7 @@ export const Navigation = () => {
     >
       <div className="container flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center">
+        <Link href="/home" className="flex items-center">
           <div style={{ width: 'auto', height: '59px' }}>
             <img
               className="w-full h-full"
