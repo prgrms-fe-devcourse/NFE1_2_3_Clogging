@@ -1,9 +1,14 @@
 'use client';
 import { useTheme } from '@/contexts/ThemeContext';
 import PostCard from '@/components/post_card/PostCard';
+import { Button } from '@/components/ui/common/Button';
+import { useState } from 'react';
+
+type SortType = 'latest' | 'trending';
 
 const HomePage: React.FC = () => {
   const { isDarkMode } = useTheme();
+  const [sortType, setSortType] = useState<SortType>('latest');
 
   // 테스트용 게시물 데이터
   const samplePosts = [
@@ -53,15 +58,58 @@ const HomePage: React.FC = () => {
     },
   ];
 
+  const getSortedPosts = () => {
+    const sorted = [...samplePosts];
+    if (sortType === 'latest') {
+      return sorted.sort((a, b) => {
+        const dateA = new Date(
+          a.date.replace('년 ', '-').replace('월 ', '-').replace('일', ''),
+        ).getTime();
+        const dateB = new Date(
+          b.date.replace('년 ', '-').replace('월 ', '-').replace('일', ''),
+        ).getTime();
+        return dateB - dateA;
+      });
+    } else {
+      return sorted.sort((a, b) => b.views - a.views);
+    }
+  };
+
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white'}`}
+      className={`min-h-screen ${
+        isDarkMode ? 'bg-gray-900 text-white' : 'bg-white'
+      }`}
     >
       <div className="container py-8">
-        <h1 className="font-heading text-2xl mb-6">최신 포스트</h1>
+        {/* LNB */}
+        <div className="flex items-center gap-4 mb-6">
+          <Button
+            variant="ghost"
+            className={`${
+              sortType === 'latest'
+                ? 'bg-secondary dark:bg-secondary-dark hover:bg-secondary-hover dark:hover:bg-secondary-darkHover'
+                : 'hover:bg-secondary dark:hover:bg-secondary-dark'
+            } text-lg font-semibold`}
+            onClick={() => setSortType('latest')}
+          >
+            최신
+          </Button>
+          <Button
+            variant="ghost"
+            className={`${
+              sortType === 'trending'
+                ? 'bg-secondary dark:bg-secondary-dark hover:bg-secondary-hover dark:hover:bg-secondary-darkHover'
+                : 'hover:bg-secondary dark:hover:bg-secondary-dark'
+            } text-lg font-semibold`}
+            onClick={() => setSortType('trending')}
+          >
+            트렌딩
+          </Button>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
-          {samplePosts.map((post) => (
+          {getSortedPosts().map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
         </div>
