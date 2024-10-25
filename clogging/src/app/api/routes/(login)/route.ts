@@ -1,23 +1,29 @@
 import { NextResponse } from 'next/server';
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.FIREBASE_PROJECT_ID,
+  apiKey: process.env.NEXT_PUBLIC_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
 };
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-console.log('API Key:', process.env.NEXT_PUBLIC_API_KEY);
 
-const adminEmail = process.env.ADMIN_EMAIL;
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+const auth = getAuth(app);
+
+console.log('API 키:', process.env.NEXT_PUBLIC_API_KEY);
+console.log('이메일:', process.env.NEXT_PUBLIC_ADMIN_EMAIL);
+
+const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
 
 export async function POST(request: Request) {
   const { email, password } = await request.json();
 
   if (email !== adminEmail) {
-    return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
+    return NextResponse.json(
+      { error: '접근이 허가되지 않음' },
+      { status: 401 },
+    );
   }
 
   try {
@@ -29,11 +35,10 @@ export async function POST(request: Request) {
     const token = await userCredential.user.getIdToken();
 
     return NextResponse.json({ token });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error('Authentication Error:', error);
+    // console.error('인증 실패:', error.message);
     return NextResponse.json(
-      { error: 'Authentication failed' },
+      { error: '인증 실패', details: error.message },
       { status: 401 },
     );
   }
