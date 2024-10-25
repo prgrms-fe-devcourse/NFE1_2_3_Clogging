@@ -1,12 +1,13 @@
 'use client';
 import { ReactNode } from 'react'; // ReactNode 타입을 import합니다.
 
-import { Card, CardTitle } from '@/components/ui/common/Card';
+import { Card } from '@/components/ui/common/Card';
 import { useTheme } from '@/contexts/ThemeContext';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+
 interface AdminLayoutProps {
   children: ReactNode;
 }
@@ -17,6 +18,7 @@ interface MenuItem {
   activeIcon: string;
   href: string;
 }
+
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { isDarkMode } = useTheme();
   const pathname = usePathname();
@@ -70,13 +72,27 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-[#A3AED0]'}`}
           >
             {menuItems.map((item) => (
-              <li key={item.name} className="mb-2">
+              <li key={item.name} className="pt-2 pb-2">
                 <Link href={item.href}>
-                  <div className="flex">
+                  <div
+                    className={`flex ${
+                      pathname === item.href
+                        ? isDarkMode
+                          ? 'text-white font-bold'
+                          : 'text-[#2B3674] font-bold'
+                        : isDarkMode
+                          ? 'text-gray-400'
+                          : 'text-[#A3AED0]'
+                    } items-center `}
+                  >
                     <div className="w-[26px] h-[26px] mr-3 flex items-center justify-center">
                       <Image
                         src={
-                          pathname === item.href ? item.activeIcon : item.icon
+                          isDarkMode
+                            ? item.icon
+                            : pathname === item.href
+                              ? item.activeIcon
+                              : item.icon
                         }
                         alt={item.name}
                         width={26}

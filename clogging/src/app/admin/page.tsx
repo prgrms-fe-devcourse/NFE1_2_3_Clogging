@@ -1,16 +1,8 @@
-'use client';
+import { Metadata } from 'next';
 
-// import { Badge } from '@/components/ui/common/Badge';
-// import { Button } from '@/components/ui/common/Button';
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardFooter,
-//   CardHeader,
-//   CardTitle,
-// } from '@/components/ui/common/Card';
-// import { useTheme } from '@/contexts/ThemeContext';
+export const metadata: Metadata = {
+  title: 'Admin',
+};
 
 export default function AdminPage() {
   return <div>sfdfsfsdf</div>;
