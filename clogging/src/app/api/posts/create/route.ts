@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
     if (!title || !content) {
       return NextResponse.json(
-        { error: '제목과 내용은 필수입니다.' },
+        { error: '제목과 내용은 필수입니다!' },
         { status: 400 },
       );
     }
@@ -47,7 +47,6 @@ export async function POST(request: Request) {
         imageUrl = await getDownloadURL(storageRef);
         imageToDeleteId = `posts/${fileName}`; // 파이어베이스 storage에서 이미지 삭제할 때 사용할 ID
       } catch (error) {
-        console.error('Image upload error:', error);
         return NextResponse.json(
           { error: '이미지 업로드에 실패했습니다!' },
           { status: 500 },
@@ -81,7 +80,6 @@ export async function POST(request: Request) {
       { status: 201 },
     );
   } catch (error) {
-    console.error('Post creation error:', error);
     return NextResponse.json(
       { error: '포스트 생성에 실패했습니다.' },
       { status: 500 },
