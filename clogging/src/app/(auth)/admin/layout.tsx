@@ -1,8 +1,7 @@
 'use client';
 import { ReactNode } from 'react'; // ReactNode 타입을 import합니다.
-
-import { Card } from '@/components/ui/common/Card';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Card } from '@/features/components/common/Card';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
