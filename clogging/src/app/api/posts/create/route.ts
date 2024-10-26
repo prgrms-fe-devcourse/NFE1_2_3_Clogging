@@ -9,6 +9,7 @@ export async function POST(request: Request) {
     const title = formData.get('title')?.toString();
     const content = formData.get('content')?.toString();
     const image = formData.get('image') as File | null;
+    console.log(image);
 
     if (!title || !content) {
       return NextResponse.json(
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
         );
       }
 
-      const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+      const MAX_FILE_SIZE = 5 * 1024 * 1024;
       if (image.size > MAX_FILE_SIZE) {
         return NextResponse.json(
           { error: '이미지 크기는 5MB 이하로 첨부할 수 있습니다!' },
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
         await uploadBytes(storageRef, image);
 
         imageUrl = await getDownloadURL(storageRef);
-        imageToDeleteId = `posts/${fileName}`;
+        imageToDeleteId = `posts/${fileName}`; // 파이어베이스 storage에서 이미지 삭제할 때 사용할 ID
       } catch (error) {
         console.error('Image upload error:', error);
         return NextResponse.json(
@@ -57,12 +58,13 @@ export async function POST(request: Request) {
     const postData = {
       title,
       content,
-      imageUrl,
-      imageToDeleteId, // 파베 스토리지에서 이미지를 삭제할 때 사용할 ID
+      image: imageUrl,
+      imageToDeleteId,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     };
 
+    // Firestore에 포스트 추가
     const postRef = await addDoc(collection(db, 'posts'), postData);
 
     return NextResponse.json(
