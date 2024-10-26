@@ -1,4 +1,4 @@
-import { useComments } from '../model/comment';
+import { useComments } from './model/comment';
 
 export const CommentList = ({ postId }: { postId: string }) => {
   const { data: comments, isLoading } = useComments(postId);

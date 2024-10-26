@@ -1,5 +1,5 @@
-// app/posts/[id]/page.tsx
-import { PostDetailWidget } from '@/widgets/post/PostDetailWidget';
+// 게시물 상세
+import { PostDetail } from '@/features/components/Post/PostDetail/PostDetail';
 import { Suspense } from 'react';
 
 interface PostPageProps {
@@ -8,13 +8,13 @@ interface PostPageProps {
   };
 }
 
-export default async function PostPage({ params }: PostPageProps) {
+export default async function PostDetailPage({ params }: PostPageProps) {
   // params를 await 합니다
   const { id } = await params;
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <PostDetailWidget postId={id} />
+      <PostDetail postId={id} />
     </Suspense>
   );
 }

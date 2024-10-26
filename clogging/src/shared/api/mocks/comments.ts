@@ -1,4 +1,4 @@
-import { Comment } from '@/shared/types/post';
+import { Comment } from '@/features/types';
 
 export const mockComments: Comment[] = [
   {

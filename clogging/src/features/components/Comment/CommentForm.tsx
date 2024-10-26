@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useCreateComment } from '../model/comment';
+import { useCreateComment } from './model/comment';
 
 export const CommentForm = ({ postId }: { postId: string }) => {
   const [form, setForm] = useState({

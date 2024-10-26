@@ -1,9 +1,11 @@
+// 본문 네비게이션
+
 'use client';
 
-import { useAdjacentPosts } from '@/entities/post/model/post';
+import { useAdjacentPosts } from '@/features/components/Post/model/post';
 import Link from 'next/link';
 
-export const PostNavigationWidget = ({
+export const PostDetailNavigation = ({
   currentPostId,
 }: {
   currentPostId: string;

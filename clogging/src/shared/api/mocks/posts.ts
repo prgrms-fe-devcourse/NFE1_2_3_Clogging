@@ -1,4 +1,4 @@
-import { Post } from '@/shared/types/post';
+import { Post } from '@/features/types';
 
 export const mockPosts: Post[] = [
   {

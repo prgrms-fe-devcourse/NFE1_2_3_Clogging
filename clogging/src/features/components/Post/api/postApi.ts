@@ -1,5 +1,5 @@
 import { mockPosts } from '@/shared/api/mocks/posts';
-import { Post } from '@/shared/types/post';
+import { Post } from '@/features/types';
 
 export const postApi = {
   getPost: async (postId: string): Promise<Post> => {

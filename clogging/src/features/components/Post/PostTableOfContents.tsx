@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export const TableOfContents = () => {
+export const PostTableOfContents = () => {
   const [activeId, setActiveId] = useState('');
 
   useEffect(() => {
