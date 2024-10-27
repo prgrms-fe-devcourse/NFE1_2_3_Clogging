@@ -2,9 +2,11 @@
 import { useTheme } from '@/contexts/ThemeContext';
 import { mockPosts } from '@/shared/api/mocks/posts';
 import HorizontalPostCard from '@/components/HorizontalPostCard/HorizontalPostCard';
+import { useBannerStore } from '@/store/useBannerSotre';
 
 const FeedPage: React.FC = () => {
   const { isDarkMode } = useTheme();
+  const bannerImage = useBannerStore((state) => state.bannerImage);
 
   return (
     <div
@@ -13,16 +15,18 @@ const FeedPage: React.FC = () => {
       }`}
     >
       <div className="container mx-auto py-8">
-        {/* 헤더 영역 */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">피드</h1>
-          <p
-            className={`text-lg ${
-              isDarkMode ? 'text-gray-300' : 'text-gray-600'
-            }`}
-          >
-            최신 포스트 목록
-          </p>
+        {/* 배너 영역 */}
+        <div className="w-full h-[400px] relative overflow-hidden mb-7 rounded-lg">
+          {' '}
+          <img
+            src={bannerImage}
+            alt="Feed Banner"
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/images/banner-img.png';
+            }}
+          />
         </div>
 
         {/* 포스트 목록 */}
