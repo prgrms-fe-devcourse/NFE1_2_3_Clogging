@@ -3,6 +3,9 @@
 import { useTheme } from '@/shared/providers/theme';
 import { type ReactNode } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { useAuth } from '@/features/Auth/hooks';
 
 interface StyleWrapperProps {
   children: ReactNode;
@@ -33,6 +36,16 @@ export function DarkModeImage({
 
 export function HomeStyleWrapper({ children }: StyleWrapperProps) {
   const { isDarkMode } = useTheme();
+  const router = useRouter();
+  const { userRole } = useAuth();
+
+  useEffect(() => {
+    // 이미 인증된 사용자는 홈으로 리다이렉트
+    const savedRole = localStorage.getItem('userRole');
+    if (savedRole === 'admin') {
+      router.push('/home');
+    }
+  }, [router, userRole]); // userRole 의존성 추가
 
   return (
     <div
