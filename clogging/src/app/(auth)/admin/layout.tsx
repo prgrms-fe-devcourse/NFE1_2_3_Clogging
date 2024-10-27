@@ -1,11 +1,11 @@
 'use client';
 import { ReactNode } from 'react'; // ReactNode 타입을 import합니다.
-import { useTheme } from '@/contexts/ThemeContext';
-import { Card } from '@/features/components/common/Card';
+import { useTheme } from '@/shared/providers/theme';
+import { Card } from '@/shared/ui/common/Card';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 
 interface AdminLayoutProps {
   children: ReactNode;

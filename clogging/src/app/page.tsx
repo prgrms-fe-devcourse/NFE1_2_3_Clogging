@@ -5,7 +5,7 @@ import {
   DeployButton,
   DocsButton,
   FooterLink,
-} from '@/components/pages/home/HomeStyleWrapper';
+} from '@/shared/ui/layout/HomeStyleWrapper';
 
 export default function Home() {
   return (

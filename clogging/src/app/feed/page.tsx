@@ -1,7 +1,7 @@
 'use client';
-import { useTheme } from '@/contexts/ThemeContext';
-import { mockPosts } from '@/shared/api/mocks/posts';
-import HorizontalPostCard from '@/components/HorizontalPostCard/HorizontalPostCard';
+import HorizontalPostCard from '@/features/Post/ui/Card/HorizontalPostCard';
+import { useTheme } from '@/shared/providers/theme';
+import { mockPosts } from '@/mocks/data/posts';
 
 const FeedPage: React.FC = () => {
   const { isDarkMode } = useTheme();

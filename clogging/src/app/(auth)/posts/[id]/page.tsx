@@ -1,5 +1,5 @@
 // 게시물 상세
-import { PostDetail } from '@/features/components/Post/PostDetail/PostDetail';
+import { Detail } from '@/features/Post/ui/Detail/index';
 import { Suspense } from 'react';
 
 interface PostPageProps {
@@ -14,7 +14,7 @@ export default async function PostDetailPage({ params }: PostPageProps) {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <PostDetail postId={id} />
+      <Detail postId={id} />
     </Suspense>
   );
 }
