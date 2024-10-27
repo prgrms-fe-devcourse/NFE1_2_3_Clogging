@@ -5,6 +5,7 @@ import './globals.css';
 import { Navigation } from '@/components/ui/Navigation';
 import { Providers } from '@/providers/Providers';
 import Link from 'next/link';
+import { QueryProviders } from './QueryProviders';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -33,18 +34,20 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>
-          <Navigation />
-          <main className="container">{children}</main>
-          {/* 나중에 삭제 */}
-          <Link
-            href="/style-guide"
-            className="flex items-center"
-            style={{ position: 'fixed', bottom: '10px', right: '10px' }}
-          >
-            스타일 가이드
-          </Link>
-        </Providers>
+        <QueryProviders>
+          <Providers>
+            <Navigation />
+            <main className="container">{children}</main>
+            {/* 나중에 삭제 */}
+            <Link
+              href="/style-guide"
+              className="flex items-center"
+              style={{ position: 'fixed', bottom: '10px', right: '10px' }}
+            >
+              스타일 가이드
+            </Link>
+          </Providers>
+        </QueryProviders>
       </body>
     </html>
   );
