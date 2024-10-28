@@ -28,7 +28,7 @@ const HorizontalPostCard = ({ post }: Props) => {
   };
 
   return (
-    <Link href={`/posts/${post.id}`} className="block">
+    <Link href={`/posts/${post.id}`} className="block max-w-5xl">
       <Card className="overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-primary/20 dark:hover:border-primary/30">
         {' '}
         {/* overflow-hidden 추가 */}
