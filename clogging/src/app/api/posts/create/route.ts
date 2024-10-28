@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { collection, addDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { createPostData } from '@/helpers/postHelps';
+import { db } from '@/shared/lib/firebase';
+import { createPostData } from '@/features/Post/utils/helpers';
 
 export async function POST(request: Request) {
   try {

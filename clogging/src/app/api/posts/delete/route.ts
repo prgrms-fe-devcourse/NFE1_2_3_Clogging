@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { doc, deleteDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { db } from '@/shared/lib/firebase';
 
 export async function DELETE(request: Request) {
   try {
