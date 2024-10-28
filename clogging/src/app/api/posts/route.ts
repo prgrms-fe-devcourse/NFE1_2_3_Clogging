@@ -8,7 +8,7 @@ import {
   startAfter,
   Timestamp,
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { db } from '@/shared/lib/firebase';
 
 export async function GET(request: Request) {
   try {

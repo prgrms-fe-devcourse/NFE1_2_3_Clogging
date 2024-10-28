@@ -1,9 +1,9 @@
 'use client';
-import { useTheme } from '@/contexts/ThemeContext';
-import PostCard from '@/components/PostCard/PostCard';
-import { Button } from '@/components/ui/common/Button';
-import { usePostFilter } from '@/hooks/usePostFilter';
-import { ProfileSection } from '@/components/ProfileSection/ProfileSection';
+import { useTheme } from '@/shared/providers/theme';
+import PostCard from '@/features/Post/ui/Card/PostCard';
+import { Button } from '@/shared/ui/common/Button';
+import { Section } from '@/features/Profile/ui/Section';
+import { usePostFilter } from '@/features/Post/hooks';
 
 const HomePage: React.FC = () => {
   const { isDarkMode } = useTheme();
@@ -18,7 +18,7 @@ const HomePage: React.FC = () => {
     >
       <div className="container py-8">
         {/* 프로필 섹션 */}
-        <ProfileSection />
+        <Section />
 
         {/* 정렬 버튼 */}
         <div className="flex items-center gap-4 mb-6">

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { doc, updateDoc, getDoc, Timestamp } from 'firebase/firestore';
-import { uploadImage } from '@/helpers/postHelps';
-import { db } from '@/lib/firebase';
+import { db } from '@/shared/lib/firebase';
+import { uploadImage } from '@/shared/lib/storage/uploadImage';
 
 //1. 이미지만 삭제하는 경우
 //2. 이미지 삭제와 새 이미지 추가

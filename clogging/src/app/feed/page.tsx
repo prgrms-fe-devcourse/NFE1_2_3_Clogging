@@ -1,7 +1,7 @@
 'use client';
-import { useTheme } from '@/contexts/ThemeContext';
-import { mockPosts } from '@/shared/api/mocks/posts';
-import HorizontalPostCard from '@/components/HorizontalPostCard/HorizontalPostCard';
+import { useTheme } from '@/shared/providers/theme/useTheme';
+import { mockPosts } from '@/mocks/data/posts';
+import HorizontalPostCard from '@/features/Post/ui/Card/HorizontalPostCard';
 import { useBannerStore } from '@/store/useBannerSotre';
 
 const FeedPage: React.FC = () => {
