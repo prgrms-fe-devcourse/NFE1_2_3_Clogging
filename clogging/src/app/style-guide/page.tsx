@@ -1,9 +1,9 @@
 'use client';
 
-import { useTheme } from '@/contexts/ThemeContext';
-import { Button } from '@/components/ui/common/Button';
-import { Input } from '@/components/ui/common/Input';
-import { Badge } from '@/components/ui/common/Badge';
+import { useTheme } from '@/shared/providers/theme';
+import { Button } from '@/shared/ui/common/Button';
+import { Input } from '@/shared/ui/common/Input';
+import { Badge } from '@/shared/ui/common/Badge';
 import {
   Card,
   CardContent,
@@ -11,10 +11,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/common/Card';
-import { SearchBar } from '@/components/ui/SearchBar';
-import { Navigation } from '@/components/ui/Navigation';
-import { FormSectionItem, Textarea } from '@/components/ui/Form';
+} from '@/shared/ui/common/Card';
+import { SearchBar } from '@/shared/ui/Form/SearchBar';
+import { Navigation } from '@/shared/ui/layout/Navigation';
+import { FormSectionItem, Textarea } from '@/shared/ui/Form/Form';
 
 const StyleGuide = () => {
   const { isDarkMode } = useTheme();
