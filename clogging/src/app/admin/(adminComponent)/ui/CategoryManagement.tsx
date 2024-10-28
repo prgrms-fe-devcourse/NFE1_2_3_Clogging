@@ -1,8 +1,11 @@
-// src/features/Category/ui/CategoryManagement/CategoryManagement.tsx
-
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { useCategories } from '../hooks';
+import { CategoryForm } from './CategoryForm';
+import { CategoryList } from './CategoryList';
+import { CategoryOrderList } from './CategoryOrderList';
+import { useTheme } from '@/contexts/ThemeContext'; // ThemeContext를 가져옵니다.
 
 export const CategoryManagement: React.FC = () => {
   const {
@@ -13,45 +16,48 @@ export const CategoryManagement: React.FC = () => {
     deleteCategory,
     reorderCategories,
   } = useCategories();
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
+  const { isDarkMode } = useTheme(); // 다크 모드 여부를 가져옵니다.
 
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
 
-  const handleAddOrUpdate = (name: string) => {
-    if (editingCategory) {
-      updateCategory(editingCategory.id, name);
-      setEditingCategory(null);
-    } else {
-      addCategory(name);
-    }
+  const handleAddCategory = (name: string) => {
+    addCategory(name);
   };
 
-  const handleEdit = (category: Category) => {
-    setEditingCategory(category);
+  const handleUpdateCategory = (id: string, name: string) => {
+    updateCategory(id, name);
   };
 
-  const handleReorder = (id: string, direction: 'up' | 'down') => {
-    const index = categories.findIndex((cat) => cat.id === id);
-    const newIndex = direction === 'up' ? index - 1 : index + 1;
-    if (newIndex >= 0 && newIndex < categories.length) {
-      reorderCategories(id, newIndex);
-    }
-  };
+  const handleReorder = (fromIndex: number, toIndex: number) => {
+    const newCategories = [...categories];
+    const [movedItem] = newCategories.splice(fromIndex, 1);
+    newCategories.splice(toIndex, 0, movedItem);
 
+    newCategories.forEach((category, index) => {
+      reorderCategories(category.id, index);
+    });
+  };
   return (
-    <>
-      <CategoryForm
-        onSubmit={handleAddOrUpdate}
-        initialValue={editingCategory?.name}
-      />
-      <CategoryList
-        categories={categories}
-        onEdit={handleEdit}
-        onDelete={deleteCategory}
-        onReorder={handleReorder}
-      />
-    </>
+    <div className="flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-8">
+      <div
+        className={`flex-1 rounded-lg shadow-sm p-4 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}
+      >
+        <CategoryForm onSubmit={handleAddCategory} />
+        <CategoryList
+          categories={categories}
+          onEdit={handleUpdateCategory}
+          onDelete={deleteCategory}
+        />
+      </div>
+      <div
+        className={`flex-1 rounded-lg shadow-sm p-4 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}
+      >
+        <h3 className="mb-4 text-b font-bold">순서 변경</h3>
+        <CategoryOrderList categories={categories} onReorder={handleReorder} />
+      </div>
+    </div>
   );
 };

@@ -1,29 +1,28 @@
+// src/features/Category/ui/CategoryList/CategoryList.tsx
+
 import React from 'react';
+import { Category } from '../types';
 import { CategoryItem } from './CategoryItem';
-import { Category } from '../../../../shared/types/types';
 
 interface CategoryListProps {
   categories: Category[];
-  onEdit: (category: Category) => void;
+  onEdit: (id: string, name: string) => void;
   onDelete: (id: string) => void;
-  onReorder: (id: string, direction: 'up' | 'down') => void;
 }
 
 export const CategoryList: React.FC<CategoryListProps> = ({
   categories,
   onEdit,
   onDelete,
-  onReorder,
 }) => {
   return (
-    <ul>
+    <ul className="space-y-2">
       {categories.map((category) => (
         <CategoryItem
           key={category.id}
           category={category}
           onEdit={onEdit}
           onDelete={onDelete}
-          onReorder={onReorder}
         />
       ))}
     </ul>

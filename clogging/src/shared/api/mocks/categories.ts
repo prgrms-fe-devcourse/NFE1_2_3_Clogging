@@ -1,4 +1,4 @@
-import { Category } from '@/shared/types/types';
+import { Category } from '@/app/admin/(adminComponent)/types';
 
 export const mockCategories: Category[] = [
   {
