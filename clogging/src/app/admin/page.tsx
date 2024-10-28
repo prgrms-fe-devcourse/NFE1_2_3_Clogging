@@ -5,5 +5,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminPage() {
-  return <div>sfdfsfsdf</div>;
+  return <div>대시보드</div>;
 }
