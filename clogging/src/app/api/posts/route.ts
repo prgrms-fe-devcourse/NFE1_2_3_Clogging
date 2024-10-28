@@ -6,6 +6,7 @@ import {
   orderBy,
   limit,
   startAfter,
+  where,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/shared/lib/firebase';
@@ -44,19 +45,48 @@ export async function GET(request: Request) {
 
     const querySnapshot = await getDocs(postsQuery);
 
-    const posts = querySnapshot.docs.map((doc) => {
-      const createdAtTimestamp = doc.data().createdAt as Timestamp;
-      const createdAt = createdAtTimestamp.toDate();
-      const year = createdAt.getFullYear();
-      const month = String(createdAt.getMonth() + 1).padStart(2, '0');
-      const day = String(createdAt.getDate()).padStart(2, '0');
+    const posts = await Promise.all(
+      querySnapshot.docs.map(async (doc) => {
+        const postData = doc.data();
+        const createdAtTimestamp = postData.createdAt as Timestamp;
+        const createdAt = createdAtTimestamp.toDate();
+        const formattedCreatedAt = `${createdAt.getFullYear()}${String(
+          createdAt.getMonth() + 1,
+        ).padStart(2, '0')}${String(createdAt.getDate()).padStart(2, '0')}`;
 
-      return {
-        id: doc.id,
-        ...doc.data(),
-        createdAt: `${year}${month}${day}`,
-      };
-    });
+        // 댓글 가져오기
+        const commentsQuery = query(
+          collection(db, 'comments'),
+          where('postId', '==', doc.id),
+        );
+        const commentsSnapshot = await getDocs(commentsQuery);
+
+        const comments = commentsSnapshot.docs.map((commentDoc) => {
+          const commentData = commentDoc.data();
+          const commentCreatedAtTimestamp = commentData.createdAt as Timestamp;
+          const commentCreatedAt = commentCreatedAtTimestamp.toDate();
+          const formattedCommentCreatedAt = `${commentCreatedAt.getFullYear()}${String(
+            commentCreatedAt.getMonth() + 1,
+          ).padStart(2, '0')}${String(commentCreatedAt.getDate()).padStart(
+            2,
+            '0',
+          )}`;
+
+          return {
+            id: commentDoc.id,
+            ...commentData,
+            createdAt: formattedCommentCreatedAt, // 년월일 형식으로 변환된 날짜
+          };
+        });
+
+        return {
+          id: doc.id,
+          ...postData,
+          createdAt: formattedCreatedAt, // 년월일 형식으로 변환된 날짜
+          comments,
+        };
+      }),
+    );
 
     return NextResponse.json({
       posts,
