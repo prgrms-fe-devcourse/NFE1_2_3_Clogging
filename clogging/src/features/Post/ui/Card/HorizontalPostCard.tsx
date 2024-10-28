@@ -45,7 +45,7 @@ const HorizontalPostCard = ({ post }: Props) => {
                   {post.title}
                 </CardTitle>
               </div>
-              <CardDescription className="text-sm text-muted-foreground mb-4 overflow-hidden line-clamp-2">
+              <CardDescription className="text-sm text-muted-foreground mb-4 overflow-hidden line-clamp-2 min-h-[40px]">
                 {post.content.replace(/[#*\n]/g, ' ').trim()}
               </CardDescription>
               <div className="flex gap-2 mb-4">
