@@ -54,7 +54,7 @@ export async function GET(request: Request) {
           createdAt.getMonth() + 1,
         ).padStart(2, '0')}${String(createdAt.getDate()).padStart(2, '0')}`;
 
-        // 댓글 가져오기
+        // 20241029 - 댓글 필드 추가
         const commentsQuery = query(
           collection(db, 'comments'),
           where('postId', '==', doc.id),
@@ -75,14 +75,14 @@ export async function GET(request: Request) {
           return {
             id: commentDoc.id,
             ...commentData,
-            createdAt: formattedCommentCreatedAt, // 년월일 형식으로 변환된 날짜
+            createdAt: formattedCommentCreatedAt,
           };
         });
 
         return {
           id: doc.id,
           ...postData,
-          createdAt: formattedCreatedAt, // 년월일 형식으로 변환된 날짜
+          createdAt: formattedCreatedAt,
           comments,
         };
       }),
