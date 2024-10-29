@@ -3,7 +3,7 @@ import { useTheme } from '@/shared/providers/theme';
 import React, { useState } from 'react';
 import { Comment } from '../../types';
 import CommentItem from './CommentItem';
-import EmptyComment from './EmptyCommet';
+import EmptyComment from './EmptyComment';
 interface CommentListProps {
   comments: Comment[];
 }
