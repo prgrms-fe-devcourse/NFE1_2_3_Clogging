@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useComments, useDeleteComment, useUpdateComment } from '../hooks';
 import { Button } from '@/shared/ui/common/Button';
 import { Comment } from '../types';
@@ -10,8 +10,15 @@ export const List = ({ postId }: { postId: string }) => {
   const { data: comments, isLoading } = useComments(postId);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState('');
+  const [editingIsPrivate, setEditingIsPrivate] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const updateComment = useUpdateComment();
   const deleteComment = useDeleteComment();
+
+  useEffect(() => {
+    const adminStatus = localStorage.getItem('userRole') === 'admin';
+    setIsAdmin(adminStatus);
+  }, []);
 
   if (isLoading) return <div>댓글을 불러오는 중...</div>;
 
@@ -32,12 +39,14 @@ export const List = ({ postId }: { postId: string }) => {
     }
 
     setEditingContent(comment.content);
+    setEditingIsPrivate(comment.isPrivate);
     setEditingCommentId(commentId);
   };
 
   const handleEditCancel = () => {
     setEditingCommentId(null);
     setEditingContent('');
+    setEditingIsPrivate(false);
   };
 
   const handleEditSubmit = async (commentId: string) => {
@@ -49,6 +58,9 @@ export const List = ({ postId }: { postId: string }) => {
         id: commentId,
         postId,
         content: editingContent,
+        isPrivate: editingIsPrivate,
+        nickname: comment.nickname,
+        password: comment.password,
       });
       handleEditCancel();
     } catch (error) {
@@ -60,6 +72,24 @@ export const List = ({ postId }: { postId: string }) => {
   const handleDelete = async (commentId: string) => {
     const comment = comments.find((c: Comment) => c.id === commentId);
     if (!comment) return;
+
+    if (isAdmin) {
+      const confirmDelete = window.confirm('정말로 이 댓글을 삭제하시겠습니까?');
+      if (!confirmDelete) return;
+
+      try {
+        await deleteComment.mutateAsync({
+          postId,
+          commentId,
+          password: '',
+          isAdmin: true
+        });
+      } catch (error) {
+        console.error('댓글 삭제 실패:', error);
+        alert('삭제에 실패했습니다.');
+      }
+      return;
+    }
 
     const password = prompt('댓글 삭제를 위해 비밀번호를 입력해주세요.');
     if (!password) return;
@@ -118,8 +148,23 @@ export const List = ({ postId }: { postId: string }) => {
                 value={editingContent}
                 onChange={(e) => setEditingContent(e.target.value)}
               />
+              <div className="flex items-center gap-2 mb-2">
+                <input
+                  type="checkbox"
+                  id="isPrivate"
+                  checked={editingIsPrivate}
+                  onChange={(e) => setEditingIsPrivate(e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+                <label htmlFor="isPrivate" className="text-sm text-gray-600">
+                  댓글 비공개
+                </label>
+              </div>
               <div className="flex justify-end gap-2">
-                <Button variant="secondary" onClick={() => handleEditSubmit(comment.id)}>
+                <Button
+                  variant="secondary"
+                  onClick={() => handleEditSubmit(comment.id)}
+                >
                   수정 완료
                 </Button>
                 <Button variant="outline" onClick={handleEditCancel}>
@@ -129,7 +174,7 @@ export const List = ({ postId }: { postId: string }) => {
             </div>
           ) : (
             <p>
-              {comment.isPrivate ? '비공개 댓글입니다.' : comment.content}
+              {comment.isPrivate && !isAdmin ? '비공개 댓글입니다.' : comment.content}
             </p>
           )}
         </div>
