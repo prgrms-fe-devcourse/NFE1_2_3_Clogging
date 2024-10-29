@@ -1,17 +1,17 @@
 'use client';
 import { useTheme } from '@/shared/providers/theme';
 import React, { useState } from 'react';
-import { Comment } from '../../types';
 import CommentItem from './CommentItem';
 import EmptyComment from './EmptyComment';
-import { getMockComments } from '@/app/(auth)/admin/comment/page';
+import { getRecentMockComments } from '../../utils/recentComment';
 import { Button } from '@/shared/ui/common/Button';
 
-interface CommentListProps {
-  initialComments: Comment[];
-}
+// interface CommentListProps {
+//   initialComments: Comment[];
+// }
 
-const CommentList: React.FC<CommentListProps> = ({ initialComments }) => {
+const CommentList = () => {
+  const initialComments = getRecentMockComments(1, 7);
   const [comments, setComments] = useState(initialComments);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -19,7 +19,7 @@ const CommentList: React.FC<CommentListProps> = ({ initialComments }) => {
 
   const handleLoadMore = () => {
     const nextPage = page + 1;
-    const newComments = getMockComments(nextPage, 10);
+    const newComments = getRecentMockComments(nextPage, 7);
     if (newComments.length > 0) {
       setComments((prev) => [...prev, ...newComments]);
       setPage(nextPage);

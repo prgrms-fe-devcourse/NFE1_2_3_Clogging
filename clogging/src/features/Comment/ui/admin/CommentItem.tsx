@@ -12,6 +12,9 @@ interface CommentItemProps {
 const CommentItem: React.FC<CommentItemProps> = React.memo(
   ({ comment, onDelete }) => {
     const { isDarkMode } = useTheme();
+    const formattedDate = comment.createdAt
+      ? formatDate(comment.createdAt)
+      : 'No date';
 
     return (
       <li
@@ -33,7 +36,7 @@ const CommentItem: React.FC<CommentItemProps> = React.memo(
           </div>
           <div className="flex items-center text-xs text-gray-400">
             <div className="font-bold mr-2">{comment.nickname}</div>
-            <div>{formatDate(comment.createdAt)}</div>
+            <div>{formattedDate}</div>
           </div>
         </div>
         <button
