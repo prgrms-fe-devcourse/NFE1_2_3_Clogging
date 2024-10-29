@@ -1,5 +1,3 @@
-// 게시물 상세
-
 'use client';
 
 import { Form } from '@/features/Comment/ui/Form';
@@ -9,9 +7,11 @@ import { Content } from './Content';
 import { Header } from './Header';
 import { Navigation } from './Navigation';
 import { List } from '@/features/Comment/ui/List';
+import { useInvalidateComments } from '@/features/Comment/hooks';
 
 export const Detail = ({ postId }: { postId: string }) => {
   const { data: post, isLoading, error } = usePost(postId);
+  const invalidateComments = useInvalidateComments(postId);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -27,8 +27,13 @@ export const Detail = ({ postId }: { postId: string }) => {
           </article>
           <Navigation currentPostId={postId} />
           <section className="mt-16">
-            <h2 className="text-2xl font-bold mb-8">Comments</h2>
-            <Form postId={postId} />
+            <h2 className="text-2xl font-bold mb-8">댓글</h2>
+            <Form
+              postId={postId}
+              onSuccess={() => {
+                invalidateComments();
+              }}
+            />
             <div className="mt-8">
               <List postId={postId} />
             </div>

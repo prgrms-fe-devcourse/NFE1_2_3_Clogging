@@ -1,74 +1,242 @@
-import React, { useState } from 'react';
-import { useCreateComment } from '../hooks';
+'use client';
 
-export const Form = ({ postId }: { postId: string }) => {
+import React, { useState } from 'react';
+import { useCreateComment, useUpdateComment, useDeleteComment } from '../hooks';
+import { Input } from '@/shared/ui/common/Input';
+import { FormSectionItem, Textarea } from '@/shared/ui/Form/Form';
+import { UserIcon } from 'lucide-react';
+import { Button } from '@/shared/ui/common/Button';
+import { Card } from '@/shared/ui/common/Card';
+
+interface FormProps {
+  postId: string;
+  onSuccess: () => void;
+  commentId?: string;
+  initialData?: {
+    nickname: string;
+    content: string;
+    isPrivate: boolean;
+  };
+  mode?: 'create' | 'edit';
+}
+
+export const Form = ({
+  postId,
+  onSuccess,
+  commentId,
+  initialData,
+  mode = 'create',
+}: FormProps) => {
+  const createComment = useCreateComment();
+  const updateComment = useUpdateComment();
+  const deleteComment = useDeleteComment();
+
   const [form, setForm] = useState({
-    nickname: '',
+    nickname: initialData?.nickname || '',
     password: '',
-    content: '',
-    isPrivate: false,
+    content: initialData?.content || '',
+    isPrivate: initialData?.isPrivate || false,
   });
 
-  const createComment = useCreateComment();
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    createComment.mutate({
-      postId,
-      ...form,
-    });
+
+    if (createComment.isPending || updateComment.isPending) return;
+
+    if (!form.nickname || !form.password || !form.content) {
+      alert('작성자, 비밀번호, 댓글 내용을 모두 입력해주세요.');
+      return;
+    }
+
+    try {
+      if (mode === 'create') {
+        const response = await createComment.mutateAsync({
+          postId,
+          ...form,
+          isAuthor: false,
+        });
+        console.log('댓글 생성 성공:', response);
+      } else {
+        const response = await updateComment.mutateAsync({
+          id: commentId!,
+          postId,
+          ...form,
+        });
+        console.log('댓글 수정 성공:', response);
+      }
+
+      setForm({
+        nickname: '',
+        password: '',
+        content: '',
+        isPrivate: false,
+      });
+
+      onSuccess();
+    } catch (error: any) {
+      console.error('댓글 작성/수정 실패:', {
+        error,
+        message: error.message,
+        stack: error.stack,
+        data: error.response?.data,
+      });
+      alert('댓글 작성/수정에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!commentId || !form.password) {
+      alert('비밀번호를 입력해주세요.');
+      return;
+    }
+
+    if (window.confirm('정말로 이 댓글을 삭제하시겠습니까?')) {
+      try {
+        await deleteComment.mutateAsync({ postId, commentId });
+        onSuccess();
+      } catch (error) {
+        console.error('댓글 삭제 실패:', error);
+        alert('댓글 삭제에 실패했습니다. 다시 시도해주세요.');
+      }
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="flex gap-4">
-        <input
-          type="text"
-          placeholder="닉네임"
-          value={form.nickname}
-          onChange={(e) =>
-            setForm((prev) => ({ ...prev, nickname: e.target.value }))
-          }
-          className="flex-1 p-2 border rounded"
-        />
-        <input
-          type="password"
-          placeholder="비밀번호"
-          value={form.password}
-          onChange={(e) =>
-            setForm((prev) => ({ ...prev, password: e.target.value }))
-          }
-          className="flex-1 p-2 border rounded"
-        />
-      </div>
-      <textarea
-        placeholder="댓글을 입력하세요"
-        value={form.content}
-        onChange={(e) =>
-          setForm((prev) => ({ ...prev, content: e.target.value }))
-        }
-        className="w-full p-2 border rounded"
-        rows={3}
-      />
-      <div className="flex items-center justify-between">
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={form.isPrivate}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, isPrivate: e.target.checked }))
-            }
-          />
-          비공개
-        </label>
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded"
-          disabled={createComment.isPending}
-        >
-          댓글 작성
-        </button>
-      </div>
+      <Card>
+        <div className="space-y-6">
+          <div className="flex gap-6 items-center">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100">
+              <UserIcon className="w-5 h-5 text-gray-500" />
+            </div>
+            <FormSectionItem title="닉네임" className="flex items-center gap-4">
+              <Input
+                type="text"
+                placeholder="닉네임을 입력하세요"
+                value={form.nickname}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, nickname: e.target.value }))
+                }
+                className="flex-1 p-2 border rounded"
+                required
+              />
+            </FormSectionItem>
+            <FormSectionItem
+              title="비밀번호"
+              className="flex items-center gap-4"
+            >
+              <Input
+                type="password"
+                placeholder="비밀번호를 입력하세요"
+                value={form.password}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, password: e.target.value }))
+                }
+                className="flex-1 p-2 border rounded"
+                required
+              />
+            </FormSectionItem>
+            <button
+              type="button"
+              onClick={() =>
+                setForm((prev) => ({ ...prev, isPrivate: !prev.isPrivate }))
+              }
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
+            >
+              <span>댓글 비공개</span>
+              {form.isPrivate ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                  />
+                </svg>
+              )}
+            </button>
+          </div>
+          <div
+            className="flex items-center justify-between gap-4"
+            style={{ height: '90' }}
+          >
+            <Textarea
+              placeholder="댓글을 입력하세요"
+              value={form.content}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, content: e.target.value }))
+              }
+              className="flex-1 p-2 border rounded"
+              rows={3}
+              required
+            />
+            <div className="flex flex-col gap-2">
+              <Button
+                type="submit"
+                className="h-12 px-6 whitespace-nowrap bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                disabled={createComment.isPending || updateComment.isPending}
+              >
+                {createComment.isPending || updateComment.isPending ? (
+                  <div className="flex items-center gap-2">
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    <span>처리 중...</span>
+                  </div>
+                ) : mode === 'create' ? (
+                  '댓글 작성'
+                ) : (
+                  '댓글 수정'
+                )}
+              </Button>
+              {mode === 'edit' && (
+                <Button
+                  type="button"
+                  onClick={handleDelete}
+                  className="h-12 px-6 whitespace-nowrap bg-red-500 text-white rounded hover:bg-red-600 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  disabled={deleteComment.isPending}
+                >
+                  {deleteComment.isPending ? '삭제 중...' : '댓글 삭제'}
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </Card>
     </form>
   );
 };
