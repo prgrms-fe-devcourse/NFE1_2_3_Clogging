@@ -32,7 +32,6 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ message: '댓글 삭제 성공!' }, { status: 200 });
   } catch (error) {
-    // console.error('댓글 삭제 오류:', error);
     return NextResponse.json({ error: '댓글 삭제 실패!' }, { status: 500 });
   }
 }
