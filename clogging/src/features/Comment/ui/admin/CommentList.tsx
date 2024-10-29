@@ -1,9 +1,9 @@
 'use client';
 import { useTheme } from '@/shared/providers/theme';
-import Image from 'next/image';
 import React, { useState } from 'react';
-import { formatDate } from '../../utils/dateUtils';
 import { Comment } from '../../types';
+import CommentItem from './CommentItem';
+import EmptyComment from './EmptyCommet';
 interface CommentListProps {
   comments: Comment[];
 }
@@ -29,45 +29,23 @@ const CommentList: React.FC<CommentListProps> = ({
 
   return (
     <div
-      className={`flex-1 rounded-lg shadow-md p-4 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}
+      className={`flex-1 rounded-lg shadow-sm p-4 sm:p-6 mt-8 mb-2 ${
+        isDarkMode ? 'bg-gray-900' : 'bg-white'
+      }`}
     >
-      <ul className="space-y-4">
-        {comments.map((comment) => (
-          <li
-            key={comment.id}
-            className={`flex items-center gap-3 rounded-lg shadow-md p-3 ${
-              isDarkMode ? 'bg-gray-800' : 'bg-white'
-            }`}
-          >
-            <div className="p-1 rounded-full overflow-hidden">
-              <Image
-                src="/icons/user.png"
-                alt={`${comment.nickname}`}
-                width={24}
-                height={24}
-              />
-            </div>
-            <div className="flex-1 ">
-              <div className="overflow-hidden text-ellipsis mb-2">
-                {comment.content}
-              </div>
-              <div className="flex items-center text-xs text-gray-400">
-                <div className="font-bold mr-2">{comment.nickname}</div>
-                <div>{formatDate(comment.createdAt)}</div>
-              </div>
-            </div>
-            <button onClick={() => handleDelete(comment.id)}>
-              <Image
-                src={isDarkMode ? '/icons/trash_wh.png' : '/icons/trash.png'}
-                alt={'삭제'}
-                width={26}
-                height={26}
-                className="p-1 object-cover"
-              />
-            </button>
-          </li>
-        ))}
-      </ul>
+      {comments.length > 0 ? (
+        <ul className="space-y-4">
+          {comments.map((comment) => (
+            <CommentItem
+              key={comment.id}
+              comment={comment}
+              onDelete={handleDelete}
+            />
+          ))}
+        </ul>
+      ) : (
+        <EmptyComment />
+      )}
     </div>
   );
 };

@@ -112,7 +112,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             `h-auto ${isDarkMode ? 'bg-gray-800' : 'bg-[#F4F7FE]'}`,
           )}
         >
-          <h1 className="text-2xl font-bold mb-4">{currentMenuItem.name}</h1>
+          <h1 className="text-2xl font-bold mb-6">{currentMenuItem.name}</h1>
           {children}
         </Card>
       </div>
