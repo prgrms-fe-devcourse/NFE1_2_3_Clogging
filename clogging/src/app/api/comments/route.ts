@@ -1,31 +1,82 @@
 import { NextResponse } from 'next/server';
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  Timestamp,
+} from 'firebase/firestore';
 import { db } from '@/shared/lib/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const postId = searchParams.get('postId');
-
-  if (!postId) {
-    return NextResponse.json(
-      { error: 'postId를 form-data에다가 넣으세여' },
-      { status: 400 },
-    );
-  }
-
   try {
-    const commentsRef = collection(db, 'comments');
-    const q = query(commentsRef, where('postId', '==', postId));
-    const querySnapshot = await getDocs(q);
+    const { searchParams } = new URL(request.url);
+    const postId = searchParams.get('postId');
 
-    const comments = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    if (!postId) {
+      return NextResponse.json({ error: 'postId 없음!' }, { status: 400 });
+    }
 
-    return NextResponse.json({ comments }, { status: 200 });
+    const commentsRef = collection(db, 'posts', postId, 'comments');
+    const commentsQuery = query(commentsRef, orderBy('createdAt', 'desc'));
+    const commentsSnapshot = await getDocs(commentsQuery);
+
+    // 댓글 수 : commentsSnapshot.size 로 확인하면 되어유
+
+    const comments = await Promise.all(
+      commentsSnapshot.docs.map(async (commentDoc) => {
+        const commentData = commentDoc.data();
+        console.log('댓글 데이터:', commentData);
+
+        const createdAtTimestamp = commentData.createdAt as Timestamp;
+        const createdAtDate = createdAtTimestamp.toDate();
+        const formattedCreatedAt = `${createdAtDate.getFullYear()}${String(
+          createdAtDate.getMonth() + 1,
+        ).padStart(2, '0')}${String(createdAtDate.getDate()).padStart(2, '0')}`;
+
+        const repliesRef = collection(
+          db,
+          'posts',
+          postId,
+          'comments',
+          commentDoc.id,
+          'replies',
+        );
+        const repliesSnapshot = await getDocs(repliesRef);
+        // ${commentDoc.id}의 답글 개수 : repliesSnapshot.size 로 확인하면 되어유
+        // commentDoc.id 댓글아이디
+
+        const replies = repliesSnapshot.docs.map((replyDoc) => {
+          const replyData = replyDoc.data();
+          const replyCreatedAtTimestamp = replyData.createdAt as Timestamp;
+          const replyCreatedAtDate = replyCreatedAtTimestamp.toDate();
+          const formattedReplyCreatedAt = `${replyCreatedAtDate.getFullYear()}${String(
+            replyCreatedAtDate.getMonth() + 1,
+          ).padStart(
+            2,
+            '0',
+          )}${String(replyCreatedAtDate.getDate()).padStart(2, '0')}`;
+
+          return {
+            id: replyDoc.id,
+            ...replyData,
+            createdAt: formattedReplyCreatedAt,
+          };
+        });
+
+        return {
+          id: commentDoc.id,
+          ...commentData,
+          createdAt: formattedCreatedAt,
+          replies,
+        };
+      }),
+    );
+
+    return NextResponse.json({
+      comments,
+    });
   } catch (error) {
-    // console.error('댓글 조회 에러:', error);
-    return NextResponse.json({ error: '댓글 조회 실패!' }, { status: 500 });
+    return NextResponse.json({ error: '댓글 불러오기 실패!' }, { status: 500 });
   }
 }
