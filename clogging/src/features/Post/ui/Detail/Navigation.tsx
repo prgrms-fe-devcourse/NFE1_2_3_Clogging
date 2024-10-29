@@ -12,22 +12,36 @@ export const Navigation = ({ currentPostId }: { currentPostId: string }) => {
 
   return (
     <div className="grid grid-cols-2 gap-4 mt-8">
-      {data?.prev && (
-        <Link href={`/posts/${data.prev.id}`}>
-          <div className="p-4 border rounded hover:bg-gray-50">
-            <div className="text-sm text-gray-500">이전 글</div>
-            <div className="font-medium">{data.prev.title}</div>
+      <Link
+        href={data?.prev ? `/posts/${data.prev.id}` : '#'}
+        className={!data?.prev ? 'cursor-not-allowed' : ''}
+      >
+        <div
+          className={`p-4 border rounded ${
+            data?.prev ? 'hover:bg-gray-50' : 'bg-gray-100'
+          }`}
+        >
+          <div className="text-sm text-gray-500 mb-4">이전 글</div>
+          <div className="font-medium">
+            {data?.prev ? data.prev.title : '이전 글이 없습니다.'}
           </div>
-        </Link>
-      )}
-      {data?.next && (
-        <Link href={`/posts/${data.next.id}`}>
-          <div className="p-4 border rounded hover:bg-gray-50">
-            <div className="text-sm text-gray-500">다음 글</div>
-            <div className="font-medium">{data.next.title}</div>
+        </div>
+      </Link>
+      <Link
+        href={data?.next ? `/posts/${data.next.id}` : '#'}
+        className={!data?.next ? 'cursor-not-allowed' : ''}
+      >
+        <div
+          className={`p-4 border rounded ${
+            data?.next ? 'hover:bg-gray-50' : 'bg-gray-100'
+          }`}
+        >
+          <div className="text-sm text-gray-500 mb-4">다음 글</div>
+          <div className="font-medium">
+            {data?.next ? data.next.title : '다음 글이 없습니다.'}
           </div>
-        </Link>
-      )}
+        </div>
+      </Link>
     </div>
   );
 };
