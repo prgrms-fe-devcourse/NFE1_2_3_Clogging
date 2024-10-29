@@ -7,4 +7,6 @@ export interface Comment {
   isPrivate: boolean;
   isAuthor: boolean;
   createdAt: string;
+  replies: Comment[];
+  parentCommentId: string | undefined;
 }

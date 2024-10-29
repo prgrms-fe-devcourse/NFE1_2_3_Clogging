@@ -18,6 +18,10 @@ interface FormProps {
     isPrivate: boolean;
   };
   mode?: 'create' | 'edit';
+  parentCommentId?: string;
+  isAdmin?: boolean;
+  defaultNickname?: string;
+  hideFields?: boolean;
 }
 
 export const Form = ({
@@ -26,14 +30,18 @@ export const Form = ({
   commentId,
   initialData,
   mode = 'create',
+  parentCommentId,
+  isAdmin,
+  defaultNickname,
+  hideFields,
 }: FormProps) => {
   const createComment = useCreateComment();
   const updateComment = useUpdateComment();
   const deleteComment = useDeleteComment();
 
   const [form, setForm] = useState({
-    nickname: initialData?.nickname || '',
-    password: '',
+    nickname: isAdmin ? '작성자' : (initialData?.nickname || defaultNickname || ''),
+    password: isAdmin ? 'admin' : '',
     content: initialData?.content || '',
     isPrivate: initialData?.isPrivate || false,
   });
@@ -43,8 +51,15 @@ export const Form = ({
 
     if (createComment.isPending || updateComment.isPending) return;
 
-    if (!form.nickname || !form.password || !form.content) {
+    // 관리자가 아닌 경우에만 필수 필드 검증
+    if (!isAdmin && (!form.nickname || !form.password || !form.content)) {
       alert('작성자, 비밀번호, 댓글 내용을 모두 입력해주세요.');
+      return;
+    }
+
+    // 관리자인 경우 content만 검증
+    if (isAdmin && !form.content) {
+      alert('댓글 내용을 입력해주세요.');
       return;
     }
 
@@ -53,7 +68,12 @@ export const Form = ({
         const response = await createComment.mutateAsync({
           postId,
           ...form,
+          // 관리자인 경우 기본값 설정
+          nickname: isAdmin ? '작성자' : form.nickname,
+          password: isAdmin ? 'admin' : form.password,
           isAuthor: false,
+          parentCommentId: parentCommentId || undefined,
+          replies: [],
         });
         console.log('댓글 생성 성공:', response);
       } else {
@@ -66,8 +86,8 @@ export const Form = ({
       }
 
       setForm({
-        nickname: '',
-        password: '',
+        nickname: isAdmin ? '작성자' : '',
+        password: isAdmin ? 'admin' : '',
         content: '',
         isPrivate: false,
       });
@@ -85,7 +105,7 @@ export const Form = ({
   };
 
   const handleDelete = async () => {
-    if (!commentId || !form.password) {
+    if (!commentId || (!isAdmin && !form.password)) {
       alert('비밀번호를 입력해주세요.');
       return;
     }
@@ -105,78 +125,83 @@ export const Form = ({
     <form onSubmit={handleSubmit} className="space-y-4">
       <Card>
         <div className="space-y-6">
-          <div className="flex gap-6 items-center">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100">
-              <UserIcon className="w-5 h-5 text-gray-500" />
+          {!hideFields && !isAdmin && (
+            <div className="flex gap-6 items-center">
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100">
+                <UserIcon className="w-5 h-5 text-gray-500" />
+              </div>
+              <FormSectionItem
+                title="닉네임"
+                className="flex items-center gap-4"
+              >
+                <Input
+                  type="text"
+                  placeholder="닉네임을 입력하세요"
+                  value={form.nickname}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, nickname: e.target.value }))
+                  }
+                  className="flex-1 p-2 border rounded"
+                  required={!isAdmin}
+                />
+              </FormSectionItem>
+              <FormSectionItem
+                title="비밀번호"
+                className="flex items-center gap-4"
+              >
+                <Input
+                  type="password"
+                  placeholder="비밀번호를 입력하세요"
+                  value={form.password}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, password: e.target.value }))
+                  }
+                  className="flex-1 p-2 border rounded"
+                  required={!isAdmin}
+                />
+              </FormSectionItem>
+              <button
+                type="button"
+                onClick={() =>
+                  setForm((prev) => ({ ...prev, isPrivate: !prev.isPrivate }))
+                }
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
+              >
+                <span>댓글 비공개</span>
+                {form.isPrivate ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                    />
+                  </svg>
+                )}
+              </button>
             </div>
-            <FormSectionItem title="닉네임" className="flex items-center gap-4">
-              <Input
-                type="text"
-                placeholder="닉네임을 입력하세요"
-                value={form.nickname}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, nickname: e.target.value }))
-                }
-                className="flex-1 p-2 border rounded"
-                required
-              />
-            </FormSectionItem>
-            <FormSectionItem
-              title="비밀번호"
-              className="flex items-center gap-4"
-            >
-              <Input
-                type="password"
-                placeholder="비밀번호를 입력하세요"
-                value={form.password}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, password: e.target.value }))
-                }
-                className="flex-1 p-2 border rounded"
-                required
-              />
-            </FormSectionItem>
-            <button
-              type="button"
-              onClick={() =>
-                setForm((prev) => ({ ...prev, isPrivate: !prev.isPrivate }))
-              }
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
-            >
-              <span>댓글 비공개</span>
-              {form.isPrivate ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-5 h-5"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-5 h-5"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
-                  />
-                </svg>
-              )}
-            </button>
-          </div>
+          )}
           <div
             className="flex items-center justify-between gap-4"
             style={{ height: '90' }}

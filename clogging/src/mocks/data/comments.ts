@@ -10,6 +10,8 @@ export const mockComments: Comment[] = [
     isPrivate: false,
     isAuthor: false,
     createdAt: '2024-03-25T12:30:00Z',
+    replies: [],
+    parentCommentId: undefined,
   },
   {
     id: '2',
@@ -20,5 +22,7 @@ export const mockComments: Comment[] = [
     isPrivate: false,
     isAuthor: true,
     createdAt: '2024-03-25T13:00:00Z',
+    replies: [],
+    parentCommentId: undefined,
   },
 ];
