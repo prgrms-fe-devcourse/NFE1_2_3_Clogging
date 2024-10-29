@@ -52,6 +52,13 @@ export const useCategories = () => {
     });
   }, []);
 
+  const getCategoryName = useCallback((categoryId: string): string => {
+    return (
+      mockCategories.find((category: Category) => category.id === categoryId)
+        ?.name ?? ''
+    );
+  }, []);
+
   return {
     categories,
     fetchCategories,
@@ -59,5 +66,6 @@ export const useCategories = () => {
     updateCategory,
     deleteCategory,
     reorderCategories,
+    getCategoryName,
   };
 };
