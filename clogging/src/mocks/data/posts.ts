@@ -16,7 +16,7 @@ export const mockPosts: Post[] = [
   },
   {
     id: '2',
-    categoryId: 1,
+    categoryId: 2,
     userId: 1,
     title: '두 번째 포스트입니다',
     content: '두 번째 포스트의 내용입니다...',

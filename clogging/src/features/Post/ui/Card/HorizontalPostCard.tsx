@@ -7,7 +7,7 @@ import {
   CardContent,
 } from '@/shared/ui/common/Card';
 import { Badge } from '@/shared/ui/common/Badge';
-import { Post } from '@/shared/types/types';
+import { Post } from '@/features/Post/types';
 
 interface Props {
   post: Post;
@@ -28,7 +28,7 @@ const HorizontalPostCard = ({ post }: Props) => {
   };
 
   return (
-    <Link href={`/posts/${post.id}`} className="block">
+    <Link href={`/posts/${post.id}`} className="block max-w-5xl">
       <Card className="overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-primary/20 dark:hover:border-primary/30">
         {' '}
         {/* overflow-hidden 추가 */}
@@ -45,7 +45,7 @@ const HorizontalPostCard = ({ post }: Props) => {
                   {post.title}
                 </CardTitle>
               </div>
-              <CardDescription className="text-sm text-muted-foreground mb-4 overflow-hidden line-clamp-2">
+              <CardDescription className="text-sm text-muted-foreground mb-4 overflow-hidden line-clamp-2 min-h-[40px]">
                 {post.content.replace(/[#*\n]/g, ' ').trim()}
               </CardDescription>
               <div className="flex gap-2 mb-4">

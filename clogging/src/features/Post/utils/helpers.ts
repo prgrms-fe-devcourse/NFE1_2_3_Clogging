@@ -1,6 +1,6 @@
 import { ref, uploadBytes, deleteObject } from 'firebase/storage';
 import { Timestamp } from 'firebase/firestore';
-import { storage } from '@/lib/firebase';
+import { storage } from '@/shared/lib/firebase';
 
 interface UploadImageResult {
   updatedImageIds: string[];
