@@ -2,10 +2,11 @@ import { Timestamp } from 'firebase/firestore';
 
 export interface Post {
   id: string;
-  categoryId: number;
+  categoryId: string;
   userId: number;
   title: string;
   content: string;
+  img?: string;
   viewCount: number;
   isDeleted: boolean;
   createdAt: string;
