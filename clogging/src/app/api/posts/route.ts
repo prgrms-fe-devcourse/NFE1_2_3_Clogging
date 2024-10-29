@@ -6,7 +6,6 @@ import {
   orderBy,
   limit,
   startAfter,
-  where,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/shared/lib/firebase';
@@ -54,30 +53,64 @@ export async function GET(request: Request) {
           createdAt.getMonth() + 1,
         ).padStart(2, '0')}${String(createdAt.getDate()).padStart(2, '0')}`;
 
-        // 20241029 - 댓글 필드 추가
+        // 1029 - 댓글 필드 조회 추가
         const commentsQuery = query(
-          collection(db, 'comments'),
-          where('postId', '==', doc.id),
+          collection(db, 'posts', doc.id, 'comments'),
+          orderBy('createdAt', 'asc'),
         );
         const commentsSnapshot = await getDocs(commentsQuery);
 
-        const comments = commentsSnapshot.docs.map((commentDoc) => {
-          const commentData = commentDoc.data();
-          const commentCreatedAtTimestamp = commentData.createdAt as Timestamp;
-          const commentCreatedAt = commentCreatedAtTimestamp.toDate();
-          const formattedCommentCreatedAt = `${commentCreatedAt.getFullYear()}${String(
-            commentCreatedAt.getMonth() + 1,
-          ).padStart(2, '0')}${String(commentCreatedAt.getDate()).padStart(
-            2,
-            '0',
-          )}`;
+        const comments = await Promise.all(
+          commentsSnapshot.docs.map(async (commentDoc) => {
+            const commentData = commentDoc.data();
+            const commentCreatedAtTimestamp =
+              commentData.createdAt as Timestamp;
+            const commentCreatedAt = commentCreatedAtTimestamp.toDate();
+            const formattedCommentCreatedAt = `${commentCreatedAt.getFullYear()}${String(
+              commentCreatedAt.getMonth() + 1,
+            ).padStart(2, '0')}${String(commentCreatedAt.getDate()).padStart(
+              2,
+              '0',
+            )}`;
 
-          return {
-            id: commentDoc.id,
-            ...commentData,
-            createdAt: formattedCommentCreatedAt,
-          };
-        });
+            const repliesQuery = query(
+              collection(
+                db,
+                'posts',
+                doc.id,
+                'comments',
+                commentDoc.id,
+                'replies',
+              ),
+              orderBy('createdAt', 'asc'),
+            );
+            const repliesSnapshot = await getDocs(repliesQuery);
+            const replies = repliesSnapshot.docs.map((replyDoc) => {
+              const replyData = replyDoc.data();
+              const replyCreatedAtTimestamp = replyData.createdAt as Timestamp;
+              const replyCreatedAt = replyCreatedAtTimestamp.toDate();
+              const formattedReplyCreatedAt = `${replyCreatedAt.getFullYear()}${String(
+                replyCreatedAt.getMonth() + 1,
+              ).padStart(2, '0')}${String(replyCreatedAt.getDate()).padStart(
+                2,
+                '0',
+              )}`;
+
+              return {
+                id: replyDoc.id,
+                ...replyData,
+                createdAt: formattedReplyCreatedAt,
+              };
+            });
+
+            return {
+              id: commentDoc.id,
+              ...commentData,
+              createdAt: formattedCommentCreatedAt,
+              replies,
+            };
+          }),
+        );
 
         return {
           id: doc.id,
@@ -92,10 +125,7 @@ export async function GET(request: Request) {
       posts,
     });
   } catch (error) {
-    console.error('포스트 Fetch Error!:', error);
-    return NextResponse.json(
-      { error: '포스트를 불러오는데 실패했습니다.' },
-      { status: 500 },
-    );
+    console.error('Fetch 에러:', error);
+    return NextResponse.json({ error: '포스트 호출 실패' }, { status: 500 });
   }
 }
