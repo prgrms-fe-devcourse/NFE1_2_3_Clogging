@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     const { postId, author, content, password } = await request.json();
 
     if (!postId || !author || !content || !password) {
-      return NextResponse.json({ error: '값을 넣어주세요!' }, { status: 400 });
+      return NextResponse.json({ error: '필드 비어있음!' }, { status: 400 });
     }
 
     if (password.length !== 4 || isNaN(Number(password))) {
@@ -18,14 +18,19 @@ export async function POST(request: Request) {
     }
 
     const newComment = {
-      postId,
       author,
       content,
       password: password,
       createdAt: Timestamp.now(),
     };
 
-    const docRef = await addDoc(collection(db, 'comments'), newComment);
+    const commentsRef = collection(db, 'posts', postId, 'comments');
+    const docRef = await addDoc(commentsRef, newComment);
+
+    const createdAtDate = newComment.createdAt.toDate();
+    const formattedCreatedAt = `${createdAtDate.getFullYear()}${String(
+      createdAtDate.getMonth() + 1,
+    ).padStart(2, '0')}${String(createdAtDate.getDate()).padStart(2, '0')}`;
 
     return NextResponse.json(
       {
@@ -33,12 +38,12 @@ export async function POST(request: Request) {
         comment: {
           id: docRef.id,
           ...newComment,
+          createdAt: formattedCreatedAt,
         },
       },
       { status: 201 },
     );
   } catch (error) {
-    console.error('댓글 작성 에러:', error);
     return NextResponse.json({ error: '댓글 작성 실패!' }, { status: 500 });
   }
 }
