@@ -3,12 +3,12 @@ import { useTheme } from '@/shared/providers/theme';
 import PostCard from '@/features/Post/ui/Card/PostCard';
 import { Button } from '@/shared/ui/common/Button';
 import { Section } from '@/features/Profile/ui/Section';
-import { usePostFilter } from '@/features/Post/hooks';
+import { usePostFilter, useFilteredPosts } from '@/features/Post/hooks';
 
 const HomePage: React.FC = () => {
   const { isDarkMode } = useTheme();
-  const { sortType, setSortType, getSortedPosts } = usePostFilter();
-  const posts = getSortedPosts();
+  const { sortType, setSortType } = usePostFilter();
+  const { data: posts = [], isLoading, error } = useFilteredPosts();
 
   return (
     <div
@@ -46,12 +46,28 @@ const HomePage: React.FC = () => {
           </Button>
         </div>
 
+        {/* 에러 상태 */}
+        {error && (
+          <div className="text-red-500 text-center py-4">
+            게시글을 불러오는데 실패했습니다.
+          </div>
+        )}
+
         {/* 게시물 그리드 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-        </div>
+        {!isLoading && !error && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
+            {posts.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+        )}
+
+        {/* 데이터가 없는 경우 */}
+        {!isLoading && !error && posts.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            게시글이 없습니다.
+          </div>
+        )}
       </div>
     </div>
   );
