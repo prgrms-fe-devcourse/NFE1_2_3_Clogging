@@ -71,6 +71,7 @@ export default function SettingsForm() {
           value={settings.nickname}
           onChange={handleInputChange}
           onBlur={(value) => handleInputChange('nickname', value)}
+          maxLength={20}
         />
         <SettingTextField
           label="블로그 설명"
@@ -79,6 +80,7 @@ export default function SettingsForm() {
           onChange={handleInputChange}
           onBlur={(value) => handleInputChange('description', value)}
           multiline
+          maxLength={50}
         />
       </div>
       <div className="mb-10">

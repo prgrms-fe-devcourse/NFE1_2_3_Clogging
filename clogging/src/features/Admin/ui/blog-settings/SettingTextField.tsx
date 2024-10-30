@@ -1,5 +1,5 @@
 import { useTheme } from '@/shared/providers/theme';
-import React from 'react';
+import React, { useState } from 'react';
 
 interface SettingTextFieldProps {
   label: string;
@@ -8,6 +8,7 @@ interface SettingTextFieldProps {
   onChange: (name: string, value: string) => void;
   onBlur?: (value: string) => void;
   multiline?: boolean;
+  maxLength?: number; // 최대 길이를 매개변수로 추가
 }
 
 export default function SettingTextField({
@@ -17,14 +18,24 @@ export default function SettingTextField({
   onChange,
   onBlur,
   multiline = false,
+  maxLength, // 최대 길이 매개변수
 }: SettingTextFieldProps) {
   const { isDarkMode } = useTheme();
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
+    const newValue = e.target.value;
     if (onChange) {
-      onChange(name, e.target.value);
+      onChange(name, newValue);
+    }
+
+    // 최대 길이 체크
+    if (maxLength && newValue.length > maxLength) {
+      setErrorMessage(`최대 ${maxLength}자까지 입력 가능합니다.`);
+    } else {
+      setErrorMessage('');
     }
   };
 
@@ -55,7 +66,8 @@ export default function SettingTextField({
           value={value}
           onChange={handleChange}
           onBlur={handleBlur}
-          className={`${inputClasses} h-32resize-none`}
+          className={`${inputClasses} h-32 resize-none`}
+          maxLength={maxLength}
         />
       ) : (
         <input
@@ -66,7 +78,15 @@ export default function SettingTextField({
           onChange={handleChange}
           onBlur={handleBlur}
           className={inputClasses}
+          maxLength={maxLength}
         />
+      )}
+      {errorMessage && (
+        <p
+          className={`text-xs mt-1 ${isDarkMode ? 'text-sky-200' : 'text-red-500'}`}
+        >
+          {errorMessage}
+        </p>
       )}
     </div>
   );
