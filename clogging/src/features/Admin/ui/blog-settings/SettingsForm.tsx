@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import SettingImageField from './SettingImageField';
 import SettingTextField from './SettingTextField';
 import ProfileImageUpload from './ProfileImageUpload';
 import FaviconUpload from './FaviconUpload';
+
 interface BlogSettings {
   profileImage: File | null;
   nickname: string;
@@ -79,12 +79,11 @@ export default function SettingsForm() {
         onChange={handleFileChange}
       />
 
-      <SettingImageField
-        label="배너 이미지"
+      <FaviconUpload
+        label="배너"
         name="bannerImage"
         file={settings.bannerImage}
         onChange={handleFileChange}
-        type="banner" // 배너 이미지 타입
       />
       <button type="submit">저장하기</button>
     </form>
