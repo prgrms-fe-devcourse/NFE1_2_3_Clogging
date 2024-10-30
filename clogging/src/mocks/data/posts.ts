@@ -33,12 +33,13 @@ export const mockPosts: Post[] = [
     categoryId: '3',
     userId: 1,
     title: '세 번째 포스트입니다',
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ligula nibh, interdum non enim sit amet, iaculis aliquet nunc. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Aliquam sit amet ipsum ac velit egestas ultrices. Vestibulum et neque id ex semper varius a sit amet metus. Vivamus congue dolor eget aliquam hendrerit. Etiam iaculis finibus egestas. Nam viverra urna quis odio efficitur malesuada. Maecenas rhoncus enim eu scelerisque rutrum. Pellentesque et mollis enim. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sed commodo leo. Suspendisse potenti. Maecenas gravida ipsum placerat ligula posuere, ut rhoncus velit eleifend.',
+    content:
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ligula nibh, interdum non enim sit amet, iaculis aliquet nunc. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Aliquam sit amet ipsum ac velit egestas ultrices. Vestibulum et neque id ex semper varius a sit amet metus. Vivamus congue dolor eget aliquam hendrerit. Etiam iaculis finibus egestas. Nam viverra urna quis odio efficitur malesuada. Maecenas rhoncus enim eu scelerisque rutrum. Pellentesque et mollis enim. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur sed commodo leo. Suspendisse potenti. Maecenas gravida ipsum placerat ligula posuere, ut rhoncus velit eleifend.',
     img: 'https://picsum.photos/800/400',
     viewCount: 0,
     isDeleted: true,
-    createdAt: '2024-10-29T09:00:00Z',
-    updatedAt: '2024-10-29T09:00:00Z',
-    tags: ['Next.js', 'TypeScript', 'Clogging'],
+    createdAt: '2024-10-30T09:00:00Z',
+    updatedAt: '2024-10-30T09:00:00Z',
+    tags: ['Next.js', 'TypeScript', 'Clogging', 'frontend'],
   },
 ];
