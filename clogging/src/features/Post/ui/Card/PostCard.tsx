@@ -13,7 +13,7 @@ import { Post } from '@/features/Post/types';
 import { useState, useEffect } from 'react';
 import { storage } from '@/shared/lib/firebase';
 import { ref, getDownloadURL } from 'firebase/storage';
-import { useCommentCount } from '@/features/Comment/hooks'; // 추가
+import { useCommentCount } from '@/features/Comment/lib/hooks/useCommentCount';
 
 interface Props {
   post: Post;
