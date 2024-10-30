@@ -1,5 +1,11 @@
 import { NextResponse } from 'next/server';
-import { doc, getDoc, deleteDoc } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  deleteDoc,
+  collection,
+  getDocs,
+} from 'firebase/firestore';
 import { db } from '@/shared/lib/firebase';
 
 export async function DELETE(request: Request) {
@@ -29,11 +35,27 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: '비밀번호 불일치!' }, { status: 403 });
     }
 
+    // 1030 추가 - 답글 컬렉션까지 삭제
+    const repliesRef = collection(
+      db,
+      'posts',
+      postId,
+      'comments',
+      commentId,
+      'replies',
+    );
+    const repliesSnapshot = await getDocs(repliesRef);
+
+    const deleteReplyPromises = repliesSnapshot.docs.map((replyDoc) =>
+      deleteDoc(replyDoc.ref),
+    );
+    await Promise.all(deleteReplyPromises);
+
     await deleteDoc(commentRef);
 
     return NextResponse.json(
       {
-        message: '댓글 삭제 성공!',
+        message: '댓글 및 답글 삭제 성공!',
         deletedComment: {
           id: commentId,
           postId,
@@ -42,7 +64,6 @@ export async function DELETE(request: Request) {
       { status: 200 },
     );
   } catch (error) {
-    console.error('댓글 삭제 에러:', error);
     return NextResponse.json({ error: '댓글 삭제 실패!' }, { status: 500 });
   }
 }
