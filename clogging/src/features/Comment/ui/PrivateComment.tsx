@@ -1,22 +1,21 @@
-interface PrivateCommentProps {
-  isPrivate: boolean;
-  onChange: (value: boolean) => void;
-}
+import { Button } from '@/shared/ui/common/Button';
+import { PrivateCommentProps } from '../types';
 
 export const PrivateComment = ({
   isPrivate,
   onChange,
 }: PrivateCommentProps) => {
   return (
-    <button
+    <Button
+      variant="secondary"
       type="button"
       onClick={() => onChange(!isPrivate)}
       className={`
-        flex items-center gap-2 px-2 py-1 rounded
+        flex items-center gap-2 px-2 py-1 rounded w-[86px]
         ${
           isPrivate
             ? 'text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100'
-            : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+            : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200'
         }
         transition-colors duration-200
       `}
@@ -60,6 +59,6 @@ export const PrivateComment = ({
       <span className="text-sm font-medium">
         {isPrivate ? '비공개' : '공개'}
       </span>
-    </button>
+    </Button>
   );
 };

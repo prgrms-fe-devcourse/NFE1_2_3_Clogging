@@ -21,7 +21,7 @@ export const Navigation = () => {
         'w-full px-6 py-4',
         'border-b',
         'transition-colors duration-200',
-        'ovflow-hidden',
+        'overflow-hidden',
         isDarkMode
           ? 'bg-gray-900 text-white border-gray-800'
           : 'bg-white text-gray-900 border-gray-200',

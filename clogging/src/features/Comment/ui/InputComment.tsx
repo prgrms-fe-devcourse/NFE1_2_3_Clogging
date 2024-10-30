@@ -1,23 +1,12 @@
 import { Button } from '@/shared/ui/common/Button';
 import { Textarea } from '@/shared/ui/Form/Form';
-import { Comment } from '../types';
 import { useAuth } from '@/features/Auth/hooks';
 import {
   useCreateComment,
   useUpdateComment,
   useDeleteComment,
 } from '../lib/hooks/useComments';
-
-interface InputCommentProps {
-  value: string;
-  onChange: (value: string) => void;
-  initialData?: Comment;
-  defaultNickname?: string;
-  postId: string;
-  commentId: string;
-  onSuccess?: () => void;
-  mode: 'create' | 'edit';
-}
+import { InputCommentProps } from './types';
 
 export const InputComment = ({
   value,

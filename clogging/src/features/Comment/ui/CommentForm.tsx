@@ -1,31 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useCreateComment, useUpdateComment } from '../hooks';
+import React, { useEffect } from 'react';
+import { useCreateComment, useUpdateComment } from '../lib/hooks/useComments';
 import { Input } from '@/shared/ui/common/Input';
 import { FormSectionItem } from '@/shared/ui/Form/Form';
 import { UserIcon } from 'lucide-react';
 import { PrivateComment } from './PrivateComment';
 import { InputComment } from './InputComment';
 import { useAuth } from '@/features/Auth/hooks';
+import { commentFormProps } from '../types';
+import { useCommentFormStore } from '../lib/store/useCommentFormStore';
 
-interface FormProps {
-  postId: string;
-  onSuccess: () => void;
-  commentId?: string;
-  initialData?: {
-    nickname: string;
-    content: string;
-    isPrivate: boolean;
-  };
-  mode?: 'create' | 'edit';
-  parentCommentId?: string;
-  defaultNickname?: string;
-  hideFields?: boolean;
-  defaultIsPrivate?: boolean;
-}
-
-export const Form = ({
+export const CommentForm = ({
   postId,
   onSuccess,
   commentId,
@@ -35,29 +21,25 @@ export const Form = ({
   defaultNickname,
   hideFields,
   defaultIsPrivate = false,
-}: FormProps) => {
+}: commentFormProps) => {
   const createComment = useCreateComment();
   const updateComment = useUpdateComment();
   const { isAdmin } = useAuth();
 
-  // 초기 상태 설정
-  const [form, setForm] = useState({
-    nickname: isAdmin
-      ? '작성자'
-      : initialData?.nickname || defaultNickname || '',
-    password: isAdmin ? 'admin' : '',
-    content: initialData?.content || '',
-    isPrivate: initialData?.isPrivate ?? defaultIsPrivate,
-  });
+  // Zustand store 사용
+  const { form, setForm, resetForm, initializeForm } = useCommentFormStore();
 
-  // 비공개 상태가 변경될 때마다 로그 출력
+  // 컴포넌트 마운트 시 폼 초기화
   useEffect(() => {
-    console.log('Privacy state changed:', form.isPrivate);
-  }, [form.isPrivate]);
+    initializeForm(isAdmin, initialData, defaultNickname, defaultIsPrivate);
+    // cleanup 함수
+    return () => resetForm(isAdmin, defaultIsPrivate);
+  }, [isAdmin, initialData, defaultNickname, defaultIsPrivate]);
 
+  // 비공개 상태 변경 핸들러
   const handlePrivacyChange = (value: boolean) => {
     console.log('Changing privacy to:', value);
-    setForm((prev) => ({ ...prev, isPrivate: value }));
+    setForm({ isPrivate: value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -91,24 +73,16 @@ export const Form = ({
       console.log('Submitting comment with data:', commentData);
 
       if (mode === 'create') {
-        const response = await createComment.mutateAsync(commentData);
-        console.log('댓글 생성 성공:', response);
+        await createComment.mutateAsync(commentData);
       } else {
-        const response = await updateComment.mutateAsync({
+        await updateComment.mutateAsync({
           id: commentId!,
           ...commentData,
         });
-        console.log('댓글 수정 성공:', response);
       }
 
       // 성공 후 폼 초기화
-      setForm({
-        nickname: isAdmin ? '작성자' : '',
-        password: isAdmin ? 'admin' : '',
-        content: '',
-        isPrivate: defaultIsPrivate,
-      });
-
+      resetForm(isAdmin, defaultIsPrivate);
       onSuccess();
     } catch (error) {
       console.error('댓글 작성/수정 실패:', error);
@@ -133,9 +107,7 @@ export const Form = ({
                   type="text"
                   placeholder="닉네임을 입력하세요"
                   value={form.nickname}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, nickname: e.target.value }))
-                  }
+                  onChange={(e) => setForm({ nickname: e.target.value })}
                   className="flex-1 p-2 border rounded"
                   required={!isAdmin}
                 />
@@ -148,9 +120,7 @@ export const Form = ({
                   type="password"
                   placeholder="비밀번호를 입력하세요"
                   value={form.password}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, password: e.target.value }))
-                  }
+                  onChange={(e) => setForm({ password: e.target.value })}
                   className="flex-1 p-2 border rounded"
                   required={!isAdmin}
                 />
@@ -168,7 +138,7 @@ export const Form = ({
 
         <InputComment
           value={form.content}
-          onChange={(value) => setForm((prev) => ({ ...prev, content: value }))}
+          onChange={(value: string) => setForm({ content: value })}
           postId={postId}
           commentId={commentId || ''}
           mode={mode}

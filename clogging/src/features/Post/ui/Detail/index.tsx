@@ -1,12 +1,12 @@
 'use client';
 
-import { Form } from '@/features/Comment/ui/Form';
+import { CommentForm } from '@/features/Comment/ui/CommentForm';
 import { usePost } from '../../hooks';
 import { TableOfContents } from '../TableOfContents';
 import { Content } from './Content';
 import { Header } from './Header';
 import { Navigation } from './Navigation';
-import { List } from '@/features/Comment/ui/List';
+import { CommentList } from '@/features/Comment/ui/CommentList';
 import { useInvalidateComments } from '@/features/Comment/lib/hooks/useComments';
 
 export const Detail = ({ postId }: { postId: string }) => {
@@ -28,7 +28,7 @@ export const Detail = ({ postId }: { postId: string }) => {
           <Navigation currentPostId={postId} />
           <section className="mt-16">
             <h2 className="text-2xl font-bold mb-8">댓글</h2>
-            <Form
+            <CommentForm
               postId={postId}
               onSuccess={() => {
                 invalidateComments();
@@ -36,7 +36,7 @@ export const Detail = ({ postId }: { postId: string }) => {
               editingIsPrivate={false}
             />
             <div className="mt-8">
-              <List postId={postId} />
+              <CommentList postId={postId} />
             </div>
           </section>
         </main>
