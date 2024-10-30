@@ -9,11 +9,12 @@ interface DataPoint {
 
 interface LineChartProps {
   data: DataPoint[];
+  width: number; // Accept width as a prop
 }
 
-const CustomLineChart: React.FC<LineChartProps> = ({ data }) => (
+const CustomLineChart: React.FC<LineChartProps> = ({ data, width }) => (
   <LineChart
-    width={'100%'} // Fill parent container
+    width={width} // Use responsive width passed as prop
     height={200}
     data={data}
     margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
@@ -23,7 +24,6 @@ const CustomLineChart: React.FC<LineChartProps> = ({ data }) => (
     <Tooltip />
     <CartesianGrid stroke="#e0e0e0" />
     <Line type="monotone" dataKey="uv" stroke="#ff7300" yAxisId={0} />
-    <Line type="monotone" dataKey="pv" stroke="#387908" yAxisId={1} />
   </LineChart>
 );
 
