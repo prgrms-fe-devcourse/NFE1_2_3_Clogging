@@ -4,7 +4,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 import { Navigation } from '@/shared/ui/layout/Navigation';
 import Link from 'next/link';
-import { QueryProviders } from './QueryProviders';
+import { QueryProviders } from './queryProviders';
 
 const geistSans = localFont({
   src: '../../public/fonts/GeistVF.woff',
