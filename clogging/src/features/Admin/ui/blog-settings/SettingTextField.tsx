@@ -9,6 +9,7 @@ interface SettingTextFieldProps {
   onBlur?: (value: string) => void;
   multiline?: boolean;
   maxLength?: number; // 최대 길이를 매개변수로 추가
+  placeholder?: string; // 플레이스홀더 추가
 }
 
 export default function SettingTextField({
@@ -19,6 +20,7 @@ export default function SettingTextField({
   onBlur,
   multiline = false,
   maxLength, // 최대 길이 매개변수
+  placeholder,
 }: SettingTextFieldProps) {
   const { isDarkMode } = useTheme();
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -27,15 +29,17 @@ export default function SettingTextField({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const newValue = e.target.value;
-    if (onChange) {
-      onChange(name, newValue);
-    }
 
     // 최대 길이 체크
     if (maxLength && newValue.length > maxLength) {
       setErrorMessage(`최대 ${maxLength}자까지 입력 가능합니다.`);
+      return;
     } else {
       setErrorMessage('');
+    }
+
+    if (onChange) {
+      onChange(name, newValue);
     }
   };
 
@@ -45,7 +49,7 @@ export default function SettingTextField({
     }
   };
 
-  const inputClasses = `w-full px-3 py-2 mt-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+  const inputClasses = `w-full px-3 py-2 mt-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${
     isDarkMode
       ? 'bg-gray-800 text-white border-gray-600'
       : 'bg-white text-gray-900 border-gray-300'
@@ -68,6 +72,7 @@ export default function SettingTextField({
           onBlur={handleBlur}
           className={`${inputClasses} h-32 resize-none`}
           maxLength={maxLength}
+          placeholder={placeholder}
         />
       ) : (
         <input
@@ -79,6 +84,7 @@ export default function SettingTextField({
           onBlur={handleBlur}
           className={inputClasses}
           maxLength={maxLength}
+          placeholder={placeholder}
         />
       )}
       {errorMessage && (

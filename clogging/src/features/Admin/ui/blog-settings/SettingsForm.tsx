@@ -72,6 +72,7 @@ export default function SettingsForm() {
           onChange={handleInputChange}
           onBlur={(value) => handleInputChange('nickname', value)}
           maxLength={20}
+          placeholder="닉네임을 20자 이내로 입력하세요"
         />
         <SettingTextField
           label="블로그 설명"
@@ -81,6 +82,7 @@ export default function SettingsForm() {
           onBlur={(value) => handleInputChange('description', value)}
           multiline
           maxLength={50}
+          placeholder="설명을 50자 이내로 입력하세요"
         />
       </div>
       <div className="mb-10">
