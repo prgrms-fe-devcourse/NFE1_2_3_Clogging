@@ -1,6 +1,4 @@
 import { cn } from '@/shared/lib/utils';
-import { Input } from './common/Input';
-import { SearchBar } from './SearchBar';
 
 // Textarea 컴포넌트
 interface TextareaProps
@@ -65,7 +63,7 @@ const FormSectionHeader: React.FC<FormSectionHeaderProps> = ({
 
 // FormSection 아이템 컴포넌트
 interface FormSectionItemProps extends React.HTMLAttributes<HTMLDivElement> {
-  title: string;
+  title?: string;
 }
 
 export const FormSectionItem = ({
@@ -74,8 +72,17 @@ export const FormSectionItem = ({
   className,
   ...props
 }: FormSectionItemProps) => (
-  <div className={cn('space-y-2', className)} {...props}>
-    <FormSectionHeader title={title} />
+  <div
+    className={cn(
+      'flex',
+      {
+        'flex-col space-y-2': className?.includes('flex-col'),
+      },
+      className,
+    )}
+    {...props}
+  >
+    {title && <FormSectionHeader title={title} />}
     {children}
   </div>
 );

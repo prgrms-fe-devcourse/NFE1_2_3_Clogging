@@ -2,7 +2,7 @@
 
 import { Post } from '@/features/Post/types';
 import { Badge } from '@/shared/ui/common/Badge';
-import { elapsedTime } from '../../utils/elapsedTimeCalculation';
+import { elapsedTime } from '../../../../shared/lib/utils/elapsedTimeCalculation';
 import { useCategories } from '@/features/Category/hooks';
 
 export const Header = ({ post }: { post: Post }) => {
