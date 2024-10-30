@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import SettingTextField from './SettingTextField';
-import ProfileImageUpload from './ProfileImageUpload';
 import FaviconUpload from './FaviconUpload';
+import ProfileImageField from './ProfileImageField';
+import FaviconImageField from './FaviconImageField';
 
 interface BlogSettings {
   profileImage: File | null;
@@ -47,7 +48,7 @@ export default function SettingsForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <ProfileImageUpload
+      <ProfileImageField
         label="프로필 사진"
         name="profileImage"
         file={settings.profileImage}
@@ -72,14 +73,13 @@ export default function SettingsForm() {
         multiline
       />
 
-      <FaviconUpload
+      <FaviconImageField
         label="파비콘"
         name="favicon"
         file={settings.favicon}
         onChange={handleFileChange}
       />
-
-      <FaviconUpload
+      <FaviconImageField
         label="배너"
         name="bannerImage"
         file={settings.bannerImage}

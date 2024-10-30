@@ -2,19 +2,19 @@ import React, { useRef } from 'react';
 import Image from 'next/image';
 import { Button } from '@/shared/ui/common/Button';
 
-interface FaviconUploadProps {
+interface FaviconImageFieldProps {
   label: string;
   name: string;
   file: File | null;
   onChange: (name: string, file: File | null) => void;
 }
 
-export default function FaviconUpload({
+export default function FaviconImageField({
   label,
   name,
   file,
   onChange,
-}: FaviconUploadProps) {
+}: FaviconImageFieldProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null); // ref 생성
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

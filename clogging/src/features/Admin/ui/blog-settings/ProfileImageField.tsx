@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import { Button } from '@/shared/ui/common/Button';
 
-interface ProfileImageUploadProps {
+interface ProfileImageFieldProps {
   label: string;
   name: string;
   file: File | null;
@@ -10,13 +10,13 @@ interface ProfileImageUploadProps {
   onDelete: (name: string) => void; // 삭제 기능을 위한 prop 추가
 }
 
-export default function ProfileImageUpload({
+export default function ProfileImageField({
   label,
   name,
   file,
   onChange,
   onDelete,
-}: ProfileImageUploadProps) {
+}: ProfileImageFieldProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files[0]) {
