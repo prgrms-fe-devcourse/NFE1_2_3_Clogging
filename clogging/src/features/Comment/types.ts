@@ -7,6 +7,25 @@ export interface Comment {
   isPrivate: boolean;
   isAuthor: boolean;
   createdAt: string;
-  replies: Comment[];
-  parentCommentId: string | undefined;
+  parentCommentId?: string;
+  replies?: Comment[];
+}
+
+export interface CreateCommentDto {
+  postId: string;
+  nickname: string;
+  password: string;
+  content: string;
+  isPrivate: boolean;
+  isAuthor: boolean;
+  parentCommentId?: string;
+}
+
+export interface UpdateCommentDto {
+  id: string;
+  postId: string;
+  content: string;
+  isPrivate: boolean;
+  nickname: string;
+  password: string;
 }

@@ -7,7 +7,7 @@ import { Content } from './Content';
 import { Header } from './Header';
 import { Navigation } from './Navigation';
 import { List } from '@/features/Comment/ui/List';
-import { useInvalidateComments } from '@/features/Comment/hooks';
+import { useInvalidateComments } from '@/features/Comment/lib/hooks/useComments';
 
 export const Detail = ({ postId }: { postId: string }) => {
   const { data: post, isLoading, error } = usePost(postId);
@@ -33,6 +33,7 @@ export const Detail = ({ postId }: { postId: string }) => {
               onSuccess={() => {
                 invalidateComments();
               }}
+              editingIsPrivate={false}
             />
             <div className="mt-8">
               <List postId={postId} />

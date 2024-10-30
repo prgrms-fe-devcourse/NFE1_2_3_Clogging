@@ -25,4 +25,16 @@ export const mockComments: Comment[] = [
     replies: [],
     parentCommentId: undefined,
   },
+  {
+    id: '1',
+    postId: '3',
+    nickname: '김유저',
+    content: '좋은 글 감사합니다 :)',
+    password: '0000',
+    isPrivate: false,
+    isAuthor: false,
+    createdAt: '2024-10-30T13:00:00Z',
+    replies: [],
+    parentCommentId: undefined,
+  },
 ];

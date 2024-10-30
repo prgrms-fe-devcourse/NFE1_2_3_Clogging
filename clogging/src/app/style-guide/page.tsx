@@ -459,22 +459,22 @@ const StyleGuide = () => {
           <Card>
             <div className="space-y-6">
               {/* 기본 입력 */}
-              <FormSectionItem title="기본 입력">
+              <FormSectionItem className="flex-col" title="기본 입력">
                 <Input placeholder="기본 입력창" />
               </FormSectionItem>
 
               {/* 검색 */}
-              <FormSectionItem title="검색">
+              <FormSectionItem className="flex-col" title="검색">
                 <SearchBar />
               </FormSectionItem>
 
               {/* 여러 줄 입력 */}
-              <FormSectionItem title="여러 줄 입력">
+              <FormSectionItem className="flex-col" title="여러 줄 입력">
                 <Textarea className="h-32" placeholder="여러 줄 입력" />
               </FormSectionItem>
 
               {/* 비활성화 상태 */}
-              <FormSectionItem title="비활성화 상태">
+              <FormSectionItem className="flex-col" title="비활성화 상태">
                 <div className="space-y-4">
                   <Input placeholder="비활성화된 입력창" disabled />
                   <Textarea
