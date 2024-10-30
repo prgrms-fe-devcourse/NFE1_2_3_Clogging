@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react';
 import SettingTextField from './SettingTextField';
-import FaviconUpload from './FaviconUpload';
 import ProfileImageField from './ProfileImageField';
 import FaviconImageField from './FaviconImageField';
+import BannerImageField from './bannerImageField';
+import { useTheme } from '@/shared/providers/theme';
+import { Button } from '@/shared/ui/common/Button';
 
 interface BlogSettings {
   profileImage: File | null;
@@ -15,6 +17,7 @@ interface BlogSettings {
 }
 
 export default function SettingsForm() {
+  const { isDarkMode } = useTheme();
   const [settings, setSettings] = useState<BlogSettings>({
     profileImage: null,
     nickname: '',
@@ -46,8 +49,14 @@ export default function SettingsForm() {
     alert('설정이 저장되었습니다.');
   };
 
+  const itemTitleStyle = `mb-3 text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`;
+
   return (
-    <form onSubmit={handleSubmit}>
+    <form
+      onSubmit={handleSubmit}
+      className={`p-4 rounded-md ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}
+    >
+      <div className={itemTitleStyle}>프로필 사진</div>
       <ProfileImageField
         label="프로필 사진"
         name="profileImage"
@@ -55,37 +64,45 @@ export default function SettingsForm() {
         onChange={handleFileChange}
         onDelete={handleFileDelete}
       />
-
-      <SettingTextField
-        label="블로그 닉네임"
-        name="nickname"
-        value={settings.nickname}
-        onChange={handleInputChange}
-        onBlur={(value) => handleInputChange('nickname', value)}
-      />
-
-      <SettingTextField
-        label="블로그 설명"
-        name="description"
-        value={settings.description}
-        onChange={handleInputChange}
-        onBlur={(value) => handleInputChange('description', value)}
-        multiline
-      />
-
-      <FaviconImageField
-        label="파비콘"
-        name="favicon"
-        file={settings.favicon}
-        onChange={handleFileChange}
-      />
-      <FaviconImageField
-        label="배너"
-        name="bannerImage"
-        file={settings.bannerImage}
-        onChange={handleFileChange}
-      />
-      <button type="submit">저장하기</button>
+      <div className="mb-10">
+        <SettingTextField
+          label="블로그 닉네임"
+          name="nickname"
+          value={settings.nickname}
+          onChange={handleInputChange}
+          onBlur={(value) => handleInputChange('nickname', value)}
+        />
+        <SettingTextField
+          label="블로그 설명"
+          name="description"
+          value={settings.description}
+          onChange={handleInputChange}
+          onBlur={(value) => handleInputChange('description', value)}
+          multiline
+        />
+      </div>
+      <div className="mb-10">
+        {' '}
+        <div className={itemTitleStyle}>파비콘</div>
+        <FaviconImageField
+          label="파비콘"
+          name="favicon"
+          file={settings.favicon}
+          onChange={handleFileChange}
+        />
+        <div className={itemTitleStyle}>배너</div>
+        <BannerImageField
+          label="배너"
+          name="bannerImage"
+          file={settings.bannerImage}
+          onChange={handleFileChange}
+        />
+      </div>
+      <div className="mb-4 flex justify-end ">
+        <Button type="submit" className="rounded-full">
+          저장하기
+        </Button>
+      </div>
     </form>
   );
 }

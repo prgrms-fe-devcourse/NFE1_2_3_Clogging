@@ -3,31 +3,39 @@ import Image from 'next/image';
 import { Button } from '@/shared/ui/common/Button';
 import { useTheme } from '@/shared/providers/theme';
 
-interface FaviconImageFieldProps {
+interface BannerImageFieldProps {
   label: string;
   name: string;
   file: File | null;
   onChange: (name: string, file: File | null) => void;
 }
 
-export default function FaviconImageField({
+export default function BannerImageField({
   label,
   name,
   file,
   onChange,
-}: FaviconImageFieldProps) {
+}: BannerImageFieldProps) {
   const { isDarkMode } = useTheme();
-  const fileInputRef = useRef<HTMLInputElement | null>(null); // ref 생성
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files[0]) {
-      onChange(name, files[0]);
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        onChange(name, file);
+      } else {
+        alert('이미지 파일만 선택할 수 있습니다.');
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
     }
   };
 
   const handleRemove = () => {
-    onChange(name, null); // 파일 제거
+    onChange(name, null);
   };
 
   return (
@@ -57,9 +65,11 @@ export default function FaviconImageField({
           <p
             className={`mb-2 text-sm  ${isDarkMode ? 'text-white' : 'text-[#2B3674]'}`}
           >
-            파비콘 : {file ? file.name : '선택된 파일 없음'}
+            메인 배너 : {file ? file.name : '선택된 파일 없음'}
           </p>
-          <p className="text-xs text-gray-500">파일 형식 ICO</p>
+          <p className="text-xs text-gray-500">
+            최적 사이즈 1600 x 500 / 파일 형식 JPG, PNG{' '}
+          </p>
         </div>
 
         {/* 버튼 영역 */}
@@ -69,7 +79,7 @@ export default function FaviconImageField({
             type="file"
             id={name}
             name={name}
-            accept=".ico"
+            accept="image/*"
             onChange={handleChange}
             className="hidden"
           />

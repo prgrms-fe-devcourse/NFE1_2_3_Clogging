@@ -1,3 +1,4 @@
+import { useTheme } from '@/shared/providers/theme';
 import React from 'react';
 
 interface SettingTextFieldProps {
@@ -17,6 +18,8 @@ export default function SettingTextField({
   onBlur,
   multiline = false,
 }: SettingTextFieldProps) {
+  const { isDarkMode } = useTheme();
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -31,12 +34,18 @@ export default function SettingTextField({
     }
   };
 
-  const inputClasses =
-    'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent';
+  const inputClasses = `w-full px-3 py-2 mt-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+    isDarkMode
+      ? 'bg-gray-800 text-white border-gray-600'
+      : 'bg-white text-gray-900 border-gray-300'
+  }`;
 
   return (
     <div className="mb-4">
-      <label htmlFor={name} className="text-xs text-gray-500">
+      <label
+        htmlFor={name}
+        className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}
+      >
         {label}
       </label>
       {multiline ? (
@@ -46,7 +55,7 @@ export default function SettingTextField({
           value={value}
           onChange={handleChange}
           onBlur={handleBlur}
-          className={`${inputClasses} h-32 resize-none`}
+          className={`${inputClasses} h-32resize-none`}
         />
       ) : (
         <input

@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { Button } from '@/shared/ui/common/Button';
+import { useTheme } from '@/shared/providers/theme';
 
 interface ProfileImageFieldProps {
   label: string;
@@ -17,6 +18,7 @@ export default function ProfileImageField({
   onChange,
   onDelete,
 }: ProfileImageFieldProps) {
+  const { isDarkMode } = useTheme();
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files[0]) {
@@ -26,11 +28,10 @@ export default function ProfileImageField({
 
   return (
     <div className="mb-10">
-      <label htmlFor={name} className="block mb-2 font-bold">
-        {label}
-      </label>
       <div className="flex items-end justify-center">
-        <div className="relative w-[100px] h-[100px] border border-gray-300 rounded-full overflow-hidden mr-4">
+        <div
+          className={`relative w-[100px] h-[100px] border rounded-full overflow-hidden mr-4 ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
+        >
           {file ? (
             <Image
               src={URL.createObjectURL(file)}
@@ -40,7 +41,9 @@ export default function ProfileImageField({
               className="object-cover w-full h-full"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+            <div
+              className={`w-full h-full flex items-center justify-center ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'}`}
+            >
               <span className="text-gray-400">No Image</span>
             </div>
           )}
