@@ -22,7 +22,6 @@ export async function GET() {
       ...doc.data(),
     }));
 
-    // 이름 순으로 정렬 (만약 name 필드가 있다면)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     categories.sort((a: any, b: any) => {
       if (a.name && b.name) {
@@ -39,7 +38,6 @@ export async function GET() {
       { status: 200 },
     );
   } catch (error) {
-    console.error('Error fetching categories:', error);
     return NextResponse.json({ error: '카테고리 조회 실패!' }, { status: 500 });
   }
 }
