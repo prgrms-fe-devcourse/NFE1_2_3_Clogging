@@ -30,6 +30,10 @@ export default function SettingsForm() {
     setSettings((prev) => ({ ...prev, [name]: file }));
   };
 
+  const handleFileDelete = (name: string) => {
+    setSettings((prev) => ({ ...prev, [name]: null }));
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log('저장된 설정:', {
@@ -48,6 +52,7 @@ export default function SettingsForm() {
         name="profileImage"
         file={settings.profileImage}
         onChange={handleFileChange}
+        onDelete={handleFileDelete}
       />
 
       <SettingTextField

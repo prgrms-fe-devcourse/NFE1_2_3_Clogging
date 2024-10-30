@@ -1,11 +1,13 @@
 import React from 'react';
 import Image from 'next/image';
+import { Button } from '@/shared/ui/common/Button';
 
 interface ProfileImageUploadProps {
   label: string;
   name: string;
   file: File | null;
   onChange: (name: string, file: File | null) => void;
+  onDelete: (name: string) => void; // 삭제 기능을 위한 prop 추가
 }
 
 export default function ProfileImageUpload({
@@ -13,6 +15,7 @@ export default function ProfileImageUpload({
   name,
   file,
   onChange,
+  onDelete,
 }: ProfileImageUploadProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -22,33 +25,65 @@ export default function ProfileImageUpload({
   };
 
   return (
-    <div className="mb-4">
+    <div className="mb-10">
       <label htmlFor={name} className="block mb-2 font-bold">
         {label}
       </label>
-      <input
-        type="file"
-        id={name}
-        name={name}
-        accept="image/*"
-        onChange={handleChange}
-        className="hidden"
-      />
-      <div
-        className="border-2 border-solid border-gray-300 rounded-lg p-4 cursor-pointer flex items-center justify-center"
-        onClick={() => document.getElementById(name)?.click()}
-      >
-        {file ? (
-          <Image
-            src={URL.createObjectURL(file)}
-            alt={`${label} Preview`}
-            width={200}
-            height={200}
-            className="object-cover w-full h-full"
+      <div className="flex items-end justify-center">
+        <div className="relative w-[100px] h-[100px] border border-gray-300 rounded-full overflow-hidden mr-4">
+          {file ? (
+            <Image
+              src={URL.createObjectURL(file)}
+              alt={`${label} Preview`}
+              width={100}
+              height={100}
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+              <span className="text-gray-400">No Image</span>
+            </div>
+          )}
+        </div>
+        <div>
+          <input
+            type="file"
+            id={name}
+            name={name}
+            accept="image/*"
+            onChange={handleChange}
+            className="hidden"
           />
-        ) : (
-          <span className="text-4xl text-gray-400">+</span>
-        )}
+          {file ? (
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => document.getElementById(name)?.click()}
+                className="text-xs rounded-full text-gray-700"
+              >
+                수정
+              </Button>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => onDelete(name)}
+                className="text-xs rounded-full text-gray-700"
+              >
+                삭제
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => document.getElementById(name)?.click()}
+              className="text-xs rounded-full text-gray-700"
+            >
+              이미지 등록
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
