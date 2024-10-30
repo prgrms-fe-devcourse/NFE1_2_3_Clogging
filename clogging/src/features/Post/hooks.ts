@@ -3,6 +3,7 @@
 import { create } from 'zustand';
 import { Post } from '@/features/Post/types';
 import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react'; // useState, useEffect import 추가
 import {
   collection,
   doc,
@@ -12,12 +13,16 @@ import {
   orderBy,
   limit,
   where,
+  startAfter,
+  QueryConstraint,
 } from 'firebase/firestore';
 import { db } from '@/shared/lib/firebase';
 
 interface PostFilter {
   sortType: 'latest' | 'trending';
+  lastDoc: any | null;
   setSortType: (type: 'latest' | 'trending') => void;
+  setLastDoc: (doc: any | null) => void;
 }
 
 // Firebase에서 단일 게시물 조회
@@ -84,7 +89,6 @@ export const useAdjacentPosts = (currentPostId: string) => {
           ? ({
               id: prevSnapshot.docs[0].id,
               ...prevSnapshot.docs[0].data(),
-              // Timestamp를 밀리초로 변환
               createdAt: prevSnapshot.docs[0].data().createdAt.toMillis(),
               updatedAt: prevSnapshot.docs[0].data().updatedAt.toMillis(),
             } as Post)
@@ -93,7 +97,6 @@ export const useAdjacentPosts = (currentPostId: string) => {
           ? ({
               id: nextSnapshot.docs[0].id,
               ...nextSnapshot.docs[0].data(),
-              // Timestamp를 밀리초로 변환
               createdAt: nextSnapshot.docs[0].data().createdAt.toMillis(),
               updatedAt: nextSnapshot.docs[0].data().updatedAt.toMillis(),
             } as Post)
@@ -109,37 +112,47 @@ export const useAdjacentPosts = (currentPostId: string) => {
 };
 
 // 게시물 목록 조회 훅
-export const usePosts = (sortType: 'latest' | 'trending') => {
+export const usePosts = (sortType: 'latest' | 'trending', lastDoc?: any) => {
   return useQuery({
-    queryKey: ['posts', sortType],
+    queryKey: ['posts', sortType, lastDoc],
     queryFn: async () => {
       try {
         const postsRef = collection(db, 'posts');
-        const queryConstraints = [
-          // 정렬 조건만 지정
+        let queryConstraints: QueryConstraint[] = [
           sortType === 'latest'
             ? orderBy('createdAt', 'desc')
             : orderBy('viewCount', 'desc'),
-          limit(20), // 한 번에 가져올 게시물 수 제한
+          limit(20),
         ];
+
+        if (lastDoc) {
+          queryConstraints = [...queryConstraints, startAfter(lastDoc)];
+        }
 
         const postsQuery = query(postsRef, ...queryConstraints);
         const querySnapshot = await getDocs(postsQuery);
 
-        // viewCount가 없는 경우를 대비한 기본값 처리만 추가
-        return querySnapshot.docs.map((doc) => {
+        const posts = querySnapshot.docs.map((doc) => {
           const data = doc.data();
           return {
             id: doc.id,
             ...data,
-            // Timestamp를 밀리초로 변환
-            createdAt: data.createdAt.toMillis(),
-            updatedAt: data.updatedAt.toMillis(),
-            viewCount: data.viewCount ?? 0, // viewCount가 없으면 0으로
+            createdAt: data.createdAt?.toMillis() ?? Date.now(),
+            updatedAt: data.updatedAt?.toMillis() ?? Date.now(),
+            viewCount: data.viewCount ?? 0,
           } as Post;
         });
+
+        const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+        const hasMore = querySnapshot.docs.length === 20;
+
+        return {
+          posts,
+          lastVisible,
+          hasMore,
+        };
       } catch (error) {
-        console.error('Error fetching posts:', error); // 에러 로깅 추가
+        console.error('Error fetching posts:', error);
         throw new Error('게시글 목록을 불러오는데 실패했습니다.');
       }
     },
@@ -149,11 +162,82 @@ export const usePosts = (sortType: 'latest' | 'trending') => {
 // 정렬 상태 관리를 위한 Zustand store
 export const usePostFilter = create<PostFilter>((set) => ({
   sortType: 'latest',
-  setSortType: (type) => set({ sortType: type }),
+  lastDoc: null,
+  setSortType: (type) => set({ sortType: type, lastDoc: null }),
+  setLastDoc: (doc) => set({ lastDoc: doc }),
 }));
 
 // 필터링된 포스트 목록을 가져오는 훅
 export const useFilteredPosts = () => {
-  const { sortType } = usePostFilter();
-  return usePosts(sortType);
+  const { sortType, lastDoc, setLastDoc } = usePostFilter();
+  const [allPosts, setAllPosts] = useState<Post[]>([]);
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['posts', sortType, lastDoc],
+    queryFn: async () => {
+      try {
+        const postsRef = collection(db, 'posts');
+        let queryConstraints: QueryConstraint[] = [
+          sortType === 'latest'
+            ? orderBy('createdAt', 'desc')
+            : orderBy('viewCount', 'desc'),
+          limit(20),
+        ];
+
+        if (lastDoc) {
+          queryConstraints = [...queryConstraints, startAfter(lastDoc)];
+        }
+
+        const postsQuery = query(postsRef, ...queryConstraints);
+        const querySnapshot = await getDocs(postsQuery);
+
+        const newPosts = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toMillis() ?? Date.now(),
+            updatedAt: data.updatedAt?.toMillis() ?? Date.now(),
+            viewCount: data.viewCount ?? 0,
+          } as Post;
+        });
+
+        const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+        const hasMore = querySnapshot.docs.length === 20;
+
+        // lastDoc이 null이면 새로운 정렬이므로 posts를 대체
+        // 아니면 기존 posts에 새로운 posts를 추가
+        if (!lastDoc) {
+          setAllPosts(newPosts);
+        } else {
+          setAllPosts((prev) => [...prev, ...newPosts]);
+        }
+
+        return {
+          posts: newPosts,
+          lastVisible,
+          hasMore,
+        };
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+        throw new Error('게시글 목록을 불러오는데 실패했습니다.');
+      }
+    },
+  });
+
+  // 정렬 타입이 변경되면 allPosts 초기화
+  useEffect(() => {
+    setAllPosts([]);
+    setLastDoc(null);
+  }, [sortType]);
+
+  return {
+    data: {
+      posts: allPosts,
+      lastVisible: data?.lastVisible,
+      hasMore: data?.hasMore,
+    },
+    isLoading,
+    error,
+  };
 };
