@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
-
+import SettingImageField from './SettingImageField';
+import SettingTextField from './SettingTextField';
+import ProfileImageUpload from './ProfileImageUpload';
+import FaviconUpload from './FaviconUpload';
 interface BlogSettings {
   profileImage: File | null;
   nickname: string;
@@ -20,115 +22,65 @@ export default function SettingsForm() {
     bannerImage: null,
   });
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target;
+  const handleInputChange = (name: string, value: string) => {
     setSettings((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, files } = e.target;
-    if (files && files[0]) {
-      setSettings((prev) => ({ ...prev, [name]: files[0] }));
-    }
+  const handleFileChange = (name: string, file: File | null) => {
+    setSettings((prev) => ({ ...prev, [name]: file }));
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // 서버 API 대신 콘솔에 데이터 출력
     console.log('저장된 설정:', {
       ...settings,
       profileImage: settings.profileImage ? settings.profileImage.name : null,
       favicon: settings.favicon ? settings.favicon.name : null,
       bannerImage: settings.bannerImage ? settings.bannerImage.name : null,
     });
-
-    // 저장 완료 알림
-    alert('설정이 저장되었습니다. (콘솔에서 저장된 데이터를 확인하세요)');
+    alert('설정이 저장되었습니다.');
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="profileImage">프로필 사진</label>
-        <input
-          type="file"
-          id="profileImage"
-          name="profileImage"
-          accept="image/*"
-          onChange={handleFileChange}
-        />
-        {settings.profileImage && (
-          <Image
-            src={URL.createObjectURL(settings.profileImage)}
-            alt="Profile Preview"
-            width={100}
-            height={100}
-          />
-        )}
-      </div>
+      <ProfileImageUpload
+        label="프로필 사진"
+        name="profileImage"
+        file={settings.profileImage}
+        onChange={handleFileChange}
+      />
 
-      <div>
-        <label htmlFor="nickname">블로그 닉네임</label>
-        <input
-          type="text"
-          id="nickname"
-          name="nickname"
-          value={settings.nickname}
-          onChange={handleInputChange}
-        />
-      </div>
+      <SettingTextField
+        label="블로그 닉네임"
+        name="nickname"
+        value={settings.nickname}
+        onChange={handleInputChange}
+        onBlur={(value) => handleInputChange('nickname', value)}
+      />
 
-      <div>
-        <label htmlFor="description">블로그 설명</label>
-        <textarea
-          id="description"
-          name="description"
-          value={settings.description}
-          onChange={handleInputChange}
-        />
-      </div>
+      <SettingTextField
+        label="블로그 설명"
+        name="description"
+        value={settings.description}
+        onChange={handleInputChange}
+        onBlur={(value) => handleInputChange('description', value)}
+        multiline
+      />
 
-      <div>
-        <label htmlFor="favicon">파비콘</label>
-        <input
-          type="file"
-          id="favicon"
-          name="favicon"
-          accept="image/*"
-          onChange={handleFileChange}
-        />
-        {settings.favicon && (
-          <Image
-            src={URL.createObjectURL(settings.favicon)}
-            alt="Favicon Preview"
-            width={32}
-            height={32}
-          />
-        )}
-      </div>
+      <FaviconUpload
+        label="파비콘"
+        name="favicon"
+        file={settings.favicon}
+        onChange={handleFileChange}
+      />
 
-      <div>
-        <label htmlFor="bannerImage">배너 이미지</label>
-        <input
-          type="file"
-          id="bannerImage"
-          name="bannerImage"
-          accept="image/*"
-          onChange={handleFileChange}
-        />
-        {settings.bannerImage && (
-          <Image
-            src={URL.createObjectURL(settings.bannerImage)}
-            alt="Banner Preview"
-            width={200}
-            height={100}
-          />
-        )}
-      </div>
-
+      <SettingImageField
+        label="배너 이미지"
+        name="bannerImage"
+        file={settings.bannerImage}
+        onChange={handleFileChange}
+        type="banner" // 배너 이미지 타입
+      />
       <button type="submit">저장하기</button>
     </form>
   );
