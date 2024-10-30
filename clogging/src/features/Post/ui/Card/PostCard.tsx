@@ -13,6 +13,7 @@ import { Post } from '@/features/Post/types';
 import { useState, useEffect } from 'react';
 import { storage } from '@/shared/lib/firebase';
 import { ref, getDownloadURL } from 'firebase/storage';
+import { useCommentCount } from '@/features/Comment/hooks'; // 추가
 
 interface Props {
   post: Post;
@@ -22,6 +23,8 @@ const PostCard = ({ post }: Props) => {
   const [thumbnailUrl, setThumbnailUrl] = useState<string>(
     '/images/card-thumbnail.png',
   );
+
+  const { data: commentCount = 0 } = useCommentCount(post.id);
 
   useEffect(() => {
     const loadThumbnail = async () => {
@@ -104,8 +107,7 @@ const PostCard = ({ post }: Props) => {
             <CardFooter className="justify-between px-0 pt-4">
               <div className="flex gap-2 flex-wrap">
                 <Badge variant="secondary">{formatDate(post.createdAt)}</Badge>
-                <Badge variant="secondary">0개의 댓글</Badge>{' '}
-                {/* 댓글 기능 추가 전까지 0으로 표시 */}
+                <Badge variant="secondary">{commentCount}개의 댓글</Badge>
                 <Badge variant="secondary">
                   조회수 {(post.viewCount ?? 0).toLocaleString()}
                 </Badge>

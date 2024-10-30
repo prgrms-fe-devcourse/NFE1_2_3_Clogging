@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     const comments = await Promise.all(
       commentsSnapshot.docs.map(async (commentDoc) => {
         const commentData = commentDoc.data();
-        console.log('댓글 데이터:', commentData);
+        //console.log('댓글 데이터:', commentData);
 
         const createdAtTimestamp = commentData.createdAt as Timestamp;
         const createdAtDate = createdAtTimestamp.toDate();

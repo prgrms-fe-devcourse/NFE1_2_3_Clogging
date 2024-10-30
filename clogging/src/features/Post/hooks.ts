@@ -168,6 +168,7 @@ export const usePostFilter = create<PostFilter>((set) => ({
 }));
 
 // 필터링된 포스트 목록을 가져오는 훅
+// 필터링된 포스트 목록을 가져오는 훅
 export const useFilteredPosts = () => {
   const { sortType, lastDoc, setLastDoc } = usePostFilter();
   const [allPosts, setAllPosts] = useState<Post[]>([]);
@@ -205,12 +206,25 @@ export const useFilteredPosts = () => {
         const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
         const hasMore = querySnapshot.docs.length === 20;
 
-        // lastDoc이 null이면 새로운 정렬이므로 posts를 대체
-        // 아니면 기존 posts에 새로운 posts를 추가
+        // 중복 제거 로직 추가
         if (!lastDoc) {
+          // 첫 로드거나 정렬 변경 시
           setAllPosts(newPosts);
         } else {
-          setAllPosts((prev) => [...prev, ...newPosts]);
+          // 기존 포스트와 새 포스트를 합치면서 중복 제거
+          setAllPosts((prev) => {
+            const uniquePosts = [...prev];
+            newPosts.forEach((newPost) => {
+              if (
+                !uniquePosts.some(
+                  (existingPost) => existingPost.id === newPost.id,
+                )
+              ) {
+                uniquePosts.push(newPost);
+              }
+            });
+            return uniquePosts;
+          });
         }
 
         return {
@@ -229,11 +243,11 @@ export const useFilteredPosts = () => {
   useEffect(() => {
     setAllPosts([]);
     setLastDoc(null);
-  }, [sortType]);
+  }, [sortType, setLastDoc]); // setLastDoc 의존성 추가
 
   return {
     data: {
-      posts: allPosts,
+      posts: allPosts, // 중복이 제거된 전체 포스트 목록
       lastVisible: data?.lastVisible,
       hasMore: data?.hasMore,
     },
