@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import Image from 'next/image';
 import { Button } from '@/shared/ui/common/Button';
 import { useTheme } from '@/shared/providers/theme';
@@ -19,10 +19,20 @@ export default function ProfileImageField({
   onDelete,
 }: ProfileImageFieldProps) {
   const { isDarkMode } = useTheme();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files[0]) {
-      onChange(name, files[0]);
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        onChange(name, file);
+      } else {
+        alert('이미지 파일만 선택할 수 있습니다.');
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
     }
   };
 
@@ -56,13 +66,14 @@ export default function ProfileImageField({
             accept="image/*"
             onChange={handleChange}
             className="hidden"
+            ref={fileInputRef}
           />
           {file ? (
             <div className="flex space-x-2">
               <Button
                 variant="outline"
                 type="button"
-                onClick={() => document.getElementById(name)?.click()}
+                onClick={() => fileInputRef.current?.click()}
                 className="text-xs rounded-full text-gray-700"
               >
                 수정
@@ -80,7 +91,7 @@ export default function ProfileImageField({
             <Button
               variant="outline"
               type="button"
-              onClick={() => document.getElementById(name)?.click()}
+              onClick={() => fileInputRef.current?.click()}
               className="text-xs rounded-full text-gray-700"
             >
               이미지 등록
