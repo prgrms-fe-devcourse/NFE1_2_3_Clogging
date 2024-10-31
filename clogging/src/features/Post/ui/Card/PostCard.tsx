@@ -114,12 +114,6 @@ const PostCard = ({ post }: Props) => {
                 <Badge variant="secondary">
                   조회수 {viewCount.toLocaleString()}
                 </Badge>
-                {post.tags?.length > 0 && (
-                  <Badge variant="secondary">
-                    {post.tags[0]}
-                    {post.tags.length > 1 ? ` +${post.tags.length - 1}` : ''}
-                  </Badge>
-                )}
               </div>
             </CardFooter>
           </div>
