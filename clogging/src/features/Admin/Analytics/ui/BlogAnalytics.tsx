@@ -1,3 +1,4 @@
+// src/features/Admin/ui/analytics/BlogAnalytics.tsx
 'use client';
 import React from 'react';
 import BlogDataList from './BlogDataList';
@@ -6,44 +7,31 @@ import PostingCalendar from './PostingCalendar';
 import CustomBarChart from './CustomBarChart';
 import NivoLineChart from './CustomLineChart';
 
-const BlogAnalytics = () => {
+interface BlogAnalyticsProps {
+  data: {
+    adminData: Array<{ label: string; value: string }>;
+    viewsData: Array<{ date: string; views: number }>;
+    lineData: Array<{
+      id: string;
+      color: string;
+      data: Array<{ x: string; y: number }>;
+    }>;
+  };
+}
+
+const BlogAnalytics: React.FC<BlogAnalyticsProps> = ({ data }) => {
   const { isDarkMode } = useTheme();
-  const viewsData = [
-    { date: '2024-01', views: 200 },
-    { date: '2024-02', views: 300 },
-    { date: '2024-03', views: 400 },
-    { date: '2024-04', views: 350 },
-  ];
-  const lineData = [
-    {
-      id: '조회수',
-      color: 'hsl(213, 70%, 50%)',
-      data: [
-        { x: '2024-01', y: 200 },
-        { x: '2024-02', y: 300 },
-        { x: '2024-03', y: 400 },
-        { x: '2024-04', y: 350 },
-      ],
-    },
-    {
-      id: '댓글 수',
-      color: 'hsl(120, 70%, 50%)',
-      data: [
-        { x: '2024-01', y: 100 },
-        { x: '2024-02', y: 150 },
-        { x: '2024-03', y: 200 },
-        { x: '2024-04', y: 180 },
-      ],
-    },
-  ];
+  const { adminData, viewsData, lineData } = data;
+  console.log(data);
   const calendarStyle = ` p-2 rounded-md ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`;
   const cardStyle = `w-full md:w-1/2 p-2`;
+
   return (
     <div>
       <div className="mb-10">
-        <BlogDataList />
+        <BlogDataList adminData={adminData} />
       </div>
-      <div className="flex flex-col md:flex-row md:flex-wrap">
+      <div className="flex flex-col md:flex-row md:flex-wrap mb-6">
         <div className={`${cardStyle}`}>
           <h2>월별 조회수</h2>
           <CustomBarChart data={viewsData} />
@@ -54,6 +42,7 @@ const BlogAnalytics = () => {
         </div>
       </div>
       <div className={calendarStyle}>
+        <h2 className="mb-6">Posting Calendar</h2>
         <PostingCalendar />
       </div>
     </div>

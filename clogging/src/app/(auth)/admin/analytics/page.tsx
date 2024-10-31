@@ -1,9 +1,12 @@
-import BlogAnalytics from '@/features/Admin/ui/analytics/BlogAnalytics';
+import BlogAnalytics from '@/features/Admin/Analytics/ui/BlogAnalytics';
+import { fetchBlogData } from '@/features/Admin/Analytics/utils/fetchBlogData';
 
-export default function Page() {
+export default async function Page() {
+  const blogData = await fetchBlogData();
+
   return (
     <div>
-      <BlogAnalytics />
+      <BlogAnalytics data={blogData} />
     </div>
   );
 }

@@ -12,8 +12,8 @@ const adminData = [
   { label: '포스트 수', value: '100 개' },
   { label: '댓글 수', value: '121 개' },
   { label: '총 조회 수', value: '121 회' },
-  { label: '총 조회 수', value: '121 회' },
-  { label: '총 조회 수', value: '121 회' },
+  { label: '인기포스트 조회수', value: '121 회' },
+  { label: '포스팅 수', value: '12 회' },
 ];
 export default function AdminPage() {
   return (
