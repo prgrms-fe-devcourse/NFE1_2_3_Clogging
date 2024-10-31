@@ -52,7 +52,7 @@ export const CommentItem = ({
           {/* 댓글 헤더 */}
           <CardHeader className="flex justify-between items-center mb-4">
             <CardTitle className="flex items-center gap-2">
-              <span className="font-bold">{comment.nickname}</span>
+              <span className="font-bold">{comment.author}</span>
               {comment.isAuthor && (
                 <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-sm rounded">
                   작성자

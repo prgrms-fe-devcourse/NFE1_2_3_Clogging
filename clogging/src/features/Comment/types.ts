@@ -1,7 +1,7 @@
 export interface Comment {
   id: string;
   postId: string;
-  nickname: string;
+  author: string;
   content: string;
   password: string;
   isPrivate: boolean;

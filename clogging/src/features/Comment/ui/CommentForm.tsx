@@ -48,7 +48,7 @@ export const CommentForm = ({
     if (createComment.isPending || updateComment.isPending) return;
 
     // 폼 유효성 검사
-    if (!isAdmin && (!form.nickname || !form.password || !form.content)) {
+    if (!isAdmin && (!form.author || !form.password || !form.content)) {
       alert('작성자, 비밀번호, 댓글 내용을 모두 입력해주세요.');
       return;
     }
@@ -61,8 +61,8 @@ export const CommentForm = ({
     try {
       const commentData = {
         postId,
-        nickname: isAdmin ? '작성자' : form.nickname,
-        password: isAdmin ? 'admin' : form.password,
+        author: isAdmin ? '작성자' : form.author,
+        password: isAdmin ? '1234' : form.password,
         content: form.content,
         isPrivate: form.isPrivate,
         isAuthor: false,
@@ -106,8 +106,8 @@ export const CommentForm = ({
                 <Input
                   type="text"
                   placeholder="닉네임을 입력하세요"
-                  value={form.nickname}
-                  onChange={(e) => setForm({ nickname: e.target.value })}
+                  value={form.author}
+                  onChange={(e) => setForm({ author: e.target.value })}
                   className="flex-1 p-2 border rounded"
                   required={!isAdmin}
                 />

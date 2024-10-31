@@ -43,7 +43,7 @@ export const CommentList = ({ postId }: { postId: string }) => {
     const comment = findComment(comments, commentId);
     if (!comment) return;
 
-    if (comment.nickname === '관리자' || isAdmin) {
+    if (comment.author === '관리자' || isAdmin) {
       setEditingComment(commentId, comment.content, comment.isPrivate);
       return;
     }
@@ -69,7 +69,7 @@ export const CommentList = ({ postId }: { postId: string }) => {
         postId,
         content: editingContent,
         isPrivate: editingIsPrivate,
-        nickname: comment.nickname,
+        author: comment.author,
         password: comment.password,
       });
       resetEditingState();
@@ -83,7 +83,7 @@ export const CommentList = ({ postId }: { postId: string }) => {
     const comment = findComment(comments, commentId);
     if (!comment) return;
 
-    if (comment.nickname === '관리자' || isAdmin) {
+    if (comment.author === '관리자' || isAdmin) {
       const confirmDelete = window.confirm(
         '정말로 이 댓글을 삭제하시겠습니까?',
       );
