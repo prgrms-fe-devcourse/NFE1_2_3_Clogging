@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { isCategoryNameValid } from '../../utils/categoryValidator';
 import { useTheme } from '@/shared/providers/theme';
 import Image from 'next/image';
+import { useCategories } from '../../hooks'; // useCategories 훅을 임포트
 
 interface CategoryFormProps {
   onSubmit: (name: string) => void;
@@ -9,6 +10,7 @@ interface CategoryFormProps {
 
 export const CategoryForm: React.FC<CategoryFormProps> = ({ onSubmit }) => {
   const { isDarkMode } = useTheme();
+  const { addCategory } = useCategories(); // 훅에서 addCategory 가져오기
 
   const [categoryName, setCategoryName] = useState('');
   const [error, setError] = useState('');
@@ -16,24 +18,15 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ onSubmit }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    if (!isCategoryNameValid(categoryName)) {
+      return alert('20자 이내의 유효한 이름을 입력해주세요.');
+    }
 
     try {
-      const response = await fetch('/api/categories/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: categoryName }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || '카테고리 추가 실패');
-      }
-
-      const data = await response.json();
+      // addCategory 호출
+      addCategory(categoryName);
       alert('카테고리 추가 되었습니다.');
-      onSubmit(data.category.name); // 카테고리 추가 후 부모 컴포넌트에 알림
+      onSubmit(categoryName); // 카테고리 추가 후 부모 컴포넌트에 알림
       setCategoryName(''); // 입력 필드 초기화
     } catch (error) {
       setError(error.message);
@@ -63,6 +56,8 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ onSubmit }) => {
           className="w-5 h-auto"
         />
       </button>
+      {error && <p className="text-red-500">{error}</p>}{' '}
+      {/* 오류 메시지 표시 */}
     </form>
   );
 };

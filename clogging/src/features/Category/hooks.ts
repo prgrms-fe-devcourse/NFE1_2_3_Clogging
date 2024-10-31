@@ -12,22 +12,28 @@ export const useCategories = (initialCategories: Category[] = []) => {
     setCategories(sortCategoriesByOrder(fetchedCategories));
   }, []);
 
-  const addCategory = useCallback(
-    (name: string) => {
-      if (!isCategoryNameValid(name)) {
-        throw new Error('Invalid category name');
-      }
-      const newCategory: Category = {
-        id: String(Date.now()),
-        name,
-        order: categories.length,
-        postCount: 0,
-        postIds: [],
-      };
-      setCategories((prev) => sortCategoriesByOrder([...prev, newCategory]));
-    },
-    [categories],
-  );
+  const addCategory = useCallback(async (name: string) => {
+    if (!isCategoryNameValid(name)) {
+      throw new Error('20자 이내로 유효한 이름을 입력해주세요.');
+    }
+
+    // API 호출하여 카테고리 추가
+    const response = await fetch('/api/categories/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || '카테고리 추가 실패');
+    }
+
+    const data = await response.json();
+    setCategories((prev) => sortCategoriesByOrder([...prev, data.category]));
+  }, []);
 
   const updateCategory = useCallback((id: string, name: string) => {
     if (!isCategoryNameValid(name)) {
@@ -38,8 +44,21 @@ export const useCategories = (initialCategories: Category[] = []) => {
     );
   }, []);
 
-  const deleteCategory = useCallback((id: string) => {
-    setCategories((prev) => prev.filter((cat) => cat.id !== id));
+  const deleteCategory = useCallback(async (id: string) => {
+    try {
+      const response = await fetch(`/api/categories/delete/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || '카테고리 삭제 실패');
+      }
+
+      setCategories((prev) => prev.filter((cat) => cat.id !== id));
+    } catch (error) {
+      console.error(error);
+    }
   }, []);
 
   const reorderCategories = useCallback((id: string, newOrder: number) => {

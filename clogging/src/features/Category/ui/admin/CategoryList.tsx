@@ -4,8 +4,8 @@ import { CategoryItem } from './CategoryItem';
 
 interface CategoryListProps {
   categories: Category[];
-  handleUpdateCategory: (id: string, name: string) => void; // id 매개변수 이름 제거
-  deleteCategory: (id: string) => void; // id 매개변수 이름 제거
+  handleUpdateCategory: (id: string, name: string) => void;
+  deleteCategory: (id: string) => void;
 }
 export const CategoryList = ({
   categories,
