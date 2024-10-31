@@ -1,9 +1,10 @@
 'use client';
-import React, { useRef, useEffect, useState } from 'react';
+import React from 'react';
 import BlogDataList from './BlogDataList';
 import CustomLineChart from './LineChart';
 import { useTheme } from '@/shared/providers/theme';
 import CustomAreaChart from './AreaChart';
+import PostingCalendar from './PostingCalendar';
 
 const BlogAnalytics = () => {
   const { isDarkMode } = useTheme();
@@ -15,47 +16,26 @@ const BlogAnalytics = () => {
     { date: '01/05/2023', uv: 19, pv: 25 },
   ];
 
-  const cardStyle = `w-full md:w-1/2 p-2 rounded-md ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`;
-
-  // Ref to get the parent div's width
-  const chartContainerRef = useRef<HTMLDivElement>(null);
-
-  // State to hold the calculated width
-  const [chartWidth, setChartWidth] = useState(0);
-
-  useEffect(() => {
-    if (chartContainerRef.current) {
-      setChartWidth(chartContainerRef.current.offsetWidth); // Set width based on parent div
-    }
-
-    const handleResize = () => {
-      if (chartContainerRef.current) {
-        setChartWidth(chartContainerRef.current.offsetWidth); // Update width on resize
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    // Cleanup event listener on component unmount
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
+  const cardStyle = `flex flex-col w-full p-2 rounded-md ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`;
+  const calendarStyle = ` p-2 rounded-md ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`;
 
   return (
     <div>
       <div className="mb-10">
         <BlogDataList />
       </div>
-      <div className="flex mb-6">
-        <div className={`mr-2 ${cardStyle}`} ref={chartContainerRef}>
+      <div className="flex flex-col md:flex-row mb-6 space-y-6 md:space-y-0 md:space-x-6">
+        <div className={`${cardStyle} w-full md:w-1/2`}>
           <h2 className="mb-4 text-lg">일별 댓글 추이</h2>
-          <CustomLineChart data={data} width={chartWidth} />
+          <CustomLineChart data={data} />
         </div>
-        <div className={cardStyle} ref={chartContainerRef}>
+        <div className={`${cardStyle} w-full md:w-1/2`}>
           <h2 className="mb-4 text-lg">일별 조회수</h2>
-          <CustomAreaChart width={chartWidth} />
+          <CustomAreaChart />
         </div>
+      </div>
+      <div className={calendarStyle}>
+        <PostingCalendar />
       </div>
     </div>
   );
