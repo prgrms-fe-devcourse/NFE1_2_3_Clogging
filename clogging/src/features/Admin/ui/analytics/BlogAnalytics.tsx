@@ -3,6 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import BlogDataList from './BlogDataList';
 import CustomLineChart from './LineChart';
 import { useTheme } from '@/shared/providers/theme';
+import CustomAreaChart from './AreaChart';
 
 const BlogAnalytics = () => {
   const { isDarkMode } = useTheme();
@@ -43,17 +44,17 @@ const BlogAnalytics = () => {
 
   return (
     <div>
-      <div className="mb-6">
+      <div className="mb-10">
         <BlogDataList />
       </div>
-      <div className="flex">
+      <div className="flex mb-6">
         <div className={`mr-2 ${cardStyle}`} ref={chartContainerRef}>
-          <h2 className="mb-4 text-lg">월별 댓글 추이</h2>
+          <h2 className="mb-4 text-lg">일별 댓글 추이</h2>
           <CustomLineChart data={data} width={chartWidth} />
         </div>
         <div className={cardStyle} ref={chartContainerRef}>
-          <h2 className="mb-4 text-lg">월별 조회수</h2>
-          <CustomLineChart data={data} width={chartWidth} />
+          <h2 className="mb-4 text-lg">일별 조회수</h2>
+          <CustomAreaChart width={chartWidth} />
         </div>
       </div>
     </div>

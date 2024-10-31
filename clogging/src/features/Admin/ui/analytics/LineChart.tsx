@@ -23,7 +23,7 @@ const CustomLineChart: React.FC<LineChartProps> = ({ data, width }) => (
     <XAxis dataKey="date" />
     <Tooltip />
     <CartesianGrid stroke="#e0e0e0" />
-    <Line type="monotone" dataKey="uv" stroke="#ff7300" yAxisId={0} />
+    <Line type="monotone" dataKey="uv" stroke="#6b4bcc" yAxisId={0} />
   </LineChart>
 );
 
