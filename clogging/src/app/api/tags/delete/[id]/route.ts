@@ -19,10 +19,7 @@ export async function DELETE(
     const tagRef = doc(db, 'tags', tagId);
     await deleteDoc(tagRef);
 
-    return NextResponse.json(
-      { message: '태그 삭제 성공!', deletedTagId: tagId },
-      { status: 200 },
-    );
+    return NextResponse.json({ message: '태그 삭제 성공!' }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: '태그 삭제 실패!' }, { status: 500 });
   }
