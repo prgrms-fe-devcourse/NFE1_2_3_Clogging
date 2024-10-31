@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import { Post } from '@/features/Post/types';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react'; // useState, useEffect import 추가
 import {
   collection,
@@ -15,6 +15,7 @@ import {
   where,
   startAfter,
   QueryConstraint,
+  onSnapshot,
 } from 'firebase/firestore';
 import { db } from '@/shared/lib/firebase';
 
@@ -25,8 +26,71 @@ interface PostFilter {
   setLastDoc: (doc: any | null) => void;
 }
 
+export const useRealtimeViewCount = (postId: string) => {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!postId) return;
+
+    const unsubscribe = onSnapshot(
+      doc(db, 'posts', postId),
+      (doc) => {
+        if (doc.exists()) {
+          const data = doc.data();
+          queryClient.setQueryData(
+            ['postViewCount', postId],
+            data.viewCount ?? 0,
+          );
+        }
+      },
+      (error) => {
+        console.error('View count subscription error:', error);
+      },
+    );
+
+    return () => unsubscribe();
+  }, [postId, queryClient]);
+
+  return useQuery({
+    queryKey: ['postViewCount', postId],
+    queryFn: async () => {
+      const docRef = await getDoc(doc(db, 'posts', postId));
+      return docRef.exists() ? (docRef.data().viewCount ?? 0) : 0;
+    },
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Firebase에서 단일 게시물 조회
 export const usePost = (postId: string) => {
+  const queryClient = useQueryClient();
+
+  // 실시간 조회수 업데이트 구독
+  useEffect(() => {
+    if (!postId) return;
+
+    const unsubscribe = onSnapshot(
+      doc(db, 'posts', postId),
+      (doc) => {
+        if (doc.exists()) {
+          const data = doc.data();
+          const post = {
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt.toMillis(),
+            updatedAt: data.updatedAt.toMillis(),
+          } as Post;
+          queryClient.setQueryData(['post', postId], post);
+        }
+      },
+      (error) => {
+        console.error('Post subscription error:', error);
+      },
+    );
+
+    return () => unsubscribe();
+  }, [postId, queryClient]);
+
   return useQuery({
     queryKey: ['post', postId],
     queryFn: async () => {
@@ -168,10 +232,52 @@ export const usePostFilter = create<PostFilter>((set) => ({
 }));
 
 // 필터링된 포스트 목록을 가져오는 훅
-// 필터링된 포스트 목록을 가져오는 훅
 export const useFilteredPosts = () => {
   const { sortType, lastDoc, setLastDoc } = usePostFilter();
   const [allPosts, setAllPosts] = useState<Post[]>([]);
+  const queryClient = useQueryClient();
+
+  // 트렌딩 정렬일 때 실시간 조회수 업데이트
+  useEffect(() => {
+    if (sortType === 'trending' && allPosts.length > 0) {
+      const unsubscribes = allPosts.map((post) =>
+        onSnapshot(
+          doc(db, 'posts', post.id),
+          (doc) => {
+            if (doc.exists()) {
+              const data = doc.data();
+              // 조회수 업데이트
+              queryClient.setQueryData(
+                ['postViewCount', post.id],
+                data.viewCount ?? 0,
+              );
+
+              // 포스트 목록 업데이트 및 재정렬
+              setAllPosts((prev) => {
+                const updated = prev.map((p) =>
+                  p.id === post.id
+                    ? { ...p, viewCount: data.viewCount ?? 0 }
+                    : p,
+                );
+                return sortType === 'trending'
+                  ? updated.sort(
+                      (a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0),
+                    )
+                  : updated;
+              });
+            }
+          },
+          (error) => {
+            console.error('Post view count subscription error:', error);
+          },
+        ),
+      );
+
+      return () => {
+        unsubscribes.forEach((unsubscribe) => unsubscribe());
+      };
+    }
+  }, [sortType, allPosts, queryClient]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['posts', sortType, lastDoc],
@@ -206,12 +312,9 @@ export const useFilteredPosts = () => {
         const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
         const hasMore = querySnapshot.docs.length === 20;
 
-        // 중복 제거 로직 추가
         if (!lastDoc) {
-          // 첫 로드거나 정렬 변경 시
           setAllPosts(newPosts);
         } else {
-          // 기존 포스트와 새 포스트를 합치면서 중복 제거
           setAllPosts((prev) => {
             const uniquePosts = [...prev];
             newPosts.forEach((newPost) => {
@@ -239,15 +342,14 @@ export const useFilteredPosts = () => {
     },
   });
 
-  // 정렬 타입이 변경되면 allPosts 초기화
   useEffect(() => {
     setAllPosts([]);
     setLastDoc(null);
-  }, [sortType, setLastDoc]); // setLastDoc 의존성 추가
+  }, [sortType, setLastDoc]);
 
   return {
     data: {
-      posts: allPosts, // 중복이 제거된 전체 포스트 목록
+      posts: allPosts,
       lastVisible: data?.lastVisible,
       hasMore: data?.hasMore,
     },

@@ -14,6 +14,7 @@ import { useState, useEffect } from 'react';
 import { storage } from '@/shared/lib/firebase';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { useCommentCount } from '@/features/Comment/lib/hooks/useCommentCount';
+import { useRealtimeViewCount } from '@/features/Post/hooks';
 
 interface Props {
   post: Post;
@@ -23,7 +24,9 @@ const PostCard = ({ post }: Props) => {
   const [thumbnailUrl, setThumbnailUrl] = useState<string>(
     '/images/card-thumbnail.png',
   );
-
+  const { data: viewCount = post.viewCount ?? 0 } = useRealtimeViewCount(
+    post.id,
+  );
   const { data: commentCount = 0 } = useCommentCount(post.id);
 
   useEffect(() => {
@@ -109,7 +112,7 @@ const PostCard = ({ post }: Props) => {
                 <Badge variant="secondary">{formatDate(post.createdAt)}</Badge>
                 <Badge variant="secondary">{commentCount}개의 댓글</Badge>
                 <Badge variant="secondary">
-                  조회수 {(post.viewCount ?? 0).toLocaleString()}
+                  조회수 {viewCount.toLocaleString()}
                 </Badge>
                 {post.tags?.length > 0 && (
                   <Badge variant="secondary">
