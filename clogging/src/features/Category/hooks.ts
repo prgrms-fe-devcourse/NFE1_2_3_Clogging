@@ -1,14 +1,15 @@
 import { useState, useCallback } from 'react';
 import { Category } from './types';
-import { mockCategories } from '@/mocks/data/categories';
 import { sortCategoriesByOrder } from './utils/categorySort';
 import { isCategoryNameValid } from './utils/categoryValidator';
 
-export const useCategories = () => {
-  const [categories, setCategories] = useState<Category[]>(mockCategories);
+export const useCategories = (initialCategories: Category[] = []) => {
+  const [categories, setCategories] = useState<Category[]>(
+    sortCategoriesByOrder(initialCategories),
+  );
 
-  const fetchCategories = useCallback(() => {
-    setCategories(sortCategoriesByOrder(mockCategories));
+  const fetchCategories = useCallback((fetchedCategories: Category[]) => {
+    setCategories(sortCategoriesByOrder(fetchedCategories));
   }, []);
 
   const addCategory = useCallback(
@@ -20,6 +21,8 @@ export const useCategories = () => {
         id: String(Date.now()),
         name,
         order: categories.length,
+        postCount: 0,
+        postIds: [],
       };
       setCategories((prev) => sortCategoriesByOrder([...prev, newCategory]));
     },
@@ -52,12 +55,15 @@ export const useCategories = () => {
     });
   }, []);
 
-  const getCategoryName = useCallback((categoryId: string): string => {
-    return (
-      mockCategories.find((category: Category) => category.id === categoryId)
-        ?.name ?? ''
-    );
-  }, []);
+  const getCategoryName = useCallback(
+    (categoryId: string): string => {
+      return (
+        categories.find((category: Category) => category.id === categoryId)
+          ?.name ?? ''
+      );
+    },
+    [categories],
+  );
 
   return {
     categories,
