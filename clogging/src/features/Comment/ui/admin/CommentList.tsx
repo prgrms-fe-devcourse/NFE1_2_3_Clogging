@@ -3,15 +3,21 @@ import { useTheme } from '@/shared/providers/theme';
 import React, { useState } from 'react';
 import CommentItem from './CommentItem';
 import EmptyComment from './EmptyComment';
-
+interface reply {
+  id: string;
+  postId: string;
+  content: string;
+  createdAt: string;
+  author: string;
+}
 interface Comment {
   id: string;
   postId: string;
   content: string;
   createdAt: string;
   author: string;
+  replies: reply[];
   repliesCount: number;
-  // 기타 필요한 필드들...
 }
 interface CommentListProps {
   commentsData: Comment[];
@@ -19,6 +25,13 @@ interface CommentListProps {
 
 const CommentList: React.FC<CommentListProps> = ({ commentsData }) => {
   const { isDarkMode } = useTheme();
+  const [comments, setComments] = useState<Comment[]>(commentsData);
+
+  const handleDelete = (commentId: string) => {
+    setComments((prevComments) =>
+      prevComments.filter((comment) => comment.id !== commentId),
+    );
+  };
 
   return (
     <div
@@ -26,20 +39,17 @@ const CommentList: React.FC<CommentListProps> = ({ commentsData }) => {
         isDarkMode ? 'bg-gray-900' : 'bg-white'
       }`}
     >
-      {commentsData.length > 0 ? (
+      {comments.length > 0 ? (
         <>
           <ul className="space-y-4">
-            {commentsData.map((comment) => (
-              <CommentItem key={comment.id} comment={comment} />
+            {comments.map((comment) => (
+              <CommentItem
+                key={comment.id}
+                comment={comment}
+                onDelete={handleDelete}
+              />
             ))}
           </ul>
-          {/* {hasMore && (
-            <div className="flex justify-center mt-6">
-              <Button onClick={handleLoadMore} variant="secondary">
-                더보기
-              </Button>
-            </div>
-          )} */}
         </>
       ) : (
         <EmptyComment />

@@ -27,16 +27,33 @@ export async function getAllComments() {
       // formatDateTime 함수를 사용하여 날짜와 시간 포맷팅
       const formattedCreatedAt = formatDateTime(createdAtDate);
 
+      // 답글 가져오기
       const repliesRef = collection(commentDoc.ref, 'replies');
-      const repliesSnapshot = await getDocs(repliesRef);
-      const repliesCount = repliesSnapshot.size;
+      const repliesQuery = query(repliesRef, orderBy('createdAt', 'asc'));
+      const repliesSnapshot = await getDocs(repliesQuery);
+
+      const replies = await Promise.all(
+        repliesSnapshot.docs.map(async (replyDoc) => {
+          const replyData = replyDoc.data();
+          const replyCreatedAtTimestamp = replyData.createdAt as Timestamp;
+          const replyCreatedAtDate = replyCreatedAtTimestamp.toDate();
+          const formattedReplyCreatedAt = formatDateTime(replyCreatedAtDate);
+
+          return {
+            id: replyDoc.id,
+            ...replyData,
+            createdAt: formattedReplyCreatedAt,
+          };
+        }),
+      );
 
       return {
         id: commentDoc.id,
         postId,
         ...commentData,
         createdAt: formattedCreatedAt,
-        repliesCount,
+        replies, // 댓글에 대한 답글 추가
+        repliesCount: replies.length, // 답글 수 추가
       };
     }),
   );

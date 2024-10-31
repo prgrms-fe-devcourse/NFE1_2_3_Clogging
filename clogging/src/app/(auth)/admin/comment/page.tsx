@@ -1,4 +1,3 @@
-// src/app/admin/comments/page.tsx
 import CommentList from '@/features/Comment/ui/admin/CommentList';
 import { getAllComments } from '@/shared/api/services/comment/getAllComments';
 import React from 'react';
@@ -9,7 +8,6 @@ async function CommentManagePage() {
 
   return (
     <div>
-      <h1>댓글 관리</h1>
       <p>총 댓글 수: {totalComments}</p>
       <CommentList commentsData={comments} />
     </div>
