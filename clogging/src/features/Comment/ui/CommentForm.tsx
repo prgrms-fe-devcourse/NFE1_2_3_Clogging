@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useCreateComment, useUpdateComment } from '../lib/hooks/useComments';
+import { useCreateComment, useUpdateComment } from '../api/useComments';
 import { Input } from '@/shared/ui/common/Input';
 import { FormSectionItem } from '@/shared/ui/Form/Form';
 import { UserIcon } from 'lucide-react';
@@ -9,7 +9,7 @@ import { PrivateComment } from './PrivateComment';
 import { InputComment } from './InputComment';
 import { useAuth } from '@/features/Auth/hooks';
 import { commentFormProps } from '../types';
-import { useCommentFormStore } from '../lib/store/useCommentFormStore';
+import { useCommentFormStore } from '../lib/stores/useCommentFormStore';
 
 export const CommentForm = ({
   postId,

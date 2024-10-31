@@ -5,10 +5,10 @@ import {
   useComments,
   useUpdateComment,
   useDeleteComment,
-} from '../lib/hooks/useComments';
+} from '../api/useComments';
 import { CommentItem } from './CommentItem';
 import { CommentWithReplies } from '../types';
-import { useCommentListStore } from '../lib/store/useCommentListStore';
+import { useCommentListStore } from '../lib/stores/useCommentListStore';
 
 export const CommentList = ({ postId }: { postId: string }) => {
   const { data: comments, isLoading } = useComments(postId);

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Comment } from '../../types';
+import { Comment } from '../types';
 import { commentApi } from '@/mocks/handlers/commentApi';
 import { useInvalidateQuery } from '@/shared/lib/hooks/useInvalidateQuery';
 
