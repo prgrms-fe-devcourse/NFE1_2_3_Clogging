@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       postIds: [],
       postCount: 0,
       createdAt: new Date().toISOString(),
-      order: currentCategoryCount + 1, // 현재 카테고리 수 + 1
+      order: currentCategoryCount,
     };
 
     const docRef = await addDoc(categoriesRef, newCategory);

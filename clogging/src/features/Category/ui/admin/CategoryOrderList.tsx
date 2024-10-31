@@ -25,9 +25,9 @@ export const CategoryOrderList: React.FC<CategoryOrderListProps> = ({
 
   const handleDrop = (targetIndex: number) => {
     if (draggedIndex !== null && draggedIndex !== targetIndex) {
-      onReorder(draggedIndex, targetIndex);
+      onReorder(draggedIndex, targetIndex); // reorderCategories 함수 호출
     }
-    setDraggedIndex(null); // 드롭 후 draggedIndex를 null로 설정
+    setDraggedIndex(null);
   };
 
   const handleDragEnd = () => {
