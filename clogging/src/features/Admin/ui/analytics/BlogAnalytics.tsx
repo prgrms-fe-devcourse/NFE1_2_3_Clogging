@@ -1,37 +1,56 @@
 'use client';
 import React from 'react';
 import BlogDataList from './BlogDataList';
-import CustomLineChart from './LineChart';
 import { useTheme } from '@/shared/providers/theme';
-import CustomAreaChart from './AreaChart';
 import PostingCalendar from './PostingCalendar';
+import CustomBarChart from './CustomBarChart';
+import NivoLineChart from './CustomLineChart';
 
 const BlogAnalytics = () => {
   const { isDarkMode } = useTheme();
-  const data = [
-    { date: '12/11/2024', uv: 24, pv: 30 },
-    { date: '01/02/2023', uv: 31, pv: 28 },
-    { date: '01/03/2023', uv: 15, pv: 22 },
-    { date: '01/04/2023', uv: 28, pv: 19 },
-    { date: '01/05/2023', uv: 19, pv: 25 },
+  const viewsData = [
+    { date: '2024-01', views: 200 },
+    { date: '2024-02', views: 300 },
+    { date: '2024-03', views: 400 },
+    { date: '2024-04', views: 350 },
   ];
-
-  const cardStyle = `flex flex-col w-full p-2 rounded-md ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`;
+  const lineData = [
+    {
+      id: '조회수',
+      color: 'hsl(213, 70%, 50%)',
+      data: [
+        { x: '2024-01', y: 200 },
+        { x: '2024-02', y: 300 },
+        { x: '2024-03', y: 400 },
+        { x: '2024-04', y: 350 },
+      ],
+    },
+    {
+      id: '댓글 수',
+      color: 'hsl(120, 70%, 50%)',
+      data: [
+        { x: '2024-01', y: 100 },
+        { x: '2024-02', y: 150 },
+        { x: '2024-03', y: 200 },
+        { x: '2024-04', y: 180 },
+      ],
+    },
+  ];
   const calendarStyle = ` p-2 rounded-md ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`;
-
+  const cardStyle = `w-full md:w-1/2 p-2`;
   return (
     <div>
       <div className="mb-10">
         <BlogDataList />
       </div>
-      <div className="flex flex-col md:flex-row mb-6 space-y-6 md:space-y-0 md:space-x-6">
-        <div className={`${cardStyle} w-full md:w-1/2`}>
-          <h2 className="mb-4 text-lg">일별 댓글 추이</h2>
-          <CustomLineChart data={data} />
+      <div className="flex flex-col md:flex-row md:flex-wrap">
+        <div className={`${cardStyle}`}>
+          <h2>월별 조회수</h2>
+          <CustomBarChart data={viewsData} />
         </div>
-        <div className={`${cardStyle} w-full md:w-1/2`}>
-          <h2 className="mb-4 text-lg">일별 조회수</h2>
-          <CustomAreaChart />
+        <div className={`${cardStyle}`}>
+          <h2>월별 댓글수</h2>
+          <NivoLineChart data={lineData} />
         </div>
       </div>
       <div className={calendarStyle}>
