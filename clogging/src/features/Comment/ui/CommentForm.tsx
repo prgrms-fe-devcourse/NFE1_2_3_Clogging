@@ -79,9 +79,6 @@ export const CommentForm = ({
           // 댓글 생성
           await createComment.mutateAsync({
             ...commonData,
-            isAuthor: false,
-            parentId: parentCommentId || '',
-            replies: [],
           });
         }
       } else {

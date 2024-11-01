@@ -5,11 +5,7 @@ export interface Comment {
   content: string;
   password: string;
   isPrivate: boolean;
-  isAuthor: boolean;
   createdAt: string;
-  parentCommentId?: string;
-  replies?: Comment[];
-  parentId: string;
 }
 
 export interface CommentWithReplies extends Omit<Comment, 'replies'> {
@@ -30,17 +26,11 @@ export interface commentItemProps {
   onEditSubmit: (commentId: string) => Promise<void>;
   onEditCancel: () => void;
   replyingToId: string | null;
-  onReplySuccess: ({
-    content,
-    author,
-    password,
-    isPrivate,
-  }: {
+  onReplySuccess: (data: {
     content: string;
     author: string;
     password: string;
-    isPrivate?: boolean;
-  }) => Promise<void>;
+  }) => void;
   onReplyCancel: () => void;
   postId: string;
 }

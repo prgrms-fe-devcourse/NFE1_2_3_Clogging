@@ -53,7 +53,7 @@ export const CommentItem = ({
           <CardHeader className="flex justify-between items-center mb-4">
             <CardTitle className="flex items-center gap-2">
               <span className="font-bold">{comment.author}</span>
-              {comment.isAuthor && (
+              {comment.author === '관리자' && (
                 <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-sm rounded">
                   작성자
                 </span>
@@ -142,7 +142,9 @@ export const CommentItem = ({
           <Card className="mt-4 ml-4 border">
             <CommentForm
               postId={postId}
-              onSuccess={onReplySuccess}
+              onSuccess={() =>
+                onReplySuccess({ content: '', author: '', password: '' })
+              }
               mode="create"
               parentCommentId={comment.id}
               defaultNickname={isAdmin ? '관리자' : ''}
