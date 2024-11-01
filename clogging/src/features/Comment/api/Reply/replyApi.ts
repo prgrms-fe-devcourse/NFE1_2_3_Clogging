@@ -1,5 +1,3 @@
-import { Comment } from '@/features/Comment/types';
-
 export const replyApi = {
   // 답글 생성 (Create Reply)
   createReply: async (reply: {
@@ -19,9 +17,10 @@ export const replyApi = {
       });
 
       const data = await response.json();
+      console.log('답글 생성 요청 데이터 확인', data);
 
       if (!response.ok) {
-        throw new Error(data.error || '답글 생성 실패');
+        throw new Error(data.message || '답글 작성 실패!');
       }
 
       return data.reply;
@@ -57,7 +56,7 @@ export const replyApi = {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || '답글 수정 실패');
+        throw new Error(data.message || '답글 수정 실패!');
       }
 
       return data.reply;
@@ -77,7 +76,7 @@ export const replyApi = {
     try {
       const { postId, commentId, replyId, password } = params;
       const response = await fetch(
-        `/api/comments/replies/${replyId}/delete?postId=${postId}&commentId=${commentId}&password=${password}`,
+        `/api/comments/replies/${replyId}/delete?postId=${postId}&commentId=${commentId}&replyId=${replyId}&password=${password}`,
         {
           method: 'DELETE',
         },
@@ -86,7 +85,7 @@ export const replyApi = {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || '답글 삭제 실패');
+        throw new Error(data.message || '답글 삭제 실패!');
       }
     } catch (error) {
       console.error('답글 삭제 에러:', error);
