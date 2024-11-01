@@ -1,16 +1,14 @@
-// features/Category/ui/CategorySection.tsx
 import React from 'react';
 import { useTheme } from '@/shared/providers/theme';
-import { Category } from '../types';
 import { useCategoryStore } from '@/store/useCategoryStore';
+import { useCategories } from '../hooks'; // hooks.ts에서 가져오기
 
-interface CategorySectionProps {
-  categories: Category[];
-}
+// Props 인터페이스 제거 (더 이상 필요하지 않음)
 
-const CategorySection: React.FC<CategorySectionProps> = ({ categories }) => {
+const CategorySection: React.FC = () => {
   const { isDarkMode } = useTheme();
   const { selectedCategory, setSelectedCategory } = useCategoryStore();
+  const { categories } = useCategories(); // useCategories hook 사용
 
   return (
     <div>
