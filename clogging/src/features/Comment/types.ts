@@ -9,6 +9,7 @@ export interface Comment {
   createdAt: string;
   parentCommentId?: string;
   replies?: Comment[];
+  parentId: string;
 }
 
 export interface CommentWithReplies extends Omit<Comment, 'replies'> {
@@ -29,7 +30,17 @@ export interface commentItemProps {
   onEditSubmit: (commentId: string) => Promise<void>;
   onEditCancel: () => void;
   replyingToId: string | null;
-  onReplySuccess: () => void;
+  onReplySuccess: ({
+    content,
+    author,
+    password,
+    isPrivate,
+  }: {
+    content: string;
+    author: string;
+    password: string;
+    isPrivate?: boolean;
+  }) => Promise<void>;
   onReplyCancel: () => void;
   postId: string;
 }

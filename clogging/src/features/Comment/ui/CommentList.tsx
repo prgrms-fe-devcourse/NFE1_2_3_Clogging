@@ -28,7 +28,6 @@ export const CommentList = ({ postId }: { postId: string }) => {
     findComment,
   } = useCommentListStore();
 
-  // 관리자 상태 체크
   useEffect(() => {
     const adminStatus = localStorage.getItem('userRole') === 'admin';
     setIsAdmin(adminStatus);
@@ -62,12 +61,6 @@ export const CommentList = ({ postId }: { postId: string }) => {
   const handleEditSubmit = async (commentId: string) => {
     const comment = findComment(comments, commentId);
     if (!comment) return;
-    console.log('관리자 수정 요청 데이터:', {
-      commentId,
-      postId,
-      content: editingContent,
-      password: comment.password,
-    });
 
     try {
       await updateComment.mutateAsync({
@@ -78,7 +71,7 @@ export const CommentList = ({ postId }: { postId: string }) => {
       });
       resetEditingState();
     } catch (error) {
-      console.error('댓글 수정 실패:', error);
+      console.error('수정 실패:', error);
       alert('수정에 실패했습니다.');
     }
   };
@@ -88,9 +81,7 @@ export const CommentList = ({ postId }: { postId: string }) => {
     if (!comment) return;
 
     if (comment.author === '관리자' || isAdmin) {
-      const confirmDelete = window.confirm(
-        '정말로 이 댓글을 삭제하시겠습니까?',
-      );
+      const confirmDelete = window.confirm('정말로 삭제하시겠습니까?');
       if (!confirmDelete) return;
 
       try {
@@ -100,13 +91,13 @@ export const CommentList = ({ postId }: { postId: string }) => {
           password: comment.password,
         });
       } catch (error) {
-        console.error('댓글 삭제 실패:', error);
+        console.error('삭제 실패:', error);
         alert('삭제에 실패했습니다.');
       }
       return;
     }
 
-    const password = prompt('댓글 삭제를 위해 비밀번호를 입력해주세요.');
+    const password = prompt('삭제를 위해 비밀번호를 입력해주세요.');
     if (!password) return;
 
     if (password !== comment.password) {
@@ -121,9 +112,13 @@ export const CommentList = ({ postId }: { postId: string }) => {
         password,
       });
     } catch (error) {
-      console.error('댓글 삭제 실패:', error);
+      console.error('삭제 실패:', error);
       alert('삭제 권한이 없습니다.');
     }
+  };
+
+  const handleReplySuccess = () => {
+    setReplyingTo(null);
   };
 
   return (
@@ -138,16 +133,16 @@ export const CommentList = ({ postId }: { postId: string }) => {
           editingCommentId={editingCommentId}
           editingContent={editingContent}
           editingIsPrivate={editingIsPrivate}
-          onEditContentChange={(content: any) =>
+          onEditContentChange={(content: string) =>
             setEditingComment(editingCommentId, content, editingIsPrivate)
           }
-          onEditPrivateChange={(isPrivate: any) =>
+          onEditPrivateChange={(isPrivate: boolean) =>
             setEditingComment(editingCommentId, editingContent, isPrivate)
           }
           onEditSubmit={handleEditSubmit}
           onEditCancel={resetEditingState}
           replyingToId={replyingToId}
-          onReplySuccess={() => setReplyingTo(null)}
+          onReplySuccess={handleReplySuccess}
           onReplyCancel={() => setReplyingTo(null)}
           postId={postId}
         />
