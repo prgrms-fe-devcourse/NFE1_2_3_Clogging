@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Category } from '../../types';
 import { useTheme } from '@/shared/providers/theme';
+import Image from 'next/image';
 
 interface CategoryOrderListProps {
   categories: Category[];
@@ -12,7 +13,7 @@ export const CategoryOrderList: React.FC<CategoryOrderListProps> = ({
   onReorder,
 }) => {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const { isDarkMode } = useTheme(); // 다크 모드 여부를 가져옵니다.
+  const { isDarkMode } = useTheme();
 
   const handleDragStart = (index: number) => {
     setDraggedIndex(index);
@@ -24,9 +25,9 @@ export const CategoryOrderList: React.FC<CategoryOrderListProps> = ({
 
   const handleDrop = (targetIndex: number) => {
     if (draggedIndex !== null && draggedIndex !== targetIndex) {
-      onReorder(draggedIndex, targetIndex);
+      onReorder(draggedIndex, targetIndex); // reorderCategories 함수 호출
     }
-    setDraggedIndex(null); // 드롭 후 draggedIndex를 null로 설정
+    setDraggedIndex(null);
   };
 
   const handleDragEnd = () => {
@@ -57,7 +58,9 @@ export const CategoryOrderList: React.FC<CategoryOrderListProps> = ({
             {category.name}
           </span>
           <div>
-            <img
+            <Image
+              width={24}
+              height={24}
               src="/icons/admin_handle.png"
               alt="핸들"
               className="w-4 h-auto"

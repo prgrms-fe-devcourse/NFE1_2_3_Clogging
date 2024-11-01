@@ -1,13 +1,19 @@
 'use client';
-
 import React, { useEffect } from 'react';
 import { useCategories } from '../../hooks';
 import { CategoryForm } from './CategoryForm';
 import { CategoryList } from './CategoryList';
 import { CategoryOrderList } from './CategoryOrderList';
 import { useTheme } from '@/shared/providers/theme';
+import { Category } from '../../types';
 
-export const CategoryManagement: React.FC = () => {
+interface CategoryManagementProps {
+  initialCategories: Array<Category>;
+}
+
+export const CategoryManagement: React.FC<CategoryManagementProps> = ({
+  initialCategories,
+}) => {
   const {
     categories,
     fetchCategories,
@@ -15,13 +21,15 @@ export const CategoryManagement: React.FC = () => {
     updateCategory,
     deleteCategory,
     reorderCategories,
-  } = useCategories();
+  } = useCategories(initialCategories);
 
-  const { isDarkMode } = useTheme(); // 다크 모드 여부를 가져옵니다.
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+    if (initialCategories.length === 0) {
+      fetchCategories();
+    }
+  }, [fetchCategories, initialCategories]);
 
   const handleAddCategory = (name: string) => {
     addCategory(name);
@@ -40,6 +48,7 @@ export const CategoryManagement: React.FC = () => {
       reorderCategories(category.id, index);
     });
   };
+
   return (
     <div className="flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-8">
       <div
