@@ -1,3 +1,9 @@
+import BlogAnalytics from '@/features/Admin/ui/analytics/BlogAnalytics';
+
 export default function Page() {
-  return <div>통계</div>;
+  return (
+    <div>
+      <BlogAnalytics />
+    </div>
+  );
 }
