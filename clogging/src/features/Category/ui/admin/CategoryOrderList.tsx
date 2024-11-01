@@ -1,3 +1,4 @@
+// CategoryOrderList.tsx
 import React, { useState } from 'react';
 import { Category } from '../../types';
 import { useTheme } from '@/shared/providers/theme';
