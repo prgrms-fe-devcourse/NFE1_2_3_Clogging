@@ -62,14 +62,18 @@ export const CommentList = ({ postId }: { postId: string }) => {
   const handleEditSubmit = async (commentId: string) => {
     const comment = findComment(comments, commentId);
     if (!comment) return;
+    console.log('관리자 수정 요청 데이터:', {
+      commentId,
+      postId,
+      content: editingContent,
+      password: comment.password,
+    });
 
     try {
       await updateComment.mutateAsync({
-        id: commentId,
+        commentId,
         postId,
         content: editingContent,
-        isPrivate: editingIsPrivate,
-        author: comment.author,
         password: comment.password,
       });
       resetEditingState();
@@ -93,7 +97,7 @@ export const CommentList = ({ postId }: { postId: string }) => {
         await deleteComment.mutateAsync({
           postId,
           commentId,
-          password: '',
+          password: comment.password,
         });
       } catch (error) {
         console.error('댓글 삭제 실패:', error);
