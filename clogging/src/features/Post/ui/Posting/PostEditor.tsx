@@ -139,35 +139,37 @@ export const PostEditor: React.FC = () => {
           >
             저장된 태그
           </h3>
-          <div className="flex flex-wrap gap-2">
-            {/* 저장된 태그들 */}
-            <div
-              className={`inline-flex items-center h-8 px-4 rounded-full border ${isDarkMode ? 'border-white bg-transparent text-white' : 'border-primary bg-transparent text-primary'}`}
-            >
-              <span
-                className={`font-semibold mr-2 ${isDarkMode ? 'text-white' : 'text-primary'}`}
+          <div className="flex items-center gap-2">
+            {editorState.tags.map((tag) => (
+              <div
+                key={tag}
+                className={`inline-flex items-center h-8 px-4 rounded-full border ${isDarkMode ? 'border-white bg-transparent text-white' : 'border-primary bg-transparent text-primary'}`}
               >
-                JavaScript
-              </span>
-              <button
-                onClick={() => handleRemoveTag(tag)}
-                className={`inline-flex items-center justify-center w-4 h-4 rounded-full ${isDarkMode ? 'border-white text-white' : 'border-primary text-primary'} border`}
-              >
-                <svg // x 겉에 동그라미
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  className="w-3.5 h-3.5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                <span
+                  className={`font-semibold mr-2 ${isDarkMode ? 'text-white' : 'text-primary'}`}
                 >
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            </div>
+                  {tag}
+                </span>
+                <button
+                  onClick={() => handleRemoveTag(tag)}
+                  className={`inline-flex items-center justify-center w-4 h-4 rounded-full ${isDarkMode ? 'border-white text-white' : 'border-primary text-primary'} border`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    className="w-3.5 h-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -179,6 +181,8 @@ export const PostEditor: React.FC = () => {
           </h3>
           <div className="flex items-center gap-2">
             <Input // 태그 입력칸
+              value={newTag}
+              onChange={(e) => setNewTag(e.target.value)}
               placeholder="최대 5개까지 가능합니다!"
               className={`w-36 h-8 border rounded-lg focus:outline-none`}
               style={{
