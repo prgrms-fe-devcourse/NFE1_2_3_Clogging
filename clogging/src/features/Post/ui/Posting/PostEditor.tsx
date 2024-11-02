@@ -184,7 +184,7 @@ export const PostEditor: React.FC = () => {
               value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
               placeholder="최대 5개까지 가능합니다!"
-              className={`w-36 h-8 border rounded-lg focus:outline-none`}
+              className={`w-48 h-8 border rounded-lg focus:outline-none`}
               style={{
                 backgroundColor: isDarkMode ? '#374151' : '#ffffff',
                 color: isDarkMode ? '#ffffff' : '#000000',
