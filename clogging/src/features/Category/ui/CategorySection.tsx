@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTheme } from '@/shared/providers/theme';
 import { useCategoryStore } from '@/store/useCategoryStore';
-import { useCategories } from '../hooks'; // hooks.ts에서 가져오기
-
-// Props 인터페이스 제거 (더 이상 필요하지 않음)
+import { useCategories } from '../hooks';
 
 const CategorySection: React.FC = () => {
   const { isDarkMode } = useTheme();
   const { selectedCategory, setSelectedCategory } = useCategoryStore();
-  const { categories } = useCategories(); // useCategories hook 사용
+  const { categories, fetchCategories } = useCategories();
+
+  // 컴포넌트 마운트 시 카테고리 데이터 가져오기
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   return (
     <div>
@@ -46,7 +49,7 @@ const CategorySection: React.FC = () => {
                     } hover:text-primary hover:border-b-2 hover:border-primary`
               }`}
             >
-              {category.name}
+              {category.name} ({category.postCount || 0})
             </button>
           </li>
         ))}

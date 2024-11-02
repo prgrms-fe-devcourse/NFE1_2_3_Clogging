@@ -8,6 +8,7 @@ import { useTagStore } from '@/store/useTagStore';
 import { useCategoryStore } from '@/store/useCategoryStore';
 import { usePostFilter, useFilteredPosts } from '@/features/Post/hooks';
 import { useEffect, useRef, useCallback } from 'react';
+import { useCategories } from '@/features/Category/hooks'; // useCategories hook 추가
 
 const FeedPage: React.FC = () => {
   const { isDarkMode } = useTheme();
@@ -16,7 +17,13 @@ const FeedPage: React.FC = () => {
   const selectedCategory = useCategoryStore((state) => state.selectedCategory);
   const { sortType, setSortType, setLastDoc } = usePostFilter();
   const { data, isLoading, error } = useFilteredPosts();
+  const { categories, fetchCategories } = useCategories(); // 카테고리 데이터 가져오기
   const observer = useRef<IntersectionObserver | null>(null);
+
+  // 컴포넌트 마운트 시 카테고리 데이터 가져오기
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   // 무한 스크롤을 위한 Intersection Observer
   const lastPostElementRef = useCallback(
@@ -48,7 +55,9 @@ const FeedPage: React.FC = () => {
   // 선택된 태그와 카테고리에 따라 포스트 필터링
   const filteredPosts = data?.posts.filter((post) => {
     const matchesCategory = selectedCategory
-      ? post.categoryId === selectedCategory
+      ? (categories
+          .find((cat) => cat.id === selectedCategory)
+          ?.postIds?.includes(post.id) ?? false)
       : true;
     const matchesTags =
       selectedTags.length > 0
