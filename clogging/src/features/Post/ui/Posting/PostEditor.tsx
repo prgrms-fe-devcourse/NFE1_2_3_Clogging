@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { usePostEditor } from '@/features/Post/lib/hooks/usePostEditor';
 import { Button } from '@/shared/ui/common/Button';
@@ -23,9 +23,19 @@ export const PostEditor: React.FC = () => {
     handleSaveDraft,
     handleSubmit,
     handleGoBack,
+    handleAddTag,
+    handleRemoveTag,
   } = usePostEditor();
 
   const { isDarkMode } = useTheme();
+  const [newTag, setNewTag] = useState('');
+
+  const addTag = () => {
+    if (newTag && editorState.tags.length < 5) {
+      handleAddTag(newTag);
+      setNewTag('');
+    }
+  };
 
   return (
     <div
@@ -141,7 +151,7 @@ export const PostEditor: React.FC = () => {
                 JavaScript
               </span>
               <button
-                onClick={() => console.log('태그 삭제')}
+                onClick={() => handleRemoveTag(tag)}
                 className={`inline-flex items-center justify-center w-4 h-4 rounded-full ${isDarkMode ? 'border-white text-white' : 'border-primary text-primary'} border`}
               >
                 <svg // x 겉에 동그라미
@@ -169,7 +179,7 @@ export const PostEditor: React.FC = () => {
             태그 편집
           </h3>
           <div className="flex items-center gap-2">
-            <Input
+            <Input // 태그 입력칸
               placeholder="최대 5개까지 가능합니다!"
               className={`w-36 h-8 border rounded-lg focus:outline-none`}
               style={{
@@ -179,8 +189,9 @@ export const PostEditor: React.FC = () => {
               }}
             />
 
-            <button
-              className={`h-6 w-6 inline-flex items-center justify-center rounded-full text-bold ${isDarkMode ? 'bg-secondary text-primary hover:primary-hover' : 'bg-primary text-white hover:bg-primary/90'} transition-colors`}
+            <button // 태그 추가 버튼
+              onClick={addTag}
+              className={`inline-flex items-center justify-center w-4 h-4 rounded-full ${isDarkMode ? 'border-white text-white' : 'border-primary text-primary'} border`}
             >
               <span className="text-xl">+</span>
             </button>
