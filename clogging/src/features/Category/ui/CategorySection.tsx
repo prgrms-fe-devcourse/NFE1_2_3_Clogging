@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react'; // useMemo 추가
 import { useTheme } from '@/shared/providers/theme';
 import { useCategoryStore } from '@/store/useCategoryStore';
 import { useCategories } from '../hooks';
@@ -8,10 +8,16 @@ const CategorySection: React.FC = () => {
   const { selectedCategory, setSelectedCategory } = useCategoryStore();
   const { categories, fetchCategories } = useCategories();
 
-  // 컴포넌트 마운트 시 카테고리 데이터 가져오기
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
+
+  // 모든 카테고리의 postCount 합계 계산
+  const totalPosts = useMemo(() => {
+    return categories.reduce((total, category) => {
+      return total + (category.postCount || 0);
+    }, 0);
+  }, [categories]);
 
   return (
     <div>
@@ -34,7 +40,7 @@ const CategorySection: React.FC = () => {
                   } hover:text-primary hover:border-b-2 hover:border-primary`
             }`}
           >
-            전체 ({categories.length})
+            전체 ({totalPosts}) {/* categories.length 대신 totalPosts 사용 */}
           </button>
         </li>
         {categories.map((category) => (
