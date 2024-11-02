@@ -6,7 +6,6 @@ import { usePostEditor } from '@/features/Post/lib/hooks/usePostEditor';
 import { Button } from '@/shared/ui/common/Button';
 import { useTheme } from '@/shared/providers/theme';
 import { Input } from '@/shared/ui/common/Input';
-import { cn } from '@/shared/lib/utils';
 
 const categories = [
   { value: 'javascript', label: 'JavaScript' },
