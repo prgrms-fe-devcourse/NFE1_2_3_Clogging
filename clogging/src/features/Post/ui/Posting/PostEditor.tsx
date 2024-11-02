@@ -4,6 +4,9 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { usePostEditor } from '@/features/Post/lib/hooks/usePostEditor';
 import { Button } from '@/shared/ui/common/Button';
+import { useTheme } from '@/shared/providers/theme';
+import { Input } from '@/shared/ui/common/Input';
+import { cn } from '@/shared/lib/utils';
 
 const categories = [
   { value: 'javascript', label: 'JavaScript' },
@@ -22,14 +25,18 @@ export const PostEditor: React.FC = () => {
     handleGoBack,
   } = usePostEditor();
 
+  const { isDarkMode } = useTheme();
+
   return (
-    <div className="container mx-auto px-4 max-w-[1400px]">
+    <div
+      className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white'}`}
+    >
       {/* 카테고리 선택 */}
       <select
         value={editorState.category}
         onChange={(e) => handleCategoryChange(e.target.value)}
-        style={{ width: '300px', height: '37px' }}
-        className="mt-4 mb-[52px] px-4 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border-gray-200 dark:border-gray-700"
+        style={{ width: '300px', height: '35px' }}
+        className="ml-4 mt-4 mb-[52px] px-4 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border-gray-200 dark:border-gray-700"
       >
         <option value="">default</option>
         {categories.map((category) => (
@@ -60,11 +67,14 @@ export const PostEditor: React.FC = () => {
             boxShadow: 'none',
           }}
         />
-        <hr className="w-full border-0 bg-blue-100 dark:bg-blue-900 h-[2px] mb-8" />
+        <hr
+          className="border-0 bg-blue-100 dark:bg-blue-900 h-[2px] mb-8"
+          style={{ width: '800px' }}
+        />
       </div>
 
       {/* 에디터 영역 */}
-      <div className="grid grid-cols-2 gap-4 h-[400px]">
+      <div className="grid grid-cols-2 gap-4 h-[400px] ml-4">
         {/* 마크다운 입력 */}
         <div className="border rounded-lg overflow-hidden flex flex-col bg-white dark:bg-gray-800">
           <div className="bg-gray-50 dark:bg-gray-700 px-4 py-2 border-b dark:border-gray-600">
@@ -105,28 +115,87 @@ export const PostEditor: React.FC = () => {
         </div>
 
         {/* 미리보기 */}
-        <div className="border rounded-lg p-4 overflow-y-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <div className="border rounded-lg p-4 mr-4 overflow-y-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <div className="prose dark:prose-invert max-w-none text-gray-900 dark:text-gray-200">
             <ReactMarkdown>{editorState.content}</ReactMarkdown>
           </div>
         </div>
       </div>
 
-      {/* 태그 영역 */}
-      <div className="space-y-4 mt-8 mb-8">
-        <h3 className="font-bold">저장된 태그</h3>
-        <h3 className="font-bold">태그 편집</h3>
-        {/* 태그 목록 구현 */}
+      {/* 태그 */}
+      <div className={`dark space-y-4 mt-8 mb-8`}>
+        <div className="flex items-center gap-4">
+          <h3
+            className={`ml-4 font-bold whitespace-nowrap ${isDarkMode ? 'text-white' : 'text-black'}`}
+          >
+            저장된 태그
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {/* 저장된 태그들 */}
+            <div
+              className={`inline-flex items-center h-8 px-4 rounded-full border ${isDarkMode ? 'border-white bg-transparent text-white' : 'border-primary bg-transparent text-primary'}`}
+            >
+              <span
+                className={`font-semibold mr-2 ${isDarkMode ? 'text-white' : 'text-primary'}`}
+              >
+                JavaScript
+              </span>
+              <button
+                onClick={() => console.log('태그 삭제')}
+                className={`inline-flex items-center justify-center w-4 h-4 rounded-full ${isDarkMode ? 'border-white text-white' : 'border-primary text-primary'} border`}
+              >
+                <svg // x 겉에 동그라미
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <h3
+            className={`ml-4 font-bold whitespace-nowrap ${isDarkMode ? 'text-white' : 'text-black'}`}
+          >
+            태그 편집
+          </h3>
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="최대 5개까지 가능합니다!"
+              className={`w-36 h-8 border rounded-lg focus:outline-none`}
+              style={{
+                backgroundColor: isDarkMode ? '#374151' : '#ffffff',
+                color: isDarkMode ? '#ffffff' : '#000000',
+                borderColor: isDarkMode ? '#4B5563' : '#D1D5DB',
+              }}
+            />
+
+            <button
+              className={`h-6 w-6 inline-flex items-center justify-center rounded-full text-bold ${isDarkMode ? 'bg-secondary text-primary hover:primary-hover' : 'bg-primary text-white hover:bg-primary/90'} transition-colors`}
+            >
+              <span className="text-xl">+</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* 하단 버튼 영역 */}
       <div
         className="flex justify-between items-center"
-        style={{ marginTop: '70px' }}
+        style={{ marginTop: '50px' }}
       >
         <button
           onClick={handleGoBack}
-          className="text-gray-600 hover:text-gray-800"
+          className="ml-4 text-gray-600 hover:text-gray-800"
         >
           {'< 뒤로가기'}
         </button>
@@ -143,7 +212,7 @@ export const PostEditor: React.FC = () => {
             variant="primary"
             size="sm"
             onClick={handleSubmit}
-            className="px-6 py-2 bg-primary hover:primary-hover text-white rounded-lg font-sans"
+            className="px-6 py-2 mr-4 bg-primary hover:primary-hover text-white rounded-lg font-sans"
           >
             등록하기
           </Button>
