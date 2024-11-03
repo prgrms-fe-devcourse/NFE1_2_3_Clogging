@@ -2,7 +2,7 @@ import { Post } from '@/features/Post/types';
 
 export const mockPosts: Post[] = [
   {
-    id: '1',
+    id: 'B16msATzccos8zKa46ug',
     categoryId: '1',
     userId: 1,
     title: '첫 번째 포스트입니다',
@@ -16,7 +16,7 @@ export const mockPosts: Post[] = [
     tags: ['JavaScript', 'React'],
   },
   {
-    id: '2',
+    id: 'ICOPE5dXNx3tlL3489AW',
     categoryId: '2',
     userId: 1,
     title: '두 번째 포스트입니다',
@@ -29,7 +29,7 @@ export const mockPosts: Post[] = [
     tags: ['Next.js', 'TypeScript'],
   },
   {
-    id: '3',
+    id: 'idGMzPvNhmpsLvvh18bf',
     categoryId: '3',
     userId: 1,
     title: '세 번째 포스트입니다',
