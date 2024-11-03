@@ -17,6 +17,13 @@ export const Detail = ({ postId }: { postId: string }) => {
   if (error) return <div>Error: {error.message}</div>;
   if (!post) return null;
 
+  const handleHeadingClick = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-12 gap-8">
@@ -41,7 +48,10 @@ export const Detail = ({ postId }: { postId: string }) => {
           </section>
         </main>
         <aside className="col-span-3">
-          <TableOfContents />
+          <TableOfContents
+            content={post.content}
+            onHeadingClick={handleHeadingClick}
+          />
         </aside>
       </div>
     </div>
