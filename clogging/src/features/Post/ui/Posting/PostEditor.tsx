@@ -1,11 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import ReactMarkdown from 'react-markdown';
+import dynamic from 'next/dynamic';
 import { usePostEditor } from '@/features/Post/lib/hooks/usePostEditor';
 import { Button } from '@/shared/ui/common/Button';
 import { useTheme } from '@/shared/providers/theme';
 import { Input } from '@/shared/ui/common/Input';
+
+// CSR에서만 렌더링 되게 하기
+const ReactMarkdown = dynamic(() => import('react-markdown'), {
+  ssr: false,
+});
 
 const categories = [
   { value: 'javascript', label: 'JavaScript' },
@@ -110,15 +115,19 @@ export const PostEditor: React.FC = () => {
                 인용
               </button>
               <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
-                &lt;&#47;&gt;
+                &lt;&#47;&gt; {/* 코드 */}
+              </button>
+              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
+                사진
               </button>
             </div>
           </div>
+
           <textarea
             value={editorState.content}
             onChange={(e) => handleContentChange(e.target.value)}
             className="flex-1 w-full p-4 focus:outline-none resize-none bg-transparent appearance-none border-none"
-            placeholder="내용을 입력하세요!"
+            placeholder="내용을 입력하세요! 이미지 추가를 원한다면 마크다운 문법을 사용해 `![이미지](이미지 URL)` 형식으로 입력하세요."
             style={{ backgroundColor: 'transparent' }}
           />
         </div>
