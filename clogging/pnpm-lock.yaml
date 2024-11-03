@@ -11,6 +11,9 @@ importers:
       '@nivo/bar':
         specifier: ^0.87.0
         version: 0.87.0(react-dom@19.0.0-rc-65a56d0e-20241020(react@19.0.0-rc-65a56d0e-20241020))(react@19.0.0-rc-65a56d0e-20241020)
+      '@nivo/bump':
+        specifier: ^0.87.0
+        version: 0.87.0(react-dom@19.0.0-rc-65a56d0e-20241020(react@19.0.0-rc-65a56d0e-20241020))(react@19.0.0-rc-65a56d0e-20241020)
       '@nivo/core':
         specifier: ^0.87.0
         version: 0.87.0(react-dom@19.0.0-rc-65a56d0e-20241020(react@19.0.0-rc-65a56d0e-20241020))(react@19.0.0-rc-65a56d0e-20241020)
@@ -607,6 +610,11 @@ packages:
 
   '@nivo/bar@0.87.0':
     resolution: {integrity: sha512-r/MEVCNAHKfmsy1Fb+JztVczOhIEtAx4VFs2XUbn9YpEDgxydavUJyfoy5/nGq6h5jG1/t47cfB4nZle7c0fyQ==}
+    peerDependencies:
+      react: '>= 16.14.0 < 19.0.0'
+
+  '@nivo/bump@0.87.0':
+    resolution: {integrity: sha512-JMtdnw9wFoFJkGHDV/jl0/Xto9Vj2SkBJgoBjdJDfEAdIK7W5g3tyCvXU/XzrS4jUIK/yz68moW6i6DlWJy2bA==}
     peerDependencies:
       react: '>= 16.14.0 < 19.0.0'
 
@@ -3389,6 +3397,24 @@ snapshots:
       d3-scale: 4.0.2
       d3-shape: 3.2.0
       lodash: 4.17.21
+      react: 19.0.0-rc-65a56d0e-20241020
+    transitivePeerDependencies:
+      - react-dom
+
+  '@nivo/bump@0.87.0(react-dom@19.0.0-rc-65a56d0e-20241020(react@19.0.0-rc-65a56d0e-20241020))(react@19.0.0-rc-65a56d0e-20241020)':
+    dependencies:
+      '@nivo/axes': 0.87.0(react-dom@19.0.0-rc-65a56d0e-20241020(react@19.0.0-rc-65a56d0e-20241020))(react@19.0.0-rc-65a56d0e-20241020)
+      '@nivo/colors': 0.87.0(react-dom@19.0.0-rc-65a56d0e-20241020(react@19.0.0-rc-65a56d0e-20241020))(react@19.0.0-rc-65a56d0e-20241020)
+      '@nivo/core': 0.87.0(react-dom@19.0.0-rc-65a56d0e-20241020(react@19.0.0-rc-65a56d0e-20241020))(react@19.0.0-rc-65a56d0e-20241020)
+      '@nivo/legends': 0.87.0(react-dom@19.0.0-rc-65a56d0e-20241020(react@19.0.0-rc-65a56d0e-20241020))(react@19.0.0-rc-65a56d0e-20241020)
+      '@nivo/scales': 0.87.0
+      '@nivo/tooltip': 0.87.0(react-dom@19.0.0-rc-65a56d0e-20241020(react@19.0.0-rc-65a56d0e-20241020))(react@19.0.0-rc-65a56d0e-20241020)
+      '@nivo/voronoi': 0.87.0(react-dom@19.0.0-rc-65a56d0e-20241020(react@19.0.0-rc-65a56d0e-20241020))(react@19.0.0-rc-65a56d0e-20241020)
+      '@react-spring/web': 9.7.5(react-dom@19.0.0-rc-65a56d0e-20241020(react@19.0.0-rc-65a56d0e-20241020))(react@19.0.0-rc-65a56d0e-20241020)
+      '@types/d3-scale': 4.0.8
+      '@types/d3-shape': 3.1.6
+      d3-scale: 4.0.2
+      d3-shape: 3.2.0
       react: 19.0.0-rc-65a56d0e-20241020
     transitivePeerDependencies:
       - react-dom

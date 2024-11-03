@@ -1,12 +1,21 @@
+// Page.tsx
+
+import { getBlogData } from '@/features/Admin/Analytics/hooks/getBlogData';
 import BlogAnalytics from '@/features/Admin/Analytics/ui/BlogAnalytics';
-import { fetchBlogData } from '@/features/Admin/Analytics/utils/fetchBlogData';
 
 export default async function Page() {
-  const blogData = await fetchBlogData();
+  try {
+    const data = await getBlogData();
 
-  return (
-    <div>
-      <BlogAnalytics data={blogData} />
-    </div>
-  );
+    return (
+      <div className="p-6">
+        <BlogAnalytics data={data} />
+      </div>
+    );
+  } catch (error) {
+    console.error('Error fetching blog data:', error);
+    return (
+      <div className="p-6 text-red-500">Error loading blog statistics</div>
+    );
+  }
 }

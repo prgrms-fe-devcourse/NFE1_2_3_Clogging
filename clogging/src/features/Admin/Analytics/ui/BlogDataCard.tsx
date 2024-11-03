@@ -2,11 +2,7 @@ import { cn } from '@/shared/lib/utils';
 import { Card, CardContent } from '@/shared/ui/common/Card';
 import Image from 'next/image';
 import React from 'react';
-
-interface BlogDataCardProps {
-  label: string;
-  value: string;
-}
+import { BlogDataCardProps } from '../types';
 
 const BlogDataCard: React.FC<BlogDataCardProps> = ({ label, value }) => (
   <Card
