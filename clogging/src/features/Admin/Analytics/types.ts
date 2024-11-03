@@ -10,12 +10,13 @@ export interface LineChartProps {
 export interface BlogAnalyticsProps {
   data: {
     adminData: Array<{ label: string; value: string }>;
-    postingData: Array<{ date: string; views: number }>;
+    postingData: Array<{ week: string; posts: number }>;
     lineData: Array<{
       id: string;
       color: string;
       data: Array<{ x: string; y: number }>;
     }>;
+    calendarData: Array<{ date: string; count: number; level: string }>;
   };
 }
 

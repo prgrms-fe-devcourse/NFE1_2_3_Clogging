@@ -7,13 +7,12 @@ import PostingCalendar from './PostingCalendar';
 import CustomBarChart from './CustomBarChart';
 import NivoLineChart from './CustomLineChart';
 import { BlogAnalyticsProps } from '../types';
-import CustomBumpChart from './CustomBumpChart';
 
 const BlogAnalytics: React.FC<BlogAnalyticsProps> = ({ data }) => {
   const { isDarkMode } = useTheme();
   const { adminData, postingData, lineData, calendarData } = data;
-  const calendarStyle = ` p-2 rounded-md ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`;
-  const cardStyle = `w-full md:w-[calc(50%-0.5rem)]`; // 너비를 조정하여 간격 확보
+  const calendarStyle = `p-4 rounded-md ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`;
+  const cardStyle = `w-full p-4 rounded-md md:w-[calc(50%-0.5rem)]  ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`; // 너비를 조정하여 간격 확보
   const firstCardStyle = 'md:mr-4'; // 첫 번째 카드에 오른쪽 마진 추가
 
   return (
@@ -23,9 +22,11 @@ const BlogAnalytics: React.FC<BlogAnalyticsProps> = ({ data }) => {
       </div>
       <div className="flex flex-col md:flex-row md:flex-wrap mb-6">
         <div className={`${cardStyle} ${firstCardStyle} mb-4 md:mb-0`}>
+          <div>주간 포스팅 수</div>
           <CustomBarChart data={postingData} />
         </div>
         <div className={`${cardStyle}`}>
+          <div>주간 조회수</div>
           <NivoLineChart data={lineData} />
         </div>
       </div>

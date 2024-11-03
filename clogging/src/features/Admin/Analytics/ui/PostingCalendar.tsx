@@ -1,13 +1,26 @@
-import { useTheme } from '@/shared/providers/theme';
 import React from 'react';
-import ActivityCalendar from 'react-activity-calendar';
+import ActivityCalendar, { Activity } from 'react-activity-calendar';
+import { useTheme } from '@/shared/providers/theme';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
+import 'react-tooltip/dist/react-tooltip.css';
 
-const PostingCalendar = ({ calendarData }) => {
+interface CalendarData extends Activity {
+  date: string;
+  count: number;
+  level: number;
+}
+
+interface PostingCalendarProps {
+  calendarData: CalendarData[];
+}
+
+const PostingCalendar: React.FC<PostingCalendarProps> = ({ calendarData }) => {
   const { isDarkMode } = useTheme();
   const theme = {
     light: ['#E6EDF9', '#C5D7F5', '#9DBEF0', '#6FA1EB', '#4285F4'],
     dark: ['#1A365D', '#2A4A7F', '#3B5FA1', '#4C74C3', '#5E8AE5'],
   };
+
   return (
     <div>
       <ActivityCalendar
@@ -15,11 +28,17 @@ const PostingCalendar = ({ calendarData }) => {
         theme={theme}
         colorScheme={isDarkMode ? 'dark' : 'light'}
         showWeekdayLabels={true}
-        renderTooltip={({ date, count, level }) => (
-          <div>
-            날짜: {date}, 포스팅 수: {count}, 레벨: {level}
-          </div>
-        )}
+        fontSize={14}
+        style={{
+          width: '100%',
+          height: '100%',
+        }}
+        renderBlock={(block, activity) =>
+          React.cloneElement(block, {
+            'data-tooltip-id': 'react-tooltip',
+            'data-tooltip-html': `${activity.count} activities on ${activity.date}`,
+          })
+        }
         labels={{
           months: [
             '1월',
@@ -43,6 +62,7 @@ const PostingCalendar = ({ calendarData }) => {
           },
         }}
       />
+      <ReactTooltip id="react-tooltip" />
     </div>
   );
 };

@@ -74,9 +74,19 @@ export async function getBlogData(): Promise<BlogData> {
       };
     });
 
+  // 댓글 데이터를 가져오는 부분
+  const commentsByPost: { [postId: string]: number } = {};
+
+  commentsSnapshot.forEach((doc) => {
+    const postId = doc.ref.parent.parent?.id;
+    if (postId) {
+      commentsByPost[postId] = (commentsByPost[postId] || 0) + 1;
+    }
+  });
   // 주별 포스팅 수, 조회수, 댓글 수 계산 (최근 한 달)
   monthPosts.forEach((doc) => {
     const postDate = (doc.data() as DocumentData).createdAt.toDate();
+    const postId = doc.id;
     if (postDate >= oneMonthAgo && postDate <= now) {
       const weekIndex = Math.floor(
         (postDate.getTime() - oneMonthAgo.getTime()) /
@@ -86,12 +96,10 @@ export async function getBlogData(): Promise<BlogData> {
         weeklyData[weekIndex].posts++;
         weeklyData[weekIndex].views +=
           (doc.data() as DocumentData).viewCount || 0;
-        weeklyData[weekIndex].comments +=
-          (doc.data() as DocumentData).comments?.length || 0;
+        weeklyData[weekIndex].comments += commentsByPost[postId] || 0;
       }
     }
   });
-
   // 올해의 모든 날짜에 대한 초기 데이터 생성
   const calendarData: { [key: string]: CalendarDay } = {};
   for (let d = new Date(startOfYear); d <= now; d.setDate(d.getDate() + 1)) {

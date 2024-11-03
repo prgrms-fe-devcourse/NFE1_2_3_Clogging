@@ -1,6 +1,7 @@
 // components/NivoLineChart.tsx
 'use client';
 
+import { useTheme } from '@/shared/providers/theme';
 import { Card, CardHeader } from '@/shared/ui/common/Card';
 import { ResponsiveLine } from '@nivo/line';
 import { FC } from 'react';
@@ -20,9 +21,10 @@ interface NivoLineChartProps {
   data: LineChartData[];
 }
 
-const NivoLineChart: FC<NivoLineChartProps> = ({ data }) => (
-  <Card>
-    <CardHeader>주간 조회수</CardHeader>
+const NivoLineChart: FC<NivoLineChartProps> = ({ data }) => {
+  const { isDarkMode } = useTheme();
+  const textColor = isDarkMode ? '#ffffff' : '#000000';
+  return (
     <div style={{ height: 400, width: '100%' }}>
       <ResponsiveLine
         data={data}
@@ -62,6 +64,25 @@ const NivoLineChart: FC<NivoLineChartProps> = ({ data }) => (
         pointBorderColor={{ from: 'serieColor' }}
         pointLabelYOffset={-12}
         useMesh={true}
+        theme={{
+          axis: {
+            ticks: {
+              text: {
+                fill: textColor,
+              },
+            },
+            legend: {
+              text: {
+                fill: textColor,
+              },
+            },
+          },
+          legends: {
+            text: {
+              fill: textColor,
+            },
+          },
+        }}
         legends={[
           {
             anchor: 'bottom-right',
@@ -90,7 +111,7 @@ const NivoLineChart: FC<NivoLineChartProps> = ({ data }) => (
         ]}
       />
     </div>
-  </Card>
-);
+  );
+};
 
 export default NivoLineChart;
