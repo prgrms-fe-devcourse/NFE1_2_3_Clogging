@@ -6,7 +6,7 @@ import { useTheme } from '@/shared/providers/theme';
 interface ProfileImageFieldProps {
   label: string;
   name: string;
-  file: File | null;
+  file: string | null;
   onChange: (name: string, file: File | null) => void;
   onDelete: (name: string) => void; // 삭제 기능을 위한 prop 추가
 }
