@@ -2,8 +2,8 @@ import { create } from 'zustand';
 
 interface CommentFormState {
   form: {
-    nickname: string;
-    password: string;
+    author: string;
+    password: string; //숫자 4자리 고정
     content: string;
     isPrivate: boolean;
   };
@@ -19,7 +19,7 @@ interface CommentFormState {
 
 export const useCommentFormStore = create<CommentFormState>((set) => ({
   form: {
-    nickname: '',
+    author: '',
     password: '',
     content: '',
     isPrivate: false,
@@ -31,8 +31,8 @@ export const useCommentFormStore = create<CommentFormState>((set) => ({
   resetForm: (isAdmin, defaultIsPrivate = false) =>
     set({
       form: {
-        nickname: isAdmin ? '작성자' : '',
-        password: isAdmin ? 'admin' : '',
+        author: isAdmin ? '작성자' : '',
+        password: isAdmin ? '1234' : '',
         content: '',
         isPrivate: defaultIsPrivate,
       },
@@ -45,10 +45,10 @@ export const useCommentFormStore = create<CommentFormState>((set) => ({
   ) =>
     set({
       form: {
-        nickname: isAdmin
+        author: isAdmin
           ? '작성자'
-          : initialData?.nickname || defaultNickname || '',
-        password: isAdmin ? 'admin' : '',
+          : initialData?.author || defaultNickname || '',
+        password: isAdmin ? '1234' : '',
         content: initialData?.content || '',
         isPrivate: initialData?.isPrivate ?? defaultIsPrivate,
       },
