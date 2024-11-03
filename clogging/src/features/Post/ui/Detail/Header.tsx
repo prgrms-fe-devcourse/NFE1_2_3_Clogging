@@ -8,6 +8,8 @@ import { useCategories } from '@/features/Category/hooks';
 export const Header = ({ post }: { post: Post }) => {
   const { getCategoryName } = useCategories();
 
+  console.log('포스트입니다. ', post);
+
   return (
     <header className="mb-8">
       <h1 className="text-4xl font-bold mt-4">{post.title}</h1>
@@ -16,10 +18,10 @@ export const Header = ({ post }: { post: Post }) => {
         <span>|</span>
         <span>조회수: {post.viewCount}</span>
         <span>|</span>
-        <time>{elapsedTime(post.createdAt)}</time>
+        <time>{elapsedTime(new Date(post.createdAt).toISOString())}</time>
       </div>
       <div className="flex gap-2 mt-4">
-        {post.tags.map((tag) => (
+        {post.tags?.map((tag) => (
           <span key={tag} className="px-2 py-1 text-sm bg-gray-100 rounded">
             {tag}
           </span>

@@ -5,7 +5,7 @@ import {
   useCreateComment,
   useUpdateComment,
   useDeleteComment,
-} from '../lib/hooks/useComments';
+} from '../api/useComments';
 import { InputCommentProps } from './types';
 
 export const InputComment = ({

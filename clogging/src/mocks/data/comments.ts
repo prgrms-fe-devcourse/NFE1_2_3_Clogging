@@ -4,7 +4,7 @@ export const mockComments: Comment[] = [
   {
     id: '1',
     postId: '1',
-    nickname: '홍길동',
+    author: '홍길동',
     content: '좋은 글 감사합니다!',
     password: '0000',
     isPrivate: false,
@@ -16,7 +16,7 @@ export const mockComments: Comment[] = [
   {
     id: '2',
     postId: '1',
-    nickname: '작성자',
+    author: '작성자',
     content: '댓글 감사합니다 :)',
     password: '0000',
     isPrivate: false,
@@ -28,7 +28,7 @@ export const mockComments: Comment[] = [
   {
     id: '1',
     postId: '3',
-    nickname: '김유저',
+    author: '김유저',
     content: '좋은 글 감사합니다 :)',
     password: '0000',
     isPrivate: false,
@@ -40,7 +40,7 @@ export const mockComments: Comment[] = [
   {
     id: '3',
     postId: '1',
-    nickname: '익명의 꼬부기',
+    author: '익명의 꼬부기',
     content: '정말 유익한 내용이네요.',
     password: 'hashedPassword3',
     isPrivate: false,
@@ -50,7 +50,7 @@ export const mockComments: Comment[] = [
   {
     id: '4',
     postId: '1',
-    nickname: '익명의 이상해씨',
+    author: '익명의 이상해씨',
     content: '궁금한 점이 해결되었습니다.',
     password: 'hashedPassword4',
     isPrivate: false,
@@ -60,7 +60,7 @@ export const mockComments: Comment[] = [
   {
     id: '5',
     postId: '1',
-    nickname: '익명의 푸린',
+    author: '익명의 푸린',
     content: '비밀 댓글입니다.',
     password: 'hashedPassword5',
     isPrivate: true,
@@ -70,7 +70,7 @@ export const mockComments: Comment[] = [
   {
     id: '6',
     postId: '1',
-    nickname: '익명의 잠만보',
+    author: '익명의 잠만보',
     content: '추가 설명 부탁드립니다.',
     password: 'hashedPassword6',
     isPrivate: false,
@@ -80,7 +80,7 @@ export const mockComments: Comment[] = [
   {
     id: '7',
     postId: '1',
-    nickname: '작성자',
+    author: '작성자',
     content: '네, 곧 추가 설명 올리겠습니다!',
     password: 'hashedPassword7',
     isPrivate: false,
@@ -90,7 +90,7 @@ export const mockComments: Comment[] = [
   {
     id: '8',
     postId: '1',
-    nickname: '익명의 리자몽',
+    author: '익명의 리자몽',
     content: '다른 의견입니다만...',
     password: 'hashedPassword8',
     isPrivate: false,
@@ -100,7 +100,7 @@ export const mockComments: Comment[] = [
   {
     id: '9',
     postId: '1',
-    nickname: '익명의 메타몽',
+    author: '익명의 메타몽',
     content: '좋은 정보 감사합니다!',
     password: 'hashedPassword9',
     isPrivate: false,
@@ -110,7 +110,7 @@ export const mockComments: Comment[] = [
   {
     id: '10',
     postId: '1',
-    nickname: '익명의 찌리리공주',
+    author: '익명의 찌리리공주',
     content: '또 다른 비밀 댓글입니다.',
     password: 'hashedPassword10',
     isPrivate: true,
@@ -120,7 +120,7 @@ export const mockComments: Comment[] = [
   {
     id: '11',
     postId: '1',
-    nickname: '익명의 파이리',
+    author: '익명의 파이리',
     content: '이 부분에 대해 더 자세히 알고 싶어요.',
     password: 'hashedPassword11',
     isPrivate: false,
@@ -130,7 +130,7 @@ export const mockComments: Comment[] = [
   {
     id: '12',
     postId: '1',
-    nickname: '익명의 뚜벅이',
+    author: '익명의 뚜벅이',
     content: '훌륭한 인사이트입니다.',
     password: 'hashedPassword12',
     isPrivate: false,
@@ -140,7 +140,7 @@ export const mockComments: Comment[] = [
   {
     id: '13',
     postId: '1',
-    nickname: '작성자',
+    author: '작성자',
     content: '모든 분들께 감사드립니다. 추가 내용 업데이트했습니다.',
     password: 'hashedPassword13',
     isPrivate: false,
@@ -150,7 +150,7 @@ export const mockComments: Comment[] = [
   {
     id: '14',
     postId: '1',
-    nickname: '익명의 고래왕자',
+    author: '익명의 고래왕자',
     content: '업데이트된 내용 잘 봤습니다!',
     password: 'hashedPassword14',
     isPrivate: false,
@@ -160,7 +160,7 @@ export const mockComments: Comment[] = [
   {
     id: '15',
     postId: '1',
-    nickname: '익명의 쪼꼬미',
+    author: '익명의 쪼꼬미',
     content: '이 글을 통해 많이 배웠습니다. 감사합니다!',
     password: 'hashedPassword15',
     isPrivate: false,

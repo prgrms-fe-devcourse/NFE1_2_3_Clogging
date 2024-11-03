@@ -23,9 +23,6 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ onSubmit }) => {
     }
 
     try {
-      // addCategory 호출
-      addCategory(categoryName);
-      alert('카테고리 추가 되었습니다.');
       onSubmit(categoryName); // 카테고리 추가 후 부모 컴포넌트에 알림
       setCategoryName(''); // 입력 필드 초기화
     } catch (error) {

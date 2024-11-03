@@ -1,3 +1,4 @@
+// hooks.ts
 import { useState, useCallback } from 'react';
 import { Category } from './types';
 import { sortCategoriesByOrder } from './utils/categorySort';
@@ -126,8 +127,7 @@ export const useCategories = (initialCategories: Category[] = []) => {
   const getCategoryName = useCallback(
     (categoryId: string): string => {
       return (
-        categories.find((category: Category) => category.id === categoryId)
-          ?.name ?? ''
+        categories.find((category) => category.id === categoryId)?.name ?? ''
       );
     },
     [categories],
