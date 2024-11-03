@@ -7,7 +7,7 @@ import { Content } from './Content';
 import { Header } from './Header';
 import { Navigation } from './Navigation';
 import { CommentList } from '@/features/Comment/ui/CommentList';
-import { useInvalidateComments } from '@/features/Comment/lib/hooks/useComments';
+import { useInvalidateComments } from '@/features/Comment/api/useComments';
 
 export const Detail = ({ postId }: { postId: string }) => {
   const { data: post, isLoading, error } = usePost(postId);

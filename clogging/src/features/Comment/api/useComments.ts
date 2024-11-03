@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Comment } from '../../types';
-import { commentApi } from '@/mocks/handlers/commentApi';
+import { Comment } from '../types';
+import { commentApi } from '@/features/Comment/api/commentApi';
 import { useInvalidateQuery } from '@/shared/lib/hooks/useInvalidateQuery';
 
 // 댓글 목록 조회
@@ -33,8 +33,14 @@ export const useUpdateComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (comment: Partial<Comment> & { id: string }) =>
-      commentApi.updateComment(comment),
+    mutationFn: (data: {
+      postId: string;
+      commentId: string;
+      content: string; // 필수
+      password: string; // 필수
+      isPrivate?: boolean;
+      author?: string;
+    }) => commentApi.updateComment(data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ['comments', variables.postId],
@@ -49,13 +55,16 @@ export const useDeleteComment = () => {
 
   return useMutation({
     mutationFn: ({
+      postId,
       commentId,
+      password,
+      isAdmin,
     }: {
       postId: string;
       commentId: string;
       password: string;
       isAdmin?: boolean;
-    }) => commentApi.deleteComment(commentId),
+    }) => commentApi.deleteComment({ postId, commentId, password }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ['comments', variables.postId],
