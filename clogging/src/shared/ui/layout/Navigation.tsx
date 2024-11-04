@@ -6,13 +6,14 @@ import { Button } from '../common/Button';
 import { useTheme } from '@/shared/providers/theme';
 import Link from 'next/link';
 import Toggle from '../common/Toggle';
-import { useAuth, useAuthStore } from '@/features/Auth/hooks';
+import { useAuth } from '@/features/Admin/hooks/useAuth';
+import { useAdminStore } from '@/features/Admin/stores/useAdminStore';
 
 export const Navigation = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const { isAdmin } = useAuth();
 
-  console.log('Current Role:', useAuthStore.getState().userRole); // 디버깅용
+  console.log('Current Role:', useAdminStore.getState().isAdmin); // 디버깅용
   console.log('Is Admin:', isAdmin);
 
   return (
