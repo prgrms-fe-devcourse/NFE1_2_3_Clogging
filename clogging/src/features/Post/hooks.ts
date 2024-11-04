@@ -16,6 +16,8 @@ import {
   startAfter,
   QueryConstraint,
   onSnapshot,
+  updateDoc,
+  increment,
 } from 'firebase/firestore';
 import { db } from '@/shared/lib/firebase';
 
@@ -81,6 +83,11 @@ export const usePost = (postId: string) => {
             updatedAt: data.updatedAt.toMillis(),
           } as Post;
           queryClient.setQueryData(['post', postId], post);
+          // 조회수도 업데이트
+          queryClient.setQueryData(
+            ['postViewCount', postId],
+            data.viewCount ?? 0,
+          );
         }
       },
       (error) => {
@@ -95,21 +102,33 @@ export const usePost = (postId: string) => {
     queryKey: ['post', postId],
     queryFn: async () => {
       try {
+        // 1. 게시글 조회
         const postDoc = await getDoc(doc(db, 'posts', postId));
         if (!postDoc.exists()) {
           throw new Error('게시글을 찾을 수 없습니다.');
         }
+
+        // 2. 조회수 증가
+        await updateDoc(doc(db, 'posts', postId), {
+          viewCount: increment(1),
+        });
+
+        // 3. 업데이트된 데이터 반환
         const data = postDoc.data();
         return {
           id: postDoc.id,
           ...data,
           createdAt: data.createdAt.toMillis(),
           updatedAt: data.updatedAt.toMillis(),
+          viewCount: (data.viewCount ?? 0) + 1, // 로컬에서 먼저 증가된 값 반영
         } as Post;
       } catch (error) {
+        console.error('Error fetching post:', error);
         throw new Error('게시글을 불러오는데 실패했습니다.');
       }
     },
+    staleTime: 0, // 항상 최신 데이터 fetch
+    gcTime: 5 * 60 * 1000, // 5분간 캐시 유지
   });
 };
 

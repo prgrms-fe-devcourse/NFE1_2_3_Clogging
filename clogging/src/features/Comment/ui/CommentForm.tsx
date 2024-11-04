@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useCreateComment, useUpdateComment } from '../lib/hooks/useComments';
+import { useCreateComment, useUpdateComment } from '../api/useComments';
+import { useCreateReply } from '../api/Reply/useReply';
 import { Input } from '@/shared/ui/common/Input';
 import { FormSectionItem } from '@/shared/ui/Form/Form';
 import { UserIcon } from 'lucide-react';
@@ -9,7 +10,7 @@ import { PrivateComment } from './PrivateComment';
 import { InputComment } from './InputComment';
 import { useAuth } from '@/features/Auth/hooks';
 import { commentFormProps } from '../types';
-import { useCommentFormStore } from '../lib/store/useCommentFormStore';
+import { useCommentFormStore } from '../lib/stores/useCommentFormStore';
 
 export const CommentForm = ({
   postId,
@@ -24,31 +25,56 @@ export const CommentForm = ({
 }: commentFormProps) => {
   const createComment = useCreateComment();
   const updateComment = useUpdateComment();
+  const createReply = useCreateReply();
   const { isAdmin } = useAuth();
-
-  // Zustand store 사용
   const { form, setForm, resetForm, initializeForm } = useCommentFormStore();
 
-  // 컴포넌트 마운트 시 폼 초기화
   useEffect(() => {
     initializeForm(isAdmin, initialData, defaultNickname, defaultIsPrivate);
-    // cleanup 함수
     return () => resetForm(isAdmin, defaultIsPrivate);
   }, [isAdmin, initialData, defaultNickname, defaultIsPrivate]);
 
-  // 비공개 상태 변경 핸들러
-  const handlePrivacyChange = (value: boolean) => {
-    console.log('Changing privacy to:', value);
+  const handlePrivacyChange = async (value: boolean) => {
     setForm({ isPrivate: value });
+
+    if (mode === 'edit' && commentId) {
+      try {
+        const response = await updateComment.mutateAsync({
+          postId,
+          commentId,
+          content: form.content,
+          password: isAdmin ? '1234' : form.password,
+          isPrivate: value,
+          author: isAdmin ? '관리자' : form.author,
+        });
+
+        if (!response) {
+          throw new Error('응답 데이터가 없습니다.');
+        }
+
+        onSuccess?.();
+      } catch (error) {
+        let errorMessage = '비공개 설정 변경에 실패했습니다.';
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+        alert(errorMessage);
+        setForm({ isPrivate: !value });
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (createComment.isPending || updateComment.isPending) return;
+    if (
+      createComment.isPending ||
+      updateComment.isPending ||
+      createReply.isPending
+    )
+      return;
 
-    // 폼 유효성 검사
-    if (!isAdmin && (!form.nickname || !form.password || !form.content)) {
+    if (!isAdmin && (!form.author || !form.password || !form.content)) {
       alert('작성자, 비밀번호, 댓글 내용을 모두 입력해주세요.');
       return;
     }
@@ -59,34 +85,38 @@ export const CommentForm = ({
     }
 
     try {
-      const commentData = {
+      const commonData = {
         postId,
-        nickname: isAdmin ? '작성자' : form.nickname,
-        password: isAdmin ? 'admin' : form.password,
+        author: isAdmin ? '관리자' : form.author,
+        password: isAdmin ? '1234' : form.password,
         content: form.content,
         isPrivate: form.isPrivate,
-        isAuthor: false,
-        parentCommentId: parentCommentId || undefined,
-        replies: [],
       };
 
-      console.log('Submitting comment with data:', commentData);
-
       if (mode === 'create') {
-        await createComment.mutateAsync(commentData);
+        if (parentCommentId) {
+          // 답글 생성
+          await createReply.mutateAsync({
+            ...commonData,
+            commentId: parentCommentId,
+            replyId: '',
+          });
+        } else {
+          // 댓글 생성
+          await createComment.mutateAsync(commonData);
+        }
       } else {
+        // 수정
         await updateComment.mutateAsync({
-          id: commentId!,
-          ...commentData,
+          commentId: commentId!,
+          ...commonData,
         });
       }
 
-      // 성공 후 폼 초기화
       resetForm(isAdmin, defaultIsPrivate);
       onSuccess();
     } catch (error) {
-      console.error('댓글 작성/수정 실패:', error);
-      alert('댓글 작성/수정에 실패했습니다. 다시 시도해주세요.');
+      alert('작성/수정에 실패했습니다. 다시 시도해주세요.');
     }
   };
 
@@ -106,8 +136,8 @@ export const CommentForm = ({
                 <Input
                   type="text"
                   placeholder="닉네임을 입력하세요"
-                  value={form.nickname}
-                  onChange={(e) => setForm({ nickname: e.target.value })}
+                  value={form.author}
+                  onChange={(e) => setForm({ author: e.target.value })}
                   className="flex-1 p-2 border rounded"
                   required={!isAdmin}
                 />
@@ -127,7 +157,6 @@ export const CommentForm = ({
               </FormSectionItem>
             </>
           )}
-          {/* 비공개 설정은 항상 표시 */}
           <FormSectionItem className="flex items-center gap-4">
             <PrivateComment
               isPrivate={form.isPrivate}

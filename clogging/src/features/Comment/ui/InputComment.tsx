@@ -5,8 +5,8 @@ import {
   useCreateComment,
   useUpdateComment,
   useDeleteComment,
-} from '../lib/hooks/useComments';
-import { InputCommentProps } from './types';
+} from '../api/useComments';
+import { InputCommentProps } from '../types';
 
 export const InputComment = ({
   value,
@@ -21,7 +21,6 @@ export const InputComment = ({
   const deleteComment = useDeleteComment();
   const { isAdmin } = useAuth();
 
-  // Remove duplicate form state from InputComment
   const handleDelete = async () => {
     if (!commentId || (!isAdmin && !value)) {
       alert('비밀번호를 입력해주세요.');
@@ -37,7 +36,6 @@ export const InputComment = ({
         });
         onSuccess?.();
       } catch (error) {
-        console.error('댓글 삭제 실패:', error);
         alert('댓글 삭제에 실패했습니다. 다시 시도해주세요.');
       }
     }
@@ -47,8 +45,8 @@ export const InputComment = ({
     <div className="flex items-center justify-between gap-4 h-[90px]">
       <Textarea
         placeholder="댓글을 입력하세요"
-        value={value} // Use the value prop directly
-        onChange={(e) => onChange(e.target.value)} // Call the onChange prop directly
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
         className="flex-1 p-2 border rounded"
         rows={3}
         required

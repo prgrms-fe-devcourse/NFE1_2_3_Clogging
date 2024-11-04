@@ -11,6 +11,11 @@ export async function POST(request: Request) {
     }
 
     const categoriesRef = collection(db, 'categories');
+
+    // 현재 카테고리 수를 가져오기 위한 쿼리
+    const categorySnapshot = await getDocs(categoriesRef);
+    const currentCategoryCount = categorySnapshot.size; // 현재 카테고리 수
+
     const duplicateQuery = query(categoriesRef, where('name', '==', name));
     const duplicateCheck = await getDocs(duplicateQuery);
 
@@ -23,6 +28,7 @@ export async function POST(request: Request) {
       postIds: [],
       postCount: 0,
       createdAt: new Date().toISOString(),
+      order: currentCategoryCount,
     };
 
     const docRef = await addDoc(categoriesRef, newCategory);

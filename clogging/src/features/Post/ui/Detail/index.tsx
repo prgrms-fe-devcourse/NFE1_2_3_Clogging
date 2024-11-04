@@ -7,7 +7,7 @@ import { Content } from './Content';
 import { Header } from './Header';
 import { Navigation } from './Navigation';
 import { CommentList } from '@/features/Comment/ui/CommentList';
-import { useInvalidateComments } from '@/features/Comment/lib/hooks/useComments';
+import { useInvalidateComments } from '@/features/Comment/api/useComments';
 
 export const Detail = ({ postId }: { postId: string }) => {
   const { data: post, isLoading, error } = usePost(postId);
@@ -16,6 +16,13 @@ export const Detail = ({ postId }: { postId: string }) => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
   if (!post) return null;
+
+  const handleHeadingClick = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -41,7 +48,10 @@ export const Detail = ({ postId }: { postId: string }) => {
           </section>
         </main>
         <aside className="col-span-3">
-          <TableOfContents />
+          <TableOfContents
+            content={post.content}
+            onHeadingClick={handleHeadingClick}
+          />
         </aside>
       </div>
     </div>

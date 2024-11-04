@@ -13,7 +13,7 @@ import { Post } from '@/features/Post/types';
 import { useState, useEffect } from 'react';
 import { storage } from '@/shared/lib/firebase';
 import { ref, getDownloadURL } from 'firebase/storage';
-import { useCommentCount } from '@/features/Comment/lib/hooks/useCommentCount';
+import { useCommentCount } from '@/features/Comment/api/useCommentCount';
 import { useRealtimeViewCount } from '@/features/Post/hooks';
 
 interface Props {
@@ -114,12 +114,6 @@ const PostCard = ({ post }: Props) => {
                 <Badge variant="secondary">
                   조회수 {viewCount.toLocaleString()}
                 </Badge>
-                {post.tags?.length > 0 && (
-                  <Badge variant="secondary">
-                    {post.tags[0]}
-                    {post.tags.length > 1 ? ` +${post.tags.length - 1}` : ''}
-                  </Badge>
-                )}
               </div>
             </CardFooter>
           </div>
