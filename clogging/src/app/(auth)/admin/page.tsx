@@ -71,7 +71,7 @@ export default function AdminPage() {
         {adminData && <BlogDataList adminData={adminData} />}
         {/* adminData가 있을 때만 렌더링 */}
       </div>
-      <div className="w-[49%]">
+      <div className="w-[49%] sm:w-full md:w-[49%]">
         <CommentList
           initialComments={commentsData?.comments || []}
           totalComments={commentsData?.totalComments || 0}

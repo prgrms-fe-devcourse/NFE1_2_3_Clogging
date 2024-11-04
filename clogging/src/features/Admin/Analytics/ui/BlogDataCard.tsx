@@ -9,7 +9,7 @@ const BlogDataCard: React.FC<BlogDataCardProps> = ({ label, value }) => {
 
   return (
     <div
-      className={`p-4 rounded-md flex w-full sm:w-1/2 md:w-1/3 lg:w-1/4 
+      className={`p-4 rounded-md flex w-full sm:w-full md:w-[30%] lg:w-[30%]
        ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-800'}`}
     >
       <div className="flex items-center">
