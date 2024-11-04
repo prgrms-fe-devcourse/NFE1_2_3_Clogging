@@ -1,48 +1,22 @@
-import { ref, uploadBytes, deleteObject } from 'firebase/storage';
-import { storage } from '@/shared/lib/firebase';
+import { storage } from '@/shared/lib/firebase'; // Ensure this imports your Firebase configuration
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-interface UploadImageResult {
-  updatedImageIds: string[];
-}
-
-export async function settingsImageUploadImage(
-  image: File | null,
-  existingImagePaths: string[],
-  imagesToDeleteId: string[] | null,
-): Promise<UploadImageResult> {
-  const uploadedImageIds: string[] = [];
+export const settingsImageUploadImage = async (
+  file: File | null,
+): Promise<string | null> => {
+  if (!file) {
+    return null; // Return null if no file is provided
+  }
 
   try {
-    // 기존 이미지 삭제
-    if (imagesToDeleteId && imagesToDeleteId.length > 0) {
-      await Promise.all(
-        imagesToDeleteId.map(async (imagePath) => {
-          const existingImageRef = ref(storage, `settings/${imagePath}`); // 경로 수정
-          await deleteObject(existingImageRef);
-        }),
-      );
-    }
+    const storageRef = ref(storage, `settings/${file.name}`); // Define the storage path
+    await uploadBytes(storageRef, file); // Upload the file
 
-    // 새 이미지 업로드
-    if (image) {
-      const timestamp = Date.now();
-      const fileName = `${timestamp}-${image.name}`;
-      const newImageRef = ref(storage, `settings/${fileName}`); // 경로 수정
-      await uploadBytes(newImageRef, image);
-      uploadedImageIds.push(fileName);
-    }
-
-    // 업데이트된 이미지 ID 반환
-    const updatedImageIds = existingImagePaths.filter(
-      (path) => !imagesToDeleteId?.includes(path),
-    );
-    return {
-      updatedImageIds: [...updatedImageIds, ...uploadedImageIds],
-    };
+    // Get the download URL of the uploaded file
+    const url = await getDownloadURL(storageRef);
+    return file.name; // Return the filename for Firestore update
   } catch (error) {
-    console.error('Error in uploadImage:', error);
-    throw new Error(
-      `Upload image failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    );
+    console.error('Error uploading image:', error);
+    throw new Error('Image upload failed');
   }
-}
+};

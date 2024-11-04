@@ -1,21 +1,20 @@
 'use client';
-
 import React, { useState, useEffect } from 'react';
 import SettingTextField from './SettingTextField';
 import ProfileImageField from './ProfileImageField';
 import FaviconImageField from './FaviconImageField';
-import BannerImageField from './bannerImageField';
 import { useTheme } from '@/shared/providers/theme';
 import { Button } from '@/shared/ui/common/Button';
-import { settingsImageUploadImage } from './utils/settingsImageUpload';
+import { settingsImageUploadImage } from './utils/settingsImageUpload'; // 경로 확인 필요
+import BannerImageField from './bannerImageField';
 
 interface BlogSettings {
   id?: string;
-  profileImage: File | null;
+  profileImage: File[] | null;
   nickname: string;
   description: string;
-  favicon: File | null;
-  bannerImage: File | null;
+  faviconImage: File[] | null;
+  bannerImage: string[] | null;
 }
 
 export default function SettingsForm() {
@@ -24,7 +23,7 @@ export default function SettingsForm() {
     profileImage: null,
     nickname: '',
     description: '',
-    favicon: null,
+    faviconImage: null,
     bannerImage: null,
   });
 
@@ -36,19 +35,18 @@ export default function SettingsForm() {
       const response = await fetch('/api/settings');
       if (response.ok) {
         const data = await response.json();
-
         if (data.length > 0) {
           const fetchedSettings = data[0];
           setSettings({
             ...fetchedSettings,
-            profileImage: null, // 파일은 따로 처리
-            favicon: null,
-            bannerImage: null,
+            profileImage: fetchedSettings.profileImage || [],
+            faviconImage: fetchedSettings.faviconImage || [],
+            bannerImage: fetchedSettings.bannerImage || [],
           });
           setExistingImages([
-            fetchedSettings.profileImage,
-            fetchedSettings.favicon,
-            fetchedSettings.bannerImage,
+            ...(fetchedSettings.profileImage || []),
+            ...(fetchedSettings.faviconImage || []),
+            ...(fetchedSettings.bannerImage || []),
           ]);
         }
       }
@@ -62,25 +60,39 @@ export default function SettingsForm() {
   };
 
   const handleFileChange = (name: string, file: File | null) => {
-    setSettings((prev) => ({ ...prev, [name]: file }));
+    if (file) {
+      setSettings((prev) => ({
+        ...prev,
+        [name]: [...(prev[name] || []), file.name], // 파일 이름을 배열에 추가
+      }));
+    } else {
+      setSettings((prev) => ({ ...prev, [name]: null }));
+    }
   };
 
   const handleFileDelete = (name: string, imagePath?: string) => {
     if (imagePath) {
       setImagesToDelete((prev) => [...prev, imagePath]);
     }
-    setSettings((prev) => ({ ...prev, [name]: null }));
+    setSettings((prev) => ({
+      ...prev,
+      [name]: prev[name]?.filter((img) => img !== imagePath), // 해당 이미지 제거
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      // 이미지 업로드 처리
-      const uploadResult = await settingsImageUploadImage(
-        settings.profileImage,
-        existingImages,
-        imagesToDelete.length > 0 ? imagesToDelete : null,
+      // 이미지 업로드 처리 및 settings ID 전달
+      await Promise.all(
+        Object.entries(settings).map(async ([key, value]) => {
+          if (value && Array.isArray(value)) {
+            for (const file of value) {
+              await settingsImageUploadImage(file); // 이미지 업로드 함수 호출
+            }
+          }
+        }),
       );
 
       // 서버에 보낼 데이터 준비
@@ -88,13 +100,9 @@ export default function SettingsForm() {
         id: settings.id,
         nickname: settings.nickname,
         description: settings.description,
-        profileImage: uploadResult.updatedImageIds.includes(
-          settings.profileImage?.name || '',
-        )
-          ? settings.profileImage?.name
-          : null,
-        favicon: settings.favicon ? settings.favicon.name : null,
-        bannerImage: settings.bannerImage ? settings.bannerImage.name : null,
+        profileImage: settings.profileImage || [],
+        faviconImage: settings.faviconImage || [],
+        bannerImage: settings.bannerImage || [],
       };
 
       // PUT 요청으로 설정 업데이트
@@ -128,7 +136,7 @@ export default function SettingsForm() {
       <ProfileImageField
         label="프로필 사진"
         name="profileImage"
-        file={settings.profileImage}
+        file={settings.profileImage?.[0] || null}
         onChange={handleFileChange}
         onDelete={(filePath) => handleFileDelete('profileImage', filePath)}
       />
@@ -141,7 +149,7 @@ export default function SettingsForm() {
           onChange={handleInputChange}
           onBlur={(value) => handleInputChange('nickname', value)}
           maxLength={20}
-          placeholder="닉네임을 20자 이내로 입력하세요"
+          placeholder="닉네임을 입력하세요"
         />
 
         <SettingTextField
@@ -152,7 +160,7 @@ export default function SettingsForm() {
           onBlur={(value) => handleInputChange('description', value)}
           multiline
           maxLength={50}
-          placeholder="설명을 50자 이내로 입력하세요"
+          placeholder="설명을 입력하세요"
         />
       </div>
 
@@ -161,7 +169,7 @@ export default function SettingsForm() {
         <FaviconImageField
           label="파비콘"
           name="favicon"
-          file={settings.favicon}
+          file={settings.faviconImage?.[0] || null}
           onChange={handleFileChange}
         />
 
@@ -169,7 +177,7 @@ export default function SettingsForm() {
         <BannerImageField
           label="배너"
           name="bannerImage"
-          file={settings.bannerImage}
+          file={settings.bannerImage?.[0] || null}
           onChange={handleFileChange}
         />
       </div>
