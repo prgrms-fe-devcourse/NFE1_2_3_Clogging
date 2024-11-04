@@ -9,6 +9,7 @@ import { useCategoryStore } from '@/store/useCategoryStore';
 import { usePostFilter, useFilteredPosts } from '@/features/Post/hooks';
 import { useEffect, useRef, useCallback } from 'react';
 import { useCategories } from '@/features/Category/hooks'; // useCategories hook 추가
+import { useFetchSettings } from '@/features/Admin/Blog-settings/hooks/useFetchSettings';
 
 const PostPage: React.FC = () => {
   const { isDarkMode } = useTheme();
@@ -18,6 +19,7 @@ const PostPage: React.FC = () => {
   const { sortType, setSortType, setLastDoc } = usePostFilter();
   const { data, isLoading, error } = useFilteredPosts();
   const { categories, fetchCategories } = useCategories(); // 카테고리 데이터 가져오기
+  const { settingsData } = useFetchSettings();
   const observer = useRef<IntersectionObserver | null>(null);
 
   // 컴포넌트 마운트 시 카테고리 데이터 가져오기
@@ -78,7 +80,7 @@ const PostPage: React.FC = () => {
         {/* 배너 영역 */}
         <div className="w-full h-[400px] relative overflow-hidden mb-7 rounded-lg">
           <img
-            src={bannerImage}
+            src={settingsData?.bannerUrl || '/images/banner-img.png'} // settingsData 사용
             alt="Feed Banner"
             className="w-full h-full object-cover"
             onError={(e) => {
