@@ -1,36 +1,52 @@
 'use client';
 import { useTheme } from '@/shared/providers/theme';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import CommentItem from './CommentItem';
 import EmptyComment from './EmptyComment';
-interface reply {
-  id: string;
-  postId: string;
-  content: string;
-  createdAt: string;
-  author: string;
-}
-interface Comment {
-  id: string;
-  postId: string;
-  content: string;
-  createdAt: string;
-  author: string;
-  replies: reply[];
-  repliesCount: number;
-}
+import { AdminComment } from '@/app/(auth)/admin/comment/page';
+
 interface CommentListProps {
-  commentsData: Comment[];
+  initialComments: AdminComment[]; // 초기 댓글 데이터
+  totalComments: number; // 총 댓글 수
 }
 
-const CommentList: React.FC<CommentListProps> = ({ commentsData }) => {
+const PAGE_SIZE = 5; // 한 페이지에 표시할 댓글 수
+
+const CommentList: React.FC<CommentListProps> = ({
+  initialComments,
+  totalComments,
+}) => {
   const { isDarkMode } = useTheme();
-  const [comments, setComments] = useState<Comment[]>(commentsData);
+
+  // 초기 댓글 데이터를 상태로 설정합니다.
+  const [comments, setComments] = useState<Comment[]>(initialComments);
+  const [currentPage, setCurrentPage] = useState(0); // 현재 페이지 상태
+
+  // 메모이제이션을 사용하여 초기 댓글을 저장합니다.
+  const memoizedComments = useMemo(
+    () =>
+      comments.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE),
+    [comments, currentPage],
+  );
 
   const handleDelete = (commentId: string) => {
     setComments((prevComments) =>
       prevComments.filter((comment) => comment.id !== commentId),
     );
+  };
+
+  const totalPages = Math.ceil(totalComments / PAGE_SIZE); // 총 페이지 수 계산
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage((prev) => prev - 1);
+    }
   };
 
   return (
@@ -39,10 +55,10 @@ const CommentList: React.FC<CommentListProps> = ({ commentsData }) => {
         isDarkMode ? 'bg-gray-900' : 'bg-white'
       }`}
     >
-      {comments.length > 0 ? (
+      {memoizedComments.length > 0 ? (
         <>
           <ul className="space-y-4">
-            {comments.map((comment) => (
+            {memoizedComments.map((comment) => (
               <CommentItem
                 key={comment.id}
                 comment={comment}
@@ -50,6 +66,25 @@ const CommentList: React.FC<CommentListProps> = ({ commentsData }) => {
               />
             ))}
           </ul>
+          <div className="flex justify-between items-center mt-4">
+            <button
+              onClick={handlePreviousPage}
+              disabled={currentPage === 0}
+              className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
+            >
+              이전
+            </button>
+            <span>
+              Page {currentPage + 1} of {totalPages} {/* 현재 페이지 표시 */}
+            </span>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage >= totalPages - 1}
+              className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
+            >
+              다음
+            </button>
+          </div>
         </>
       ) : (
         <EmptyComment />

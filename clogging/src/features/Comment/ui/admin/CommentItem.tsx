@@ -3,16 +3,24 @@ import React from 'react';
 import Image from 'next/image';
 import { useTheme } from '@/shared/providers/theme';
 import { adminDeleteComment } from '../../utils/adminDeleteComment';
-import ReplyList from './ReplyItem';
+import ReplyList from './ReplyList'; // ReplyList를 임포트
 
-interface Comment {
-  id: string;
-  postId: string;
-  content: string;
-  createdAt: string;
-  author: string;
-  repliesCount: number;
-  replies: Reply[];
+export interface Reply {
+  id: string; // 답글 ID
+  postId: string; // 원래 댓글의 포스트 ID
+  content: string; // 답글 내용
+  createdAt: string; // 답글 생성 날짜 (문자열 형식)
+  author: string; // 답글 작성자
+}
+
+export interface Comment {
+  id: string; // 댓글 ID
+  postId: string; // 댓글이 속한 포스트의 ID
+  content: string; // 댓글 내용
+  createdAt: string; // 댓글 생성 날짜 (문자열 형식)
+  author: string; // 댓글 작성자
+  replies: Reply[]; // 댓글에 대한 답글 배열
+  repliesCount: number; // 답글 수
 }
 
 interface CommentItemProps {
@@ -33,6 +41,19 @@ const CommentItem: React.FC<CommentItemProps> = React.memo(
           onDelete(comment.id, comment.postId);
         } else {
           alert('댓글 삭제에 실패했습니다.');
+        }
+      }
+    };
+
+    const handleDeleteReply = async (replyId: string) => {
+      const confirmed = confirm('답글을 삭제하시겠습니까?');
+      if (confirmed) {
+        const success = await adminDeleteReply(replyId, comment.id); // adminDeleteReply 함수는 구현해야 함.
+        if (success) {
+          alert('답글이 삭제되었습니다.');
+          // 여기서 상태 업데이트를 통해 UI를 새로고침할 수 있습니다.
+        } else {
+          alert('답글 삭제에 실패했습니다.');
         }
       }
     };
@@ -79,8 +100,7 @@ const CommentItem: React.FC<CommentItemProps> = React.memo(
         {comment.replies.length > 0 && (
           <ReplyList
             replies={comment.replies}
-            commentId={comment.id}
-            postId={comment.postId}
+            onDeleteReply={handleDeleteReply}
           />
         )}
       </li>

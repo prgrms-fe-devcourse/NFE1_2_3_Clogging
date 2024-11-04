@@ -1,4 +1,4 @@
-// src/lib/api/comments.ts
+// src/features/Comment/api/getAllComments.ts
 import {
   collection,
   getDocs,
@@ -9,40 +9,41 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/shared/lib/firebase';
 import { formatDateTime } from '@/shared/lib/utils/formatDateTime';
+import { Comment } from '@/features/Comment/types'; // Comment 타입 임포트
 
 export async function getAllComments() {
   const commentsRef = collectionGroup(db, 'comments');
-  const commentsQuery = query(commentsRef, orderBy('createdAt', 'desc'));
+  const commentsQuery = query(commentsRef, orderBy('createdAt', 'desc')); // 최신 순으로 정렬
   const commentsSnapshot = await getDocs(commentsQuery);
 
-  const comments = await Promise.all(
+  const comments: Comment[] = await Promise.all(
     commentsSnapshot.docs.map(async (commentDoc) => {
       const commentData = commentDoc.data();
       const postId = commentDoc.ref.parent.parent?.id;
 
-      // createdAt 필드를 Timestamp로 변환
+      // createdAt 필드를 Timestamp로 변환 후 포맷팅
       const createdAtTimestamp = commentData.createdAt as Timestamp;
-      const createdAtDate = createdAtTimestamp.toDate();
-
-      // formatDateTime 함수를 사용하여 날짜와 시간 포맷팅
-      const formattedCreatedAt = formatDateTime(createdAtDate);
+      const formattedCreatedAt = formatDateTime(createdAtTimestamp.toDate());
 
       // 답글 가져오기
       const repliesRef = collection(commentDoc.ref, 'replies');
-      const repliesQuery = query(repliesRef, orderBy('createdAt', 'asc'));
+      const repliesQuery = query(repliesRef, orderBy('createdAt', 'desc')); // 최신 순으로 정렬
       const repliesSnapshot = await getDocs(repliesQuery);
 
       const replies = await Promise.all(
         repliesSnapshot.docs.map(async (replyDoc) => {
           const replyData = replyDoc.data();
           const replyCreatedAtTimestamp = replyData.createdAt as Timestamp;
-          const replyCreatedAtDate = replyCreatedAtTimestamp.toDate();
-          const formattedReplyCreatedAt = formatDateTime(replyCreatedAtDate);
+          const formattedReplyCreatedAt = formatDateTime(
+            replyCreatedAtTimestamp.toDate(),
+          );
 
           return {
             id: replyDoc.id,
-            ...replyData,
-            createdAt: formattedReplyCreatedAt,
+            postId: replyData.postId,
+            content: replyData.content,
+            createdAt: formattedReplyCreatedAt, // 문자열로 변환된 날짜
+            author: replyData.author,
           };
         }),
       );
@@ -50,8 +51,9 @@ export async function getAllComments() {
       return {
         id: commentDoc.id,
         postId,
-        ...commentData,
-        createdAt: formattedCreatedAt,
+        content: commentData.content,
+        createdAt: formattedCreatedAt, // 문자열로 변환된 날짜
+        author: commentData.author,
         replies, // 댓글에 대한 답글 추가
         repliesCount: replies.length, // 답글 수 추가
       };
@@ -60,6 +62,6 @@ export async function getAllComments() {
 
   return {
     comments,
-    totalComments: commentsSnapshot.size,
+    totalComments: commentsSnapshot.size, // 총 댓글 수 반환
   };
 }
