@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import React from 'react';
 import localFont from 'next/font/local';
 import './globals.css';
 import { ClientLayout } from './ClientLayout';
@@ -14,10 +14,15 @@ const geistMono = localFont({
   weight: '100 900',
 });
 
-export const metadata: Metadata = {
+const faviconUrl =
+  'https://firebasestorage.googleapis.com/v0/b/clogging-d3b17.appspot.com/o/settings%2Ffavicons%2Fclogging.ico?alt=media&token=818d7961-b7be-485a-b988-09f4722e9182';
+export const metadata = {
   title: {
     template: '%s | Clogging',
     default: 'Clogging',
+  },
+  icons: {
+    icon: faviconUrl, // Firebase Storage의 favicon URL
   },
 };
 
