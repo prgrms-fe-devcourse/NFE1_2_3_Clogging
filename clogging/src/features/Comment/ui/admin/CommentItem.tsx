@@ -1,58 +1,108 @@
+// src/features/Comment/ui/admin/CommentItem.tsx
 import React from 'react';
 import Image from 'next/image';
-import { formatDate } from '../../utils/dateUtils';
-import { Comment } from '../../types';
 import { useTheme } from '@/shared/providers/theme';
+import { adminDeleteComment } from '../../utils/adminDeleteComment';
+import ReplyList from './ReplyList'; // ReplyList를 임포트
+
+export interface Reply {
+  id: string; // 답글 ID
+  postId: string; // 원래 댓글의 포스트 ID
+  content: string; // 답글 내용
+  createdAt: string; // 답글 생성 날짜 (문자열 형식)
+  author: string; // 답글 작성자
+}
+
+export interface Comment {
+  id: string; // 댓글 ID
+  postId: string; // 댓글이 속한 포스트의 ID
+  content: string; // 댓글 내용
+  createdAt: string; // 댓글 생성 날짜 (문자열 형식)
+  author: string; // 댓글 작성자
+  replies: Reply[]; // 댓글에 대한 답글 배열
+  repliesCount: number; // 답글 수
+}
 
 interface CommentItemProps {
   comment: Comment;
-  onDelete: (id: string) => void;
+  onDelete: (commentId: string, postId: string) => void;
 }
 
 const CommentItem: React.FC<CommentItemProps> = React.memo(
   ({ comment, onDelete }) => {
     const { isDarkMode } = useTheme();
-    const formattedDate = comment.createdAt
-      ? formatDate(comment.createdAt)
-      : 'No date';
+
+    const handleDelete = async () => {
+      const confirmed = confirm('댓글을 삭제하시겠습니까?');
+      if (confirmed) {
+        const success = await adminDeleteComment(comment.id, comment.postId);
+        if (success) {
+          alert('댓글이 삭제되었습니다.');
+          onDelete(comment.id, comment.postId);
+        } else {
+          alert('댓글 삭제에 실패했습니다.');
+        }
+      }
+    };
+
+    const handleDeleteReply = async (replyId: string) => {
+      const confirmed = confirm('답글을 삭제하시겠습니까?');
+      if (confirmed) {
+        const success = await adminDeleteReply(replyId, comment.id); // adminDeleteReply 함수는 구현해야 함.
+        if (success) {
+          alert('답글이 삭제되었습니다.');
+          // 여기서 상태 업데이트를 통해 UI를 새로고침할 수 있습니다.
+        } else {
+          alert('답글 삭제에 실패했습니다.');
+        }
+      }
+    };
 
     return (
       <li
-        className={`flex items-center gap-3 rounded-lg shadow-md p-3 ${
-          isDarkMode ? 'bg-gray-800' : 'bg-white'
-        }`}
+        className={`flex flex-col gap-3 rounded-lg shadow-md p-3 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
       >
-        <div className="p-1 rounded-full overflow-hidden">
-          <Image
-            src="/icons/user.png"
-            alt={`${comment.nickname}`}
-            width={24}
-            height={24}
-          />
-        </div>
-        <div className="flex-1">
-          <div className="overflow-hidden text-ellipsis mb-2">
-            {comment.content}
-          </div>
-          <div className="flex items-center text-xs text-gray-400">
-            <div className="font-bold mr-2">{comment.nickname}</div>
-            <div>{formattedDate}</div>
-          </div>
-        </div>
-        <button
-          onClick={() => onDelete(comment.id)}
-          className="group mr-2 rounded-full transition-all duration-200 ease-in-out"
-        >
-          <div className="w-6 h-6 p-1 transform transition-transform duration-200 ease-in-out group-hover:scale-110">
+        <div className="flex items-center">
+          <div className="p-1 rounded-full overflow-hidden">
             <Image
-              src={isDarkMode ? '/icons/trash_wh.png' : '/icons/trash.png'}
-              alt={'삭제'}
-              width={26}
-              height={26}
-              className="object-cover"
+              src="/icons/user.png"
+              alt={`${comment.author}`}
+              width={24}
+              height={24}
             />
           </div>
-        </button>
+          <div className="flex-1 ml-3">
+            <div className="overflow-hidden text-ellipsis mb-2">
+              {comment.content}
+            </div>
+            <div className="flex items-center text-xs text-gray-400">
+              <div className="font-bold mr-2">{comment.author}</div>
+              <div>{comment.createdAt}</div>
+            </div>
+          </div>
+          <button
+            onClick={handleDelete}
+            className="group mr-2 rounded-full transition-all duration-200 ease-in-out"
+          >
+            <div className="w-6 h-6 p-1 transform transition-transform duration-200 ease-in-out group-hover:scale-110">
+              <Image
+                src={isDarkMode ? '/icons/trash_wh.png' : '/icons/trash.png'}
+                alt={'삭제'}
+                width={26}
+                height={26}
+                className="object-cover"
+              />
+            </div>
+          </button>
+        </div>
+
+        {/* 답글 렌더링 */}
+        {comment.replies.length > 0 && (
+          <ReplyList
+            replies={comment.replies}
+            onDeleteReply={handleDeleteReply}
+          />
+        )}
       </li>
     );
   },

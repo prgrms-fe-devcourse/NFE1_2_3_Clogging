@@ -33,8 +33,10 @@ export const CommentList = ({ postId }: { postId: string }) => {
     findComment,
   } = useCommentListStore();
 
+  // 로그인 상태와 관리자 여부 확인
   useEffect(() => {
-    setIsAdmin(localStorage.getItem('userRole') === 'admin');
+    const userRole = localStorage.getItem('userRole');
+    setIsAdmin(userRole === 'admin');
   }, [setIsAdmin]);
 
   const handleReplySuccess = useCallback(() => {
@@ -48,6 +50,7 @@ export const CommentList = ({ postId }: { postId: string }) => {
   );
 
   if (isLoading) return <div>댓글을 불러오는 중...</div>;
+
   if (!comments?.length) {
     return <div className="text-gray-500">아직 댓글이 없습니다.</div>;
   }
@@ -70,9 +73,6 @@ export const CommentList = ({ postId }: { postId: string }) => {
   const handleEditSubmit = async (commentId: string) => {
     const comment = findComment(comments, commentId);
     if (!comment) return;
-
-    // const isVerified = await verifyPassword(comment, '수정 완료', isAdmin);
-    // if (!isVerified) return;
 
     const level = findCommentLevel(commentId, comments);
 
@@ -111,34 +111,34 @@ export const CommentList = ({ postId }: { postId: string }) => {
     const comment = findComment(comments, commentId);
     if (!comment) return;
 
-    const isVerified = await verifyPassword(comment, '삭제', isAdmin);
-    if (!isVerified) return;
+    // 관리자일 경우 바로 삭제 가능
+    if (isAdmin || (await verifyPassword(comment, '삭제', isAdmin))) {
+      const level = findCommentLevel(commentId, comments);
 
-    const level = findCommentLevel(commentId, comments);
+      try {
+        if (level > 0) {
+          const parentComment = findParentComment(commentId, comments);
+          if (!parentComment) {
+            throw new Error('부모 댓글을 찾을 수 없습니다.');
+          }
 
-    try {
-      if (level > 0) {
-        const parentComment = findParentComment(commentId, comments);
-        if (!parentComment) {
-          throw new Error('부모 댓글을 찾을 수 없습니다.');
+          await deleteReply.mutateAsync({
+            postId,
+            commentId: parentComment.id,
+            replyId: commentId,
+            password: comment.password,
+          });
+        } else {
+          await deleteComment.mutateAsync({
+            postId,
+            commentId,
+            password: comment.password,
+          });
         }
-
-        await deleteReply.mutateAsync({
-          postId,
-          commentId: parentComment.id,
-          replyId: commentId,
-          password: comment.password,
-        });
-      } else {
-        await deleteComment.mutateAsync({
-          postId,
-          commentId,
-          password: comment.password,
-        });
+      } catch (error) {
+        console.error('삭제 실패:', error);
+        alert(error instanceof Error ? error.message : '삭제에 실패했습니다.');
       }
-    } catch (error) {
-      console.error('삭제 실패:', error);
-      alert(error instanceof Error ? error.message : '삭제에 실패했습니다.');
     }
   };
 
