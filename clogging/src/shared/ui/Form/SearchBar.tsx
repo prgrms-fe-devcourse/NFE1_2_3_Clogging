@@ -2,6 +2,7 @@ import { Search } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
+import { useState } from 'react'; // useState import 추가
 
 interface SearchBarProps extends React.HTMLAttributes<HTMLDivElement> {
   onSearch?: (value: string) => void;
@@ -16,26 +17,35 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   className,
   ...props
 }) => {
+  const [inputValue, setInputValue] = useState(''); // 입력값 상태 추가
+
+  // 검색 버튼 클릭 핸들러
+  const handleSearch = () => {
+    onSearch?.(inputValue);
+  };
+
+  // Enter 키 입력 핸들러
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   return (
     <div className={cn('flex', 'gap-2', className)} {...props}>
-      <div
-        className={cn(
-          'relative',
-          'flex-1',
-          'group', // 호버 효과를 위한 그룹
-        )}
-      >
+      <div className={cn('relative', 'flex-1', 'group')}>
         <Input
+          value={inputValue}
           placeholder={placeholder}
           className={cn(
             'pl-10',
             'transition-colors',
             'duration-200',
-            // 그룹 호버 시 아이콘 색상 변경과 함께 변화
             'group-hover:border-gray-300',
             'dark:group-hover:border-gray-500',
           )}
-          onChange={(e) => onSearch?.(e.target.value)}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown} // Enter 키 이벤트 추가
         />
         <Search
           className={cn(
@@ -48,13 +58,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             'text-gray-400',
             'transition-colors',
             'duration-200',
-            // 그룹 호버 시 색상 변경
             'group-hover:text-gray-500',
             'dark:group-hover:text-gray-300',
           )}
         />
       </div>
-      <Button variant="primary">{buttonText}</Button>
+      <Button variant="primary" onClick={handleSearch}>
+        {buttonText}
+      </Button>
     </div>
   );
 };

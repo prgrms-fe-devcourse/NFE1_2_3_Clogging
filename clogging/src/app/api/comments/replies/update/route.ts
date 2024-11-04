@@ -8,14 +8,11 @@ export async function PATCH(request: Request) {
     const commentId = searchParams.get('commentId');
     const replyId = searchParams.get('replyId');
     const postId = searchParams.get('postId');
-    const { content, password } = await request.json();
+    const { content, password, isPrivate } = await request.json();
 
     if (!commentId || !replyId || !postId || !content || !password) {
       return NextResponse.json(
-        {
-          error:
-            'commentId, replyId, postId, content, password 중에 비어있는 값이 있음!',
-        },
+        { error: '필수 입력값이 누락되었습니다.' },
         { status: 400 },
       );
     }
@@ -29,50 +26,57 @@ export async function PATCH(request: Request) {
       'replies',
       replyId,
     );
-
     const replySnap = await getDoc(replyRef);
 
     if (!replySnap.exists()) {
-      return NextResponse.json({ error: '답글 없음!' }, { status: 404 });
+      return NextResponse.json(
+        { error: '답글을 찾을 수 없습니다.' },
+        { status: 404 },
+      );
     }
 
     const replyData = replySnap.data();
     if (replyData.password !== password) {
-      return NextResponse.json({ error: '비밀번호 불일치!' }, { status: 403 });
+      return NextResponse.json(
+        { error: '비밀번호가 일치하지 않습니다.' },
+        { status: 403 },
+      );
     }
 
     const updatedAt = Timestamp.now();
-
     await updateDoc(replyRef, {
-      content: content,
-      updatedAt: updatedAt,
+      content,
+      updatedAt,
+      isPrivate: isPrivate ?? replyData.isPrivate ?? false,
     });
-
-    const updatedAtDate = updatedAt.toDate();
-    const formattedUpdatedAt = `${updatedAtDate.getFullYear()}${String(
-      updatedAtDate.getMonth() + 1,
-    ).padStart(2, '0')}${String(updatedAtDate.getDate()).padStart(2, '0')}`;
-
-    const createdAtDate = replyData.createdAt.toDate();
-    const formattedCreatedAt = `${createdAtDate.getFullYear()}${String(
-      createdAtDate.getMonth() + 1,
-    ).padStart(2, '0')}${String(createdAtDate.getDate()).padStart(2, '0')}`;
 
     return NextResponse.json(
       {
-        message: '답글 수정 성공!',
+        message: '답글이 수정되었습니다.',
         reply: {
           id: replyId,
           postId,
           content,
           author: replyData.author,
-          createdAt: formattedCreatedAt,
-          updatedAt: formattedUpdatedAt,
+          createdAt: replyData.createdAt
+            .toDate()
+            .toISOString()
+            .split('T')[0]
+            .replace(/-/g, ''),
+          updatedAt: updatedAt
+            .toDate()
+            .toISOString()
+            .split('T')[0]
+            .replace(/-/g, ''),
+          isPrivate: isPrivate ?? replyData.isPrivate ?? false,
         },
       },
       { status: 200 },
     );
   } catch (error) {
-    return NextResponse.json({ error: '답글 수정 실패!' }, { status: 500 });
+    return NextResponse.json(
+      { error: '답글 수정에 실패했습니다.' },
+      { status: 500 },
+    );
   }
 }

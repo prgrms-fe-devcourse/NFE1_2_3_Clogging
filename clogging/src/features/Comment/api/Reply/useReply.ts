@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { replyApi } from '@/features/Comment/api/Reply/replyApi';
-import { Comment } from '../../types';
 
 // 답글 생성
 export const useCreateReply = () => {
@@ -9,13 +8,14 @@ export const useCreateReply = () => {
   return useMutation({
     mutationFn: (reply: {
       postId: string;
+      replyId: string;
       commentId: string;
       author: string;
       content: string;
       password: string;
+      isPrivate: boolean;
     }) => replyApi.createReply(reply),
     onSuccess: (_, variables) => {
-      // 해당 게시물의 댓글 목록을 무효화
       queryClient.invalidateQueries({
         queryKey: ['comments', variables.postId],
       });
@@ -34,6 +34,8 @@ export const useUpdateReply = () => {
       replyId: string;
       content: string;
       password: string;
+      isPrivate?: boolean;
+      author?: string;
     }) => replyApi.updateReply(data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -60,15 +62,4 @@ export const useDeleteReply = () => {
       });
     },
   });
-};
-
-// 답글 목록 무효화 (필요한 경우)
-export const useInvalidateReplies = (postId: string) => {
-  const queryClient = useQueryClient();
-
-  return () => {
-    queryClient.invalidateQueries({
-      queryKey: ['comments', postId],
-    });
-  };
 };
