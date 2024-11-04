@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
+import { NextRouter } from 'next/router';
 import { usePostEditor } from '@/features/Post/lib/hooks/usePostEditor';
 import { Button } from '@/shared/ui/common/Button';
 import { useTheme } from '@/shared/providers/theme';
@@ -12,24 +13,25 @@ const ReactMarkdown = dynamic(() => import('react-markdown'), {
   ssr: false,
 });
 
-const categories = [
-  { value: 'javascript', label: 'JavaScript' },
-  { value: 'react', label: '리액트' },
-  { value: 'css', label: 'CSS' },
-];
+interface PostEditorProps {
+  router: NextRouter;
+}
 
-export const PostEditor: React.FC = () => {
+const PostEditor: React.FC<PostEditorProps> = ({ router }) => {
   const {
     editorState,
+    categories,
+    isLoading,
+    error,
     handleTitleChange,
     handleContentChange,
     handleCategoryChange,
-    handleSaveDraft,
+    // handleSaveDraft,
     handleSubmit,
     handleGoBack,
     handleAddTag,
     handleRemoveTag,
-  } = usePostEditor();
+  } = usePostEditor(router);
 
   const { isDarkMode } = useTheme();
   const [newTag, setNewTag] = useState('');
@@ -40,6 +42,18 @@ export const PostEditor: React.FC = () => {
       setNewTag('');
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Loading...
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="text-red-500 text-center">{error}</div>;
+  }
 
   return (
     <div
@@ -52,17 +66,14 @@ export const PostEditor: React.FC = () => {
         style={{ width: '300px', height: '35px' }}
         className="ml-4 mt-4 mb-[52px] px-4 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border-gray-200 dark:border-gray-700"
       >
-        <option value="">default</option>
+        <option value="">카테고리 선택</option>
         {categories.map((category) => (
           <option
-            key={category.value}
-            value={category.value}
+            key={category.id}
+            value={category.id}
             className="text-gray-900 dark:text-gray-100 appearance-none border-none outline-none bg-transparent"
-            style={{
-              backgroundColor: 'transparent',
-            }}
           >
-            {category.label}
+            {category.name}
           </option>
         ))}
       </select>
@@ -115,7 +126,7 @@ export const PostEditor: React.FC = () => {
                 인용
               </button>
               <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
-                &lt;&#47;&gt; {/* 코드 */}
+                &lt;&#47;&gt;
               </button>
               <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
                 사진
@@ -189,9 +200,11 @@ export const PostEditor: React.FC = () => {
             태그 편집
           </h3>
           <div className="flex items-center gap-2">
-            <Input // 태그 입력칸
+            <Input
               value={newTag}
-              onChange={(e) => setNewTag(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setNewTag(e.target.value)
+              }
               placeholder="최대 5개까지 가능합니다!"
               className={`w-48 h-8 border rounded-lg focus:outline-none`}
               style={{
@@ -201,7 +214,7 @@ export const PostEditor: React.FC = () => {
               }}
             />
 
-            <button // 태그 추가 버튼
+            <button
               onClick={addTag}
               className={`inline-flex items-center justify-center w-4 h-4 rounded-full ${isDarkMode ? 'border-white text-white' : 'border-primary text-primary'} border`}
             >
@@ -226,7 +239,7 @@ export const PostEditor: React.FC = () => {
           <Button
             variant="secondary"
             size="sm"
-            onClick={handleSaveDraft}
+            // onClick={handleSaveDraft}
             className="px-6 py-2 bg-secondary hover:secondary-hover text-primary rounded-lg font-sans"
           >
             임시저장
