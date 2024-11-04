@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import Image from 'next/image';
 import { Button } from '@/shared/ui/common/Button';
 import { useTheme } from '@/shared/providers/theme';
+import SettingsDisplay from './SettingsDisplay';
 
 interface FaviconImageFieldProps {
   label: string;
@@ -21,28 +22,32 @@ export default function FaviconImageField({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files[0]) {
+    if (files && files.length > 0) {
       onChange(name, files[0]);
+    } else {
+      onChange(name, null); // 파일이 선택되지 않았을 때 null로 설정
     }
   };
 
   const handleRemove = () => {
     onChange(name, null);
   };
+
   return (
-    <div className="mb-4">
-      <div className="flex flex-col sm:flex-row items-center border border-gray-300 rounded-lg overflow-hidden">
-        {/* Image Preview Area */}
-        <div className="w-full sm:w-1/4 bg-gray-200 p-4 flex items-center justify-center">
+    <div className="mb-4 ">
+      <div
+        className={`flex items-center border rounded-lg p-4 overflow-hidden ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
+      >
+        {/* 이미지 미리보기 영역 */}
+        <div className="bg-gray-200 flex items-center justify-center">
           <div
-            className={`cursor-pointer flex items-center justify-center overflow-hidden rounded-full
+            className={`w-20 h-20 cursor-pointer flex items-center justify-center overflow-hidden rounded-full
             ${file ? 'border border-gray-300' : 'border-2 border-dashed border-gray-500'}`}
-            style={{ width: '64px', height: '64px' }}
             onClick={() => fileInputRef.current?.click()}
           >
             {file ? (
               <Image
-                src={URL.createObjectURL(file)} // Create object URL for preview
+                src={URL.createObjectURL(file)} // 미리보기를 위한 객체 URL 생성
                 alt={`${label} Preview`}
                 width={64}
                 height={64}
@@ -53,21 +58,19 @@ export default function FaviconImageField({
             )}
           </div>
         </div>
+        <SettingsDisplay imageType="favicon" />
 
-        {/* Text and Button Area */}
-        <div className="flex-grow p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between w-full">
-          <div className="mb-4 sm:mb-0 sm:mr-4">
+        {/* 텍스트 및 버튼 영역 */}
+        <div className="flex justify-between flex-grow">
+          <div>
             <p
-              className={`mb-2 text-sm ${
-                isDarkMode ? 'text-white' : 'text-[#2B3674]'
-              }`}
+              className={`mb-2 text-sm ${isDarkMode ? 'text-white' : 'text-[#2B3674]'}`}
             >
               파비콘 : {file ? file.name : '선택된 파일 없음'}
             </p>
             <p className="text-xs text-gray-500">파일 형식 ICO</p>
           </div>
-
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 mt-2">
             <input
               ref={fileInputRef}
               type="file"

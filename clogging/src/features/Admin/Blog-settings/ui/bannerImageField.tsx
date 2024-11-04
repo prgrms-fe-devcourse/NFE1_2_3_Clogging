@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import Image from 'next/image';
 import { Button } from '@/shared/ui/common/Button';
 import { useTheme } from '@/shared/providers/theme';
+import SettingsDisplay from './SettingsDisplay';
 
 interface BannerImageFieldProps {
   label: string;
@@ -40,26 +41,23 @@ export default function BannerImageField({
 
   return (
     <div className="mb-4">
-      <div className="flex flex-col sm:flex-row items-center border border-gray-300 rounded-lg overflow-hidden">
+      <div
+        className={`flex flex-col sm:flex-row items-center border rounded-lg overflow-hidden ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
+      >
         {/* 이미지 미리보기 영역 */}
         <div className="w-full sm:w-1/4 bg-gray-200 p-4 flex items-center justify-center">
           <div
-            className={`cursor-pointer flex items-center justify-center overflow-hidden  rounded-full
-            ${
-              file
-                ? 'border border-gray-300'
-                : 'border-2 border-dashed border-gray-500'
-            }`}
-            style={{ width: '64px', height: '64px' }}
+            className={`cursor-pointer flex items-center justify-center overflow-hidden rounded-md
+            ${file ? 'border border-gray-300' : 'border-2 border-dashed border-gray-500'}`}
             onClick={() => fileInputRef.current?.click()}
           >
             {file ? (
               <Image
                 src={URL.createObjectURL(file)}
                 alt={`${label} Preview`}
-                width={100}
-                height={100}
-                className="object-cover w-full h-full"
+                width={160}
+                height={500}
+                className="object-cover w-20 h-20"
               />
             ) : (
               <span className="text-4xl text-gray-400">+</span>
@@ -67,18 +65,17 @@ export default function BannerImageField({
           </div>
         </div>
 
+        <SettingsDisplay imageType="banner" />
         {/* 텍스트 및 버튼 영역 */}
         <div className="flex-grow p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between w-full">
           <div className="mb-4 sm:mb-0 sm:mr-4">
             <p
-              className={`mb-2 text-sm ${
-                isDarkMode ? 'text-white' : 'text-[#2B3674]'
-              }`}
+              className={`mb-2 text-sm ${isDarkMode ? 'text-white' : 'text-[#2B3674]'}`}
             >
               메인 배너 : {file ? file.name : '선택된 파일 없음'}
             </p>
             <p className="text-xs text-gray-500">
-              최적 사이즈 1600 x 500 / 파일 형식 JPG, PNG{' '}
+              최적 사이즈 1600 x 500 / 파일 형식 JPG, PNG
             </p>
           </div>
 
