@@ -34,8 +34,7 @@ export const CommentList = ({ postId }: { postId: string }) => {
   } = useCommentListStore();
 
   useEffect(() => {
-    const adminStatus = localStorage.getItem('userRole') === 'admin';
-    setIsAdmin(adminStatus);
+    setIsAdmin(localStorage.getItem('userRole') === 'admin');
   }, [setIsAdmin]);
 
   const handleReplySuccess = useCallback(() => {
@@ -76,27 +75,23 @@ export const CommentList = ({ postId }: { postId: string }) => {
     // if (!isVerified) return;
 
     const level = findCommentLevel(commentId, comments);
-    console.log('댓글/답글 레벨:', level);
 
     try {
       if (level > 0) {
-        // 답글인 경우
-        // 부모 댓글 ID 찾기
         const parentComment = findParentComment(commentId, comments);
         if (!parentComment) {
           throw new Error('부모 댓글을 찾을 수 없습니다.');
         }
 
-        // 답글 수정
         await updateReply.mutateAsync({
           postId,
-          commentId: parentComment.id, // 부모 댓글 ID
-          replyId: commentId, // 현재 답글 ID
+          commentId: parentComment.id,
+          replyId: commentId,
           content: editingContent,
           password: comment.password,
+          isPrivate: editingIsPrivate,
         });
       } else {
-        // 일반 댓글인 경우
         await updateComment.mutateAsync({
           commentId,
           postId,

@@ -27,7 +27,6 @@ export const CommentForm = ({
   const updateComment = useUpdateComment();
   const createReply = useCreateReply();
   const { isAdmin } = useAuth();
-
   const { form, setForm, resetForm, initializeForm } = useCommentFormStore();
 
   useEffect(() => {
@@ -35,8 +34,34 @@ export const CommentForm = ({
     return () => resetForm(isAdmin, defaultIsPrivate);
   }, [isAdmin, initialData, defaultNickname, defaultIsPrivate]);
 
-  const handlePrivacyChange = (value: boolean) => {
+  const handlePrivacyChange = async (value: boolean) => {
     setForm({ isPrivate: value });
+
+    if (mode === 'edit' && commentId) {
+      try {
+        const response = await updateComment.mutateAsync({
+          postId,
+          commentId,
+          content: form.content,
+          password: isAdmin ? '1234' : form.password,
+          isPrivate: value,
+          author: isAdmin ? '관리자' : form.author,
+        });
+
+        if (!response) {
+          throw new Error('응답 데이터가 없습니다.');
+        }
+
+        onSuccess?.();
+      } catch (error) {
+        let errorMessage = '비공개 설정 변경에 실패했습니다.';
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+        alert(errorMessage);
+        setForm({ isPrivate: !value });
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -74,12 +99,11 @@ export const CommentForm = ({
           await createReply.mutateAsync({
             ...commonData,
             commentId: parentCommentId,
+            replyId: '',
           });
         } else {
           // 댓글 생성
-          await createComment.mutateAsync({
-            ...commonData,
-          });
+          await createComment.mutateAsync(commonData);
         }
       } else {
         // 수정
@@ -92,7 +116,6 @@ export const CommentForm = ({
       resetForm(isAdmin, defaultIsPrivate);
       onSuccess();
     } catch (error) {
-      console.error('작성/수정 실패:', error);
       alert('작성/수정에 실패했습니다. 다시 시도해주세요.');
     }
   };

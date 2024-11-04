@@ -32,7 +32,6 @@ export const commentApi = {
       });
 
       const data = await response.json();
-      console.log('댓글 생성 요청 데이터 확인:', data); // 요청 데이터 확인
 
       if (!response.ok) {
         throw new Error(data.error || '댓글 생성 실패');
@@ -54,7 +53,6 @@ export const commentApi = {
     isPrivate?: boolean;
     author?: string;
   }): Promise<Comment> => {
-    console.log('수정 요청 데이터:', comment); // 요청 데이터 확인
     try {
       const response = await fetch(
         `/api/comments/update?postId=${comment.postId}&commentId=${comment.commentId}`,
@@ -63,22 +61,17 @@ export const commentApi = {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            postId: comment.postId, // postId 추가
-            commentId: comment.commentId, // commentId 추가
-            content: comment.content, // content 필수
-            password: comment.password, // password 필수
-          }),
+          body: JSON.stringify(comment),
         },
       );
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || '댓글 수정 실패');
+        throw new Error(data.error || '댓글 수정 실패');
       }
 
-      const data = await response.json();
-      return data.comment;
+      return data;
     } catch (error) {
       console.error('댓글 수정 에러:', error);
       throw error;

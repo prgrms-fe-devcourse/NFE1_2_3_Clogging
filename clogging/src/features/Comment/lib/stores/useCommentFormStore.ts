@@ -3,7 +3,7 @@ import { create } from 'zustand';
 interface CommentFormState {
   form: {
     author: string;
-    password: string; //숫자 4자리 고정
+    password: string;
     content: string;
     isPrivate: boolean;
   };
