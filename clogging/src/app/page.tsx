@@ -1,8 +1,8 @@
-import { IntroButtons } from '@/features/Auth/ui/IntroButtons';
 import {
   HomeStyleWrapper,
   DarkModeImage,
 } from '@/shared/ui/layout/HomeStyleWrapper';
+import { AdminAuth } from '@/features/Admin/ui/AdminAuth';
 
 export default function IntroPage() {
   return (
@@ -16,8 +16,7 @@ export default function IntroPage() {
           priority
           className="m-auto mb-7"
         />
-
-        <IntroButtons />
+        <AdminAuth />
       </main>
     </HomeStyleWrapper>
   );

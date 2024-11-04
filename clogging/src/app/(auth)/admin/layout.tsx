@@ -6,6 +6,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { cn } from '@/shared/lib/utils';
+import { useAuth } from '@/features/Admin/hooks/useAuth';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -49,11 +52,29 @@ const menuItems: MenuItem[] = [
     activeIcon: '/icons/admin_blog_act.png',
     href: '/admin/blog-settings',
   },
+  {
+    name: '관리자 설정',
+    icon: '/icons/admin_blog.png',
+    activeIcon: '/icons/admin_blog_act.png',
+    href: '/admin/admin-settings',
+  },
 ];
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const { isDarkMode } = useTheme();
   const pathname = usePathname();
+  const { isAdmin } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isAdmin) {
+      router.push('/'); // 관리자가 아니면 intro 페이지로 리다이렉트
+    }
+  }, [isAdmin, router]);
+
+  if (!isAdmin) {
+    return <div>접근 권한이 없습니다.</div>;
+  }
 
   const currentMenuItem =
     menuItems.find((item) => item.href === pathname) || menuItems[0];
