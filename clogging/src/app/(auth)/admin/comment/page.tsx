@@ -60,7 +60,6 @@ const CommentManagePage: React.FC = () => {
 
   return (
     <div>
-      <p>총 댓글 수: {commentsData?.totalComments}</p> {/* 총 댓글 수 표시 */}
       <CommentList
         initialComments={commentsData?.comments || []} // 초기 댓글 데이터 전달
         totalComments={commentsData?.totalComments || 0} // 총 댓글 수 전달
