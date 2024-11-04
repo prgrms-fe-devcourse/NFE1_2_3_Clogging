@@ -4,11 +4,18 @@ import { db } from '@/shared/lib/firebase';
 
 export async function POST(request: Request) {
   try {
-    const { content, author, password, postId, commentId } =
+    const { content, author, password, postId, commentId, isPrivate } =
       await request.json();
 
     if (!content || !author || !password || !commentId || !postId) {
       return NextResponse.json({ error: '필드가 비어있음!' }, { status: 400 });
+    }
+
+    if (password.length !== 4 || isNaN(Number(password))) {
+      return NextResponse.json(
+        { error: '비밀번호는 숫자 4자리이어야 합니다!' },
+        { status: 400 },
+      );
     }
 
     const newReply = {
@@ -17,6 +24,7 @@ export async function POST(request: Request) {
       content,
       password,
       createdAt: Timestamp.now(),
+      isPrivate: isPrivate || false,
     };
 
     const repliesRef = collection(
@@ -29,11 +37,6 @@ export async function POST(request: Request) {
     );
     const replyDoc = await addDoc(repliesRef, newReply);
 
-    const createdAtDate = newReply.createdAt.toDate();
-    const formattedCreatedAt = `${createdAtDate.getFullYear()}${String(
-      createdAtDate.getMonth() + 1,
-    ).padStart(2, '0')}${String(createdAtDate.getDate()).padStart(2, '0')}`;
-
     return NextResponse.json(
       {
         message: '답글 작성 성공!',
@@ -42,7 +45,8 @@ export async function POST(request: Request) {
           postId: newReply.postId,
           author: newReply.author,
           content: newReply.content,
-          createdAt: formattedCreatedAt,
+          createdAt: newReply.createdAt.toDate().toISOString(),
+          isPrivate: newReply.isPrivate,
         },
       },
       { status: 201 },

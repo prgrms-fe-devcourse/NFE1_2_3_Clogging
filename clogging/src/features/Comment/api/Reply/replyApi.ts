@@ -1,11 +1,13 @@
 export const replyApi = {
   // 답글 생성 (Create Reply)
-  createReply: async (reply: {
+  createReply: async (params: {
     postId: string;
     commentId: string;
-    author: string;
+    replyId: string;
     content: string;
     password: string;
+    isPrivate: boolean;
+    author: string;
   }): Promise<Comment> => {
     try {
       const response = await fetch('/api/comments/replies/create', {
@@ -13,17 +15,16 @@ export const replyApi = {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(reply),
+        body: JSON.stringify(params),
       });
 
       const data = await response.json();
-      console.log('답글 생성 요청 데이터 확인', data);
 
       if (!response.ok) {
         throw new Error(data.message || '답글 작성 실패!');
       }
 
-      return data.reply;
+      return data.params;
     } catch (error) {
       console.error('답글 생성 에러:', error);
       throw error;
@@ -31,24 +32,37 @@ export const replyApi = {
   },
 
   // 답글 수정 (Update Reply)
-  updateReply: async (reply: {
+  updateReply: async (params: {
     postId: string;
     commentId: string;
     replyId: string;
     content: string;
     password: string;
-  }): Promise<Comment> => {
+    isPrivate?: boolean;
+    author?: string;
+  }) => {
     try {
+      const {
+        postId,
+        commentId,
+        replyId,
+        content,
+        password,
+        isPrivate,
+        author,
+      } = params;
       const response = await fetch(
-        `/api/comments/replies/update?postId=${reply.postId}&commentId=${reply.commentId}&replyId=${reply.replyId}`,
+        `/api/comments/replies/update?postId=${postId}&commentId=${commentId}&replyId=${replyId}`,
         {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            content: reply.content,
-            password: reply.password,
+            content,
+            password,
+            isPrivate,
+            author,
           }),
         },
       );
