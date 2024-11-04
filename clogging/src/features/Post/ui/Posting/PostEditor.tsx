@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
-import { NextRouter } from 'next/router';
+
 import { usePostEditor } from '@/features/Post/lib/hooks/usePostEditor';
 import { Button } from '@/shared/ui/common/Button';
 import { useTheme } from '@/shared/providers/theme';
@@ -13,11 +13,7 @@ const ReactMarkdown = dynamic(() => import('react-markdown'), {
   ssr: false,
 });
 
-interface PostEditorProps {
-  router: NextRouter;
-}
-
-const PostEditor: React.FC<PostEditorProps> = ({ router }) => {
+const PostEditor: React.FC = () => {
   const {
     editorState,
     categories,
@@ -26,15 +22,20 @@ const PostEditor: React.FC<PostEditorProps> = ({ router }) => {
     handleTitleChange,
     handleContentChange,
     handleCategoryChange,
-    // handleSaveDraft,
     handleSubmit,
     handleGoBack,
     handleAddTag,
+    handlePaste,
     handleRemoveTag,
-  } = usePostEditor(router);
+    handleRemoveImage,
+    handleImageSelect,
+  } = usePostEditor();
 
   const { isDarkMode } = useTheme();
   const [newTag, setNewTag] = useState('');
+  const [cursorPosition, setCursorPosition] = useState(0);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   const addTag = () => {
     if (newTag && editorState.tags.length < 5) {
@@ -43,10 +44,52 @@ const PostEditor: React.FC<PostEditorProps> = ({ router }) => {
     }
   };
 
+  const handleImageButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const insertImageToMarkdown = (imageId: string) => {
+    const imageMarkdown = `![image](/storage/posts/${imageId})\n`;
+    const content = editorState.content;
+    const newContent =
+      content.slice(0, cursorPosition) +
+      imageMarkdown +
+      content.slice(cursorPosition);
+
+    handleContentChange(newContent);
+
+    // 커서 위치 업데이트
+    setTimeout(() => {
+      if (textareaRef.current) {
+        const newPosition = cursorPosition + imageMarkdown.length;
+        textareaRef.current.selectionStart = newPosition;
+        textareaRef.current.selectionEnd = newPosition;
+        textareaRef.current.focus();
+      }
+    }, 0);
+  };
+
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // 현재 커서 위치 저장
+      if (textareaRef.current) {
+        setCursorPosition(textareaRef.current.selectionStart);
+      }
+
+      const imageId = await handleImageSelect(file);
+      if (imageId) {
+        insertImageToMarkdown(imageId);
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        Loading...
+        에디터를 불러오고 있습니다,, 잠시만 기다려주세요
       </div>
     );
   }
@@ -111,6 +154,12 @@ const PostEditor: React.FC<PostEditorProps> = ({ router }) => {
                 H2
               </button>
               <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
+                H3
+              </button>
+              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
+                H4
+              </button>
+              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
                 B
               </button>
               <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
@@ -128,17 +177,29 @@ const PostEditor: React.FC<PostEditorProps> = ({ router }) => {
               <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
                 &lt;&#47;&gt;
               </button>
-              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
+              <button
+                onClick={handleImageButtonClick}
+                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
+              >
                 사진
               </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
             </div>
           </div>
 
           <textarea
+            ref={textareaRef}
             value={editorState.content}
+            onPaste={handlePaste}
             onChange={(e) => handleContentChange(e.target.value)}
             className="flex-1 w-full p-4 focus:outline-none resize-none bg-transparent appearance-none border-none"
-            placeholder="내용을 입력하세요! 이미지 추가를 원한다면 마크다운 문법을 사용해 `![이미지](이미지 URL)` 형식으로 입력하세요."
+            placeholder="내용을 입력하세요!"
             style={{ backgroundColor: 'transparent' }}
           />
         </div>
@@ -150,6 +211,21 @@ const PostEditor: React.FC<PostEditorProps> = ({ router }) => {
           </div>
         </div>
       </div>
+
+      {/* 이미지 목록 */}
+      {editorState.images.length > 0 && (
+        <div className="mt-4 ml-4">
+          <h3 className="font-semibold">업로드된 이미지:</h3>
+          <ul className="list-disc ml-6">
+            {editorState.images.map((imageId) => (
+              <li key={imageId} className="flex justify-between items-center">
+                <span>이미지 ID: {imageId}</span>
+                <Button onClick={() => handleRemoveImage(imageId)}>삭제</Button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* 태그 */}
       <div className={`dark space-y-4 mt-8 mb-8`}>
@@ -163,7 +239,7 @@ const PostEditor: React.FC<PostEditorProps> = ({ router }) => {
             {editorState.tags.map((tag) => (
               <div
                 key={tag}
-                className={`inline-flex items-center h-8 px-4 rounded-full border ${isDarkMode ? 'border-white bg-transparent text-white' : 'border-primary bg-transparent text-primary'}`}
+                className={`inline-flex items-center h-6 px-4 rounded-full border ${isDarkMode ? 'border-white bg-transparent text-white' : 'border-primary bg-transparent text-primary'}`}
               >
                 <span
                   className={`font-semibold mr-2 ${isDarkMode ? 'text-white' : 'text-primary'}`}
@@ -213,7 +289,6 @@ const PostEditor: React.FC<PostEditorProps> = ({ router }) => {
                 borderColor: isDarkMode ? '#4B5563' : '#D1D5DB',
               }}
             />
-
             <button
               onClick={addTag}
               className={`inline-flex items-center justify-center w-4 h-4 rounded-full ${isDarkMode ? 'border-white text-white' : 'border-primary text-primary'} border`}
@@ -239,7 +314,6 @@ const PostEditor: React.FC<PostEditorProps> = ({ router }) => {
           <Button
             variant="secondary"
             size="sm"
-            // onClick={handleSaveDraft}
             className="px-6 py-2 bg-secondary hover:secondary-hover text-primary rounded-lg font-sans"
           >
             임시저장
