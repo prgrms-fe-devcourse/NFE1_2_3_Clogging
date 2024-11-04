@@ -49,6 +49,9 @@ interface PostData {
   title: string;
   content: string;
   image: string[];
+  category: string;
+  tags: string[];
+  tagIds: string[];
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -58,13 +61,25 @@ export async function createPostData(
   content: string,
   image: File | null,
   imagesToDeleteId: string[] | null,
+  category: string,
+  tags: string[],
+  tagIds: string[],
+  existingImageIds: string[] = [],
 ): Promise<PostData> {
-  const { updatedImageIds } = await uploadImage(image, [], imagesToDeleteId);
+  const { updatedImageIds } = await uploadImage(
+    image,
+    existingImageIds,
+    imagesToDeleteId || [],
+  );
+  // const { updatedImageIds } = await uploadImage(image, [], imagesToDeleteId);
 
   const postData: PostData = {
     title,
     content,
     image: updatedImageIds,
+    category,
+    tags,
+    tagIds,
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
   };
