@@ -65,6 +65,7 @@ const CommentManagePage: React.FC = () => {
         initialComments={commentsData?.comments || []} // 초기 댓글 데이터 전달
         totalComments={commentsData?.totalComments || 0} // 총 댓글 수 전달
         onDelete={handleDeleteComment} // 삭제 핸들러 전달
+        PAGE_SIZE={7}
       />
     </div>
   );

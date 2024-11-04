@@ -9,19 +9,20 @@ interface CommentListProps {
   initialComments: AdminComment[]; // 초기 댓글 데이터
   totalComments: number; // 총 댓글 수
   onDelete: (commentId: string) => void; // 삭제 핸들러 추가
-}
 
-const PAGE_SIZE = 7; // 한 페이지에 표시할 댓글 수
+  PAGE_SIZE: number;
+}
 
 const CommentList: React.FC<CommentListProps> = ({
   initialComments,
   totalComments,
   onDelete,
+  PAGE_SIZE,
 }) => {
   const { isDarkMode } = useTheme();
 
   // 초기 댓글 데이터를 상태로 설정합니다.
-  const [comments, setComments] = useState<Comment[]>(initialComments);
+  const [comments, setComments] = useState<AdminComment[]>(initialComments);
   const [currentPage, setCurrentPage] = useState(0); // 현재 페이지 상태
 
   // 메모이제이션을 사용하여 초기 댓글을 저장합니다.
@@ -60,6 +61,7 @@ const CommentList: React.FC<CommentListProps> = ({
     >
       {memoizedComments.length > 0 ? (
         <>
+          <h2 className="text-lg mb-6">최신 댓글</h2>
           <ul className="space-y-4">
             {memoizedComments.map((comment) => (
               <CommentItem

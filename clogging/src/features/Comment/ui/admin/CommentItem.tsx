@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { useTheme } from '@/shared/providers/theme';
 import { adminDeleteComment } from '../../utils/adminDeleteComment';
 import ReplyList from './ReplyList'; // ReplyList를 임포트
+import { AdminComment } from '@/app/(auth)/admin/comment/page';
+import { adminDeleteReply } from '../../utils/adminDeleteReply';
 
 export interface Reply {
   id: string; // 답글 ID
@@ -24,7 +26,7 @@ export interface Comment {
 }
 
 interface CommentItemProps {
-  comment: Comment;
+  comment: AdminComment;
   onDelete: (commentId: string, postId: string) => void;
 }
 
@@ -48,10 +50,9 @@ const CommentItem: React.FC<CommentItemProps> = React.memo(
     const handleDeleteReply = async (replyId: string) => {
       const confirmed = confirm('답글을 삭제하시겠습니까?');
       if (confirmed) {
-        const success = await adminDeleteReply(replyId, comment.id); // adminDeleteReply 함수는 구현해야 함.
+        const success = await adminDeleteReply(replyId, comment.id);
         if (success) {
           alert('답글이 삭제되었습니다.');
-          // 여기서 상태 업데이트를 통해 UI를 새로고침할 수 있습니다.
         } else {
           alert('답글 삭제에 실패했습니다.');
         }
