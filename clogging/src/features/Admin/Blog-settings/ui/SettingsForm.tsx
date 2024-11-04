@@ -75,24 +75,21 @@ export default function SettingsForm() {
     e.preventDefault();
 
     try {
-      // Fetch the first document ID to update
       const settingsRef = collection(db, 'settings');
       const snapshot = await getDocs(settingsRef);
       if (!snapshot.empty) {
-        const docId = snapshot.docs[0].id; // Get the ID of the first document
+        const docId = snapshot.docs[0].id;
 
-        // Prepare URLs for images
         const profileImageUrl = settings.profileImage
           ? await uploadFile('settings/profileImages', settings.profileImage)
-          : settings.profileImageUrl; // Use existing URL if no new image
+          : settings.profileImageUrl;
         const faviconUrl = settings.faviconImage
           ? await uploadFile('settings/favicons', settings.faviconImage)
-          : settings.faviconUrl; // Use existing URL if no new image
+          : settings.faviconUrl;
         const bannerUrl = settings.bannerImage
           ? await uploadFile('settings/banners', settings.bannerImage)
-          : settings.bannerUrl; // Use existing URL if no new image
+          : settings.bannerUrl;
 
-        // Update settings data in Firestore
         await updateDoc(doc(db, 'settings', docId), {
           nickname: settings.nickname,
           description: settings.description,
@@ -112,77 +109,79 @@ export default function SettingsForm() {
   const uploadFile = async (path: string, file: File): Promise<string> => {
     const storageRef = ref(storage, `${path}/${file.name}`);
     await uploadBytes(storageRef, file);
-    return storageRef.fullPath; // Return the path of the uploaded image
+    return storageRef.fullPath;
   };
 
   const itemTitleStyle = `mb-3 text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`;
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={`p-4 rounded-md ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}
-    >
-      <div className={itemTitleStyle}>프로필 사진</div>
-      <ProfileImageField
-        label="프로필 사진"
-        name="profileImage"
-        file={
-          settings.profileImage ||
-          (settings.profileImageUrl
-            ? new File([], settings.profileImageUrl)
-            : null)
-        } // Pass existing image or new file
-        onChange={handleFileChange}
-        onDelete={handleFileDelete}
-      />
-      <div className="mb-10">
-        <SettingTextField
-          label="블로그 닉네임"
-          name="nickname"
-          value={settings.nickname}
-          onChange={handleInputChange}
-          onBlur={(value) => handleInputChange('nickname', value)}
-          maxLength={20}
-          placeholder="닉네임을 20자 이내로 입력하세요"
-        />
-        <SettingTextField
-          label="블로그 설명"
-          name="description"
-          value={settings.description}
-          onChange={handleInputChange}
-          onBlur={(value) => handleInputChange('description', value)}
-          multiline
-          maxLength={50}
-          placeholder="설명을 50자 이내로 입력하세요"
-        />
-      </div>
-      <div className="mb-10">
-        <div className={itemTitleStyle}>파비콘</div>
-        <FaviconImageField
-          label="파비콘"
-          name="faviconImage" // Ensure this matches your state property
+    <div>
+      <form
+        onSubmit={handleSubmit}
+        className={`p-4 rounded-md ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}
+      >
+        <div className={itemTitleStyle}>프로필 사진</div>
+        <ProfileImageField
+          label="프로필 사진"
+          name="profileImage"
           file={
-            settings.faviconImage ||
-            (settings.faviconUrl ? new File([], settings.faviconUrl) : null)
-          } // Pass existing image or new file
-          onChange={handleFileChange} // Handle change in parent component
-        />
-        <div className={itemTitleStyle}>배너</div>
-        <BannerImageField
-          label="배너"
-          name="bannerImage"
-          file={
-            settings.bannerImage ||
-            (settings.bannerUrl ? new File([], settings.bannerUrl) : null)
-          } // Pass existing image or new file
+            settings.profileImage ||
+            (settings.profileImageUrl
+              ? new File([], settings.profileImageUrl)
+              : null)
+          }
           onChange={handleFileChange}
+          onDelete={handleFileDelete}
         />
-      </div>
-      <div className="mb-4 flex justify-end ">
-        <Button type="submit" className="rounded-full">
-          저장하기
-        </Button>
-      </div>
-    </form>
+        <div className="mb-10">
+          <SettingTextField
+            label="블로그 닉네임"
+            name="nickname"
+            value={settings.nickname}
+            onChange={handleInputChange}
+            onBlur={(value) => handleInputChange('nickname', value)}
+            maxLength={20}
+            placeholder="닉네임을 20자 이내로 입력하세요"
+          />
+          <SettingTextField
+            label="블로그 설명"
+            name="description"
+            value={settings.description}
+            onChange={handleInputChange}
+            onBlur={(value) => handleInputChange('description', value)}
+            multiline
+            maxLength={50}
+            placeholder="설명을 50자 이내로 입력하세요"
+          />
+        </div>
+        <div className="mb-10">
+          <div className={itemTitleStyle}>파비콘</div>
+          <FaviconImageField
+            label="파비콘"
+            name="faviconImage"
+            file={
+              settings.faviconImage ||
+              (settings.faviconUrl ? new File([], settings.faviconUrl) : null)
+            } // Pass existing image or new file
+            onChange={handleFileChange}
+          />
+          <div className={itemTitleStyle}>배너</div>
+          <BannerImageField
+            label="배너"
+            name="bannerImage"
+            file={
+              settings.bannerImage ||
+              (settings.bannerUrl ? new File([], settings.bannerUrl) : null)
+            } // Pass existing image or new file
+            onChange={handleFileChange}
+          />
+        </div>
+        <div className="mb-4 flex justify-end ">
+          <Button type="submit" className="rounded-full">
+            저장하기
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 }
