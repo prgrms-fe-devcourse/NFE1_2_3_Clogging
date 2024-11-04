@@ -1,9 +1,21 @@
-import BlogAnalytics from '@/features/Admin/ui/analytics/BlogAnalytics';
+// Page.tsx
 
-export default function Page() {
-  return (
-    <div>
-      <BlogAnalytics />
-    </div>
-  );
+import { getBlogData } from '@/features/Admin/Analytics/hooks/getBlogData';
+import BlogAnalytics from '@/features/Admin/Analytics/ui/BlogAnalytics';
+
+export default async function Page() {
+  try {
+    const data = await getBlogData();
+
+    return (
+      <div className="p-6">
+        <BlogAnalytics data={data} />
+      </div>
+    );
+  } catch (error) {
+    console.error('Error fetching blog data:', error);
+    return (
+      <div className="p-6 text-red-500">Error loading blog statistics</div>
+    );
+  }
 }
