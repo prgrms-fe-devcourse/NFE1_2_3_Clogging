@@ -1,4 +1,4 @@
-import SettingsForm from '@/features/Admin/ui/blog-settings/SettingsForm';
+import SettingsForm from '@/features/Admin/Blog-settings/ui/SettingsForm';
 
 export default function settingPage() {
   return (

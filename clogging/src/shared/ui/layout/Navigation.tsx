@@ -42,7 +42,7 @@ export const Navigation = () => {
         {/* Navigation Items */}
         <div className="flex items-center space-x-6 gap-8">
           {/* 기본 메뉴 */}
-          <Link href="/feed" className="flex items-center">
+          <Link href="/posts" className="flex items-center">
             <span className="hover:text-blue-500 cursor-pointer transition-colors">
               피드
             </span>
