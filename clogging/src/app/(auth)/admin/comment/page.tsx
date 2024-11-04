@@ -11,14 +11,14 @@ export interface AdminComment {
   createdAt: string;
   author?: string;
   isPrivate?: boolean;
-  replies?: Comment[];
+  replies?: AdminComment[]; // AdminComment 타입으로 변경
 }
 
 const CommentManagePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [commentsData, setCommentsData] = useState<{
-    comments: Comment[]; // Comment 타입으로 변경
+    comments: AdminComment[]; // AdminComment 타입으로 변경
     totalComments: number;
   } | null>(null);
 
@@ -37,6 +37,17 @@ const CommentManagePage: React.FC = () => {
     fetchComments();
   }, []);
 
+  const handleDeleteComment = (commentId: string) => {
+    if (commentsData) {
+      setCommentsData((prevData) => ({
+        comments: prevData.comments.filter(
+          (comment) => comment.id !== commentId,
+        ),
+        totalComments: prevData.totalComments - 1,
+      }));
+    }
+  };
+
   if (loading) {
     return <div>Loading comments...</div>; // 로딩 중 메시지
   }
@@ -51,6 +62,7 @@ const CommentManagePage: React.FC = () => {
       <CommentList
         initialComments={commentsData?.comments || []}
         totalComments={commentsData?.totalComments || 0}
+        onDelete={handleDeleteComment} // 삭제 핸들러 전달
       />
     </div>
   );

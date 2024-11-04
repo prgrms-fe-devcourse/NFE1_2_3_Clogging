@@ -3,18 +3,20 @@ import { useTheme } from '@/shared/providers/theme';
 import React, { useMemo, useState } from 'react';
 import CommentItem from './CommentItem';
 import EmptyComment from './EmptyComment';
-import { AdminComment } from '@/app/(auth)/admin/comment/page';
+import { Comment } from '@/features/Comment/types'; // Comment 타입 임포트
 
 interface CommentListProps {
-  initialComments: AdminComment[]; // 초기 댓글 데이터
+  initialComments: Comment[]; // 초기 댓글 데이터
   totalComments: number; // 총 댓글 수
+  onDelete: (commentId: string) => void; // 삭제 핸들러 추가
 }
 
-const PAGE_SIZE = 5; // 한 페이지에 표시할 댓글 수
+const PAGE_SIZE = 7; // 한 페이지에 표시할 댓글 수
 
 const CommentList: React.FC<CommentListProps> = ({
   initialComments,
   totalComments,
+  onDelete,
 }) => {
   const { isDarkMode } = useTheme();
 
@@ -33,6 +35,7 @@ const CommentList: React.FC<CommentListProps> = ({
     setComments((prevComments) =>
       prevComments.filter((comment) => comment.id !== commentId),
     );
+    onDelete(commentId); // 부모 컴포넌트에 삭제 알림
   };
 
   const totalPages = Math.ceil(totalComments / PAGE_SIZE); // 총 페이지 수 계산

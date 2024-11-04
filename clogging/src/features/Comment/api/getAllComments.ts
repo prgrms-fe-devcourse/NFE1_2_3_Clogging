@@ -13,7 +13,14 @@ import { Comment } from '@/features/Comment/types'; // Comment 타입 임포트
 
 export async function getAllComments() {
   const commentsRef = collectionGroup(db, 'comments');
-  const commentsQuery = query(commentsRef, orderBy('createdAt', 'desc')); // 최신 순으로 정렬
+
+  // 전체 댓글 수 조회를 위한 쿼리
+  const totalCommentsQuery = query(commentsRef);
+  const totalCommentsSnapshot = await getDocs(totalCommentsQuery);
+  const totalCommentsCount = totalCommentsSnapshot.size; // 전체 댓글 수
+
+  // 최신 순으로 정렬된 댓글 조회
+  const commentsQuery = query(commentsRef, orderBy('createdAt', 'desc'));
   const commentsSnapshot = await getDocs(commentsQuery);
 
   const comments: Comment[] = await Promise.all(
@@ -62,6 +69,6 @@ export async function getAllComments() {
 
   return {
     comments,
-    totalComments: commentsSnapshot.size, // 총 댓글 수 반환
+    totalComments: totalCommentsCount, // 전체 댓글 수 반환
   };
 }
