@@ -59,7 +59,7 @@ export default function ProfileImageField({
           </div>
         </div>
 
-        {/* File Input */}
+        {/* 파일 입력 */}
         <input
           type="file"
           id={name}
@@ -74,9 +74,9 @@ export default function ProfileImageField({
           }}
         />
 
-        {/* Button Group */}
+        {/* 버튼 그룹 */}
         <div className="flex justify-center space-x-2">
-          {/* Optional Settings Display */}
+          {/* 선택적 설정 표시 */}
           <SettingsDisplay imageType="profile" />
         </div>
         {file ? (

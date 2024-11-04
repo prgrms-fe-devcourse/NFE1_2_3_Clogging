@@ -20,21 +20,23 @@ export default function FaviconImageField({
   const { isDarkMode } = useTheme();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  // 파일 변경 핸들러
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      onChange(name, files[0]);
+      onChange(name, files[0]); // 파일이 선택되면 onChange 호출
     } else {
       onChange(name, null); // 파일이 선택되지 않았을 때 null로 설정
     }
   };
 
+  // 파일 제거 핸들러
   const handleRemove = () => {
-    onChange(name, null);
+    onChange(name, null); // 파일 제거 시 null로 설정
   };
 
   return (
-    <div className="mb-4 ">
+    <div className="mb-4">
       <div
         className={`flex items-center border rounded-lg p-4 overflow-hidden ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
       >
@@ -43,7 +45,7 @@ export default function FaviconImageField({
           <div
             className={`w-20 h-20 cursor-pointer flex items-center justify-center overflow-hidden rounded-full
             ${file ? 'border border-gray-300' : 'border-2 border-dashed border-gray-500'}`}
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => fileInputRef.current?.click()} // 클릭 시 파일 선택
           >
             {file ? (
               <Image
@@ -58,6 +60,8 @@ export default function FaviconImageField({
             )}
           </div>
         </div>
+
+        {/* 선택적 설정 표시 */}
         <SettingsDisplay imageType="favicon" />
 
         {/* 텍스트 및 버튼 영역 */}
@@ -76,14 +80,14 @@ export default function FaviconImageField({
               type="file"
               id={name}
               name={name}
-              accept=".ico"
-              onChange={handleChange}
+              accept=".ico" // ICO 파일만 선택 가능
+              onChange={handleChange} // 파일 변경 시 핸들러 호출
               className="hidden"
             />
             <Button
               type="button"
               className="rounded-full text-xs"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => fileInputRef.current?.click()} // 버튼 클릭 시 파일 선택
             >
               파일 선택
             </Button>
@@ -91,8 +95,8 @@ export default function FaviconImageField({
               type="button"
               variant="outline"
               className="rounded-full text-xs"
-              onClick={handleRemove}
-              disabled={!file}
+              onClick={handleRemove} // 제거 버튼 클릭 시 핸들러 호출
+              disabled={!file} // 파일이 없으면 비활성화
             >
               이미지 제거
             </Button>
