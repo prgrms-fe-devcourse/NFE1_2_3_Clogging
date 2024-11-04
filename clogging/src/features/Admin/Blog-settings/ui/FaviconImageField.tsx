@@ -29,25 +29,20 @@ export default function FaviconImageField({
   const handleRemove = () => {
     onChange(name, null);
   };
-
   return (
     <div className="mb-4">
       <div className="flex flex-col sm:flex-row items-center border border-gray-300 rounded-lg overflow-hidden">
-        {/* 이미지 미리보기 영역 */}
+        {/* Image Preview Area */}
         <div className="w-full sm:w-1/4 bg-gray-200 p-4 flex items-center justify-center">
           <div
             className={`cursor-pointer flex items-center justify-center overflow-hidden rounded-full
-            ${
-              file
-                ? 'border border-gray-300'
-                : 'border-2 border-dashed border-gray-500'
-            }`}
+            ${file ? 'border border-gray-300' : 'border-2 border-dashed border-gray-500'}`}
             style={{ width: '64px', height: '64px' }}
             onClick={() => fileInputRef.current?.click()}
           >
             {file ? (
               <Image
-                src={URL.createObjectURL(file)}
+                src={URL.createObjectURL(file)} // Create object URL for preview
                 alt={`${label} Preview`}
                 width={64}
                 height={64}
@@ -59,7 +54,7 @@ export default function FaviconImageField({
           </div>
         </div>
 
-        {/* 텍스트 및 버튼 영역 */}
+        {/* Text and Button Area */}
         <div className="flex-grow p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between w-full">
           <div className="mb-4 sm:mb-0 sm:mr-4">
             <p

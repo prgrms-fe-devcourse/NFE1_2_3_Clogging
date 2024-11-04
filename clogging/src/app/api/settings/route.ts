@@ -9,7 +9,7 @@ interface BlogSettings {
   profileImage: string | null;
   nickname: string;
   description: string;
-  favicon: string | null;
+  faviconImage: string | null;
   bannerImage: string | null;
 }
 

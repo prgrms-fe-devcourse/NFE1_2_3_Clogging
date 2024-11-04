@@ -1,20 +1,26 @@
 'use client';
+
 import React, { useState, useEffect } from 'react';
 import SettingTextField from './SettingTextField';
 import ProfileImageField from './ProfileImageField';
 import FaviconImageField from './FaviconImageField';
+import BannerImageField from './bannerImageField';
 import { useTheme } from '@/shared/providers/theme';
 import { Button } from '@/shared/ui/common/Button';
-import { settingsImageUploadImage } from './utils/settingsImageUpload'; // 경로 확인 필요
-import BannerImageField from './bannerImageField';
+
+import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { ref, uploadBytes } from 'firebase/storage';
+import { db, storage } from '@/shared/lib/firebase';
 
 interface BlogSettings {
-  id?: string;
-  profileImage: File[] | null;
+  profileImage: File | null;
   nickname: string;
   description: string;
-  faviconImage: File[] | null;
-  bannerImage: string[] | null;
+  faviconImage: File | null;
+  bannerImage: File | null;
+  profileImageUrl?: string; // Add optional URL fields
+  faviconUrl?: string;
+  bannerUrl?: string;
 }
 
 export default function SettingsForm() {
@@ -25,30 +31,28 @@ export default function SettingsForm() {
     description: '',
     faviconImage: null,
     bannerImage: null,
+    profileImageUrl: '', // Initialize URL fields
+    faviconUrl: '',
+    bannerUrl: '',
   });
 
-  const [existingImages, setExistingImages] = useState<string[]>([]);
-  const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
-
+  // Fetch existing settings on component mount
   useEffect(() => {
     const fetchSettings = async () => {
-      const response = await fetch('/api/settings');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.length > 0) {
-          const fetchedSettings = data[0];
-          setSettings({
-            ...fetchedSettings,
-            profileImage: fetchedSettings.profileImage || [],
-            faviconImage: fetchedSettings.faviconImage || [],
-            bannerImage: fetchedSettings.bannerImage || [],
-          });
-          setExistingImages([
-            ...(fetchedSettings.profileImage || []),
-            ...(fetchedSettings.faviconImage || []),
-            ...(fetchedSettings.bannerImage || []),
-          ]);
-        }
+      const settingsRef = collection(db, 'settings');
+      const snapshot = await getDocs(settingsRef);
+      if (!snapshot.empty) {
+        const data = snapshot.docs[0].data();
+        setSettings({
+          profileImage: null,
+          nickname: data.nickname || '',
+          description: data.description || '',
+          faviconImage: null,
+          bannerImage: null,
+          profileImageUrl: data.profileImageUrl || '', // Set URL fields
+          faviconUrl: data.faviconUrl || '',
+          bannerUrl: data.bannerUrl || '',
+        });
       }
     };
 
@@ -60,69 +64,55 @@ export default function SettingsForm() {
   };
 
   const handleFileChange = (name: string, file: File | null) => {
-    if (file) {
-      setSettings((prev) => ({
-        ...prev,
-        [name]: [...(prev[name] || []), file.name], // 파일 이름을 배열에 추가
-      }));
-    } else {
-      setSettings((prev) => ({ ...prev, [name]: null }));
-    }
+    setSettings((prev) => ({ ...prev, [name]: file }));
   };
 
-  const handleFileDelete = (name: string, imagePath?: string) => {
-    if (imagePath) {
-      setImagesToDelete((prev) => [...prev, imagePath]);
-    }
-    setSettings((prev) => ({
-      ...prev,
-      [name]: prev[name]?.filter((img) => img !== imagePath), // 해당 이미지 제거
-    }));
+  const handleFileDelete = (name: string) => {
+    setSettings((prev) => ({ ...prev, [name]: null }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      // 이미지 업로드 처리 및 settings ID 전달
-      await Promise.all(
-        Object.entries(settings).map(async ([key, value]) => {
-          if (value && Array.isArray(value)) {
-            for (const file of value) {
-              await settingsImageUploadImage(file); // 이미지 업로드 함수 호출
-            }
-          }
-        }),
-      );
+      // Fetch the first document ID to update
+      const settingsRef = collection(db, 'settings');
+      const snapshot = await getDocs(settingsRef);
+      if (!snapshot.empty) {
+        const docId = snapshot.docs[0].id; // Get the ID of the first document
 
-      // 서버에 보낼 데이터 준비
-      const formData = {
-        id: settings.id,
-        nickname: settings.nickname,
-        description: settings.description,
-        profileImage: settings.profileImage || [],
-        faviconImage: settings.faviconImage || [],
-        bannerImage: settings.bannerImage || [],
-      };
+        // Prepare URLs for images
+        const profileImageUrl = settings.profileImage
+          ? await uploadFile('settings/profileImages', settings.profileImage)
+          : settings.profileImageUrl; // Use existing URL if no new image
+        const faviconUrl = settings.faviconImage
+          ? await uploadFile('settings/favicons', settings.faviconImage)
+          : settings.faviconUrl; // Use existing URL if no new image
+        const bannerUrl = settings.bannerImage
+          ? await uploadFile('settings/banners', settings.bannerImage)
+          : settings.bannerUrl; // Use existing URL if no new image
 
-      // PUT 요청으로 설정 업데이트
-      const response = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+        // Update settings data in Firestore
+        await updateDoc(doc(db, 'settings', docId), {
+          nickname: settings.nickname,
+          description: settings.description,
+          profileImageUrl,
+          faviconUrl,
+          bannerUrl,
+        });
 
-      if (response.ok) {
-        alert('설정이 업데이트되었습니다.');
-      } else {
-        throw new Error('Failed to update settings');
+        alert('설정이 저장되었습니다.');
       }
     } catch (error) {
       console.error('Error updating settings:', error);
-      alert('설정 업데이트 중 오류가 발생했습니다.');
+      alert('설정 저장 중 오류가 발생했습니다.');
     }
+  };
+
+  const uploadFile = async (path: string, file: File): Promise<string> => {
+    const storageRef = ref(storage, `${path}/${file.name}`);
+    await uploadBytes(storageRef, file);
+    return storageRef.fullPath; // Return the path of the uploaded image
   };
 
   const itemTitleStyle = `mb-3 text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`;
@@ -136,11 +126,15 @@ export default function SettingsForm() {
       <ProfileImageField
         label="프로필 사진"
         name="profileImage"
-        file={settings.profileImage?.[0] || null}
+        file={
+          settings.profileImage ||
+          (settings.profileImageUrl
+            ? new File([], settings.profileImageUrl)
+            : null)
+        } // Pass existing image or new file
         onChange={handleFileChange}
-        onDelete={(filePath) => handleFileDelete('profileImage', filePath)}
+        onDelete={handleFileDelete}
       />
-
       <div className="mb-10">
         <SettingTextField
           label="블로그 닉네임"
@@ -149,9 +143,8 @@ export default function SettingsForm() {
           onChange={handleInputChange}
           onBlur={(value) => handleInputChange('nickname', value)}
           maxLength={20}
-          placeholder="닉네임을 입력하세요"
+          placeholder="닉네임을 20자 이내로 입력하세요"
         />
-
         <SettingTextField
           label="블로그 설명"
           name="description"
@@ -160,28 +153,31 @@ export default function SettingsForm() {
           onBlur={(value) => handleInputChange('description', value)}
           multiline
           maxLength={50}
-          placeholder="설명을 입력하세요"
+          placeholder="설명을 50자 이내로 입력하세요"
         />
       </div>
-
       <div className="mb-10">
         <div className={itemTitleStyle}>파비콘</div>
         <FaviconImageField
           label="파비콘"
-          name="favicon"
-          file={settings.faviconImage?.[0] || null}
-          onChange={handleFileChange}
+          name="faviconImage" // Ensure this matches your state property
+          file={
+            settings.faviconImage ||
+            (settings.faviconUrl ? new File([], settings.faviconUrl) : null)
+          } // Pass existing image or new file
+          onChange={handleFileChange} // Handle change in parent component
         />
-
         <div className={itemTitleStyle}>배너</div>
         <BannerImageField
           label="배너"
           name="bannerImage"
-          file={settings.bannerImage?.[0] || null}
+          file={
+            settings.bannerImage ||
+            (settings.bannerUrl ? new File([], settings.bannerUrl) : null)
+          } // Pass existing image or new file
           onChange={handleFileChange}
         />
       </div>
-
       <div className="mb-4 flex justify-end ">
         <Button type="submit" className="rounded-full">
           저장하기
