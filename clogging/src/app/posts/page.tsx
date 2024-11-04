@@ -10,7 +10,7 @@ import { usePostFilter, useFilteredPosts } from '@/features/Post/hooks';
 import { useEffect, useRef, useCallback } from 'react';
 import { useCategories } from '@/features/Category/hooks'; // useCategories hook 추가
 
-const FeedPage: React.FC = () => {
+const PostPage: React.FC = () => {
   const { isDarkMode } = useTheme();
   const bannerImage = useBannerStore((state) => state.bannerImage);
   const selectedTags = useTagStore((state) => state.selectedTags);
@@ -149,4 +149,4 @@ const FeedPage: React.FC = () => {
   );
 };
 
-export default FeedPage;
+export default PostPage;
