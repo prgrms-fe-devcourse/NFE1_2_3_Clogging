@@ -3,10 +3,10 @@ import { useTheme } from '@/shared/providers/theme';
 import React, { useMemo, useState } from 'react';
 import CommentItem from './CommentItem';
 import EmptyComment from './EmptyComment';
-import { Comment } from '@/features/Comment/types'; // Comment 타입 임포트
+import { AdminComment } from '@/app/(auth)/admin/comment/page';
 
 interface CommentListProps {
-  initialComments: Comment[]; // 초기 댓글 데이터
+  initialComments: AdminComment[]; // 초기 댓글 데이터
   totalComments: number; // 총 댓글 수
   onDelete: (commentId: string) => void; // 삭제 핸들러 추가
 }
