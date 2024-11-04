@@ -7,14 +7,11 @@ export async function PATCH(request: Request) {
     const { searchParams } = new URL(request.url);
     const commentId = searchParams.get('commentId');
     const postId = searchParams.get('postId');
-    const { content, password } = await request.json();
+    const { content, password, isPrivate } = await request.json();
 
     if (!commentId || !postId || !content || !password) {
       return NextResponse.json(
-        {
-          error:
-            'commentId, postId, content, password 중에 비어있는 값이 있음!',
-        },
+        { error: '필수 입력값이 누락되었습니다.' },
         { status: 400 },
       );
     }
@@ -24,32 +21,40 @@ export async function PATCH(request: Request) {
 
     if (!commentSnapshot.exists()) {
       return NextResponse.json(
-        { error: '댓글 존재하지 않음!' },
+        { error: '댓글을 찾을 수 없습니다.' },
         { status: 404 },
       );
     }
 
     const commentData = commentSnapshot.data();
     if (commentData.password !== password) {
-      return NextResponse.json({ error: '비밀번호 불일치!' }, { status: 403 });
+      return NextResponse.json(
+        { error: '비밀번호가 일치하지 않습니다.' },
+        { status: 403 },
+      );
     }
 
-    await updateDoc(commentRef, { content });
+    const updatedData = {
+      content,
+      isPrivate: Boolean(isPrivate),
+    };
 
-    return NextResponse.json(
-      {
-        message: '댓글 수정 성공!',
-        updatedComment: {
-          id: commentId,
-          postId,
-          content,
-          author: commentData.author,
-          createdAt: commentData.createdAt,
-        },
+    await updateDoc(commentRef, updatedData);
+
+    return NextResponse.json({
+      message: '댓글이 수정되었습니다.',
+      updatedComment: {
+        id: commentId,
+        postId,
+        ...updatedData,
+        author: commentData.author,
+        createdAt: commentData.createdAt,
       },
-      { status: 200 },
-    );
+    });
   } catch (error) {
-    return NextResponse.json({ error: '댓글 수정 실패!' }, { status: 500 });
+    return NextResponse.json(
+      { error: '댓글 수정에 실패했습니다.' },
+      { status: 500 },
+    );
   }
 }

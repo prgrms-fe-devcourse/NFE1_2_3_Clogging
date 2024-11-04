@@ -8,7 +8,7 @@ export const useComments = (postId: string) => {
   return useQuery({
     queryKey: ['comments', postId],
     queryFn: () => commentApi.getComments(postId),
-    staleTime: 1000 * 60, // 1분
+    staleTime: 1000 * 60,
     refetchOnWindowFocus: true,
   });
 };
@@ -18,8 +18,9 @@ export const useCreateComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (comment: Omit<Comment, 'id' | 'createdAt'>) =>
-      commentApi.createComment(comment),
+    mutationFn: (comment: Omit<Comment, 'id' | 'createdAt'>) => {
+      return commentApi.createComment(comment);
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ['comments', variables.postId],
@@ -36,8 +37,8 @@ export const useUpdateComment = () => {
     mutationFn: (data: {
       postId: string;
       commentId: string;
-      content: string; // 필수
-      password: string; // 필수
+      content: string;
+      password: string;
       isPrivate?: boolean;
       author?: string;
     }) => commentApi.updateComment(data),
@@ -70,15 +71,6 @@ export const useDeleteComment = () => {
         queryKey: ['comments', variables.postId],
       });
     },
-  });
-};
-
-// 단일 댓글 조회 훅 (필요한 경우)
-export const useComment = (commentId: string) => {
-  return useQuery({
-    queryKey: ['comment', commentId],
-    queryFn: () => commentApi.getComment(commentId),
-    enabled: !!commentId,
   });
 };
 
