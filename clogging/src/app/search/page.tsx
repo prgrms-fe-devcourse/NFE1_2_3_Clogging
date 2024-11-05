@@ -24,7 +24,7 @@ const SearchPage: React.FC = () => {
         isDarkMode ? 'bg-gray-900 text-white' : 'bg-white'
       }`}
     >
-      <div className="container pt-16 pb-8">
+      <div className="">
         {/* 검색 섹션 */}
         <div className="max-w-3xl mx-auto mb-12">
           <SearchBar

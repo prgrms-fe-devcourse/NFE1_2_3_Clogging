@@ -50,14 +50,11 @@ const PostPage: React.FC = () => {
   const allTags = data?.posts.flatMap((post) => post.tags || []) || [];
   const uniqueTags = [...new Set(allTags)];
 
-  // 수정된 필터링 로직
   const filteredPosts = data?.posts.filter((post) => {
-    // 카테고리 필터링 - post.category 직접 비교
     const matchesCategory = selectedCategory
       ? post.category === selectedCategory
       : true;
 
-    // 태그 필터링
     const matchesTags =
       selectedTags.length > 0
         ? selectedTags.includes('기타')
@@ -74,9 +71,8 @@ const PostPage: React.FC = () => {
         isDarkMode ? 'bg-gray-900 text-white' : 'bg-white'
       }`}
     >
-      {/* 나머지 JSX는 동일 */}
-      <div className="container mx-auto py-8">
-        <div className="w-full h-[400px] relative overflow-hidden mb-7 rounded-lg">
+      <div className="py-8 sm:py-12">
+        <div className="w-full h-[200px] sm:h-[300px] md:h-[400px] relative overflow-hidden mb-6 sm:mb-10 rounded-lg">
           <img
             src={settingsData?.bannerUrl || '/images/banner-img.png'}
             alt="Feed Banner"
@@ -88,19 +84,19 @@ const PostPage: React.FC = () => {
           />
         </div>
 
-        <div className="py-8">
+        <div className="py-6 sm:py-10">
           <TagSection tags={uniqueTags} />
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex flex-col lg:flex-row gap-10 lg:gap-10">
           <div className="flex-1">
             {error && (
-              <div className="text-red-500 text-center py-4">
+              <div className="text-red-500 text-center py-6">
                 게시글을 불러오는데 실패했습니다.
               </div>
             )}
 
-            <div className="space-y-6">
+            <div className="space-y-6 sm:space-y-8">
               {filteredPosts?.map((post, index) => (
                 <div
                   key={post.id}
@@ -109,6 +105,7 @@ const PostPage: React.FC = () => {
                       ? lastPostElementRef
                       : undefined
                   }
+                  className="w-full"
                 >
                   <HorizontalPostCard post={post} />
                 </div>
@@ -116,7 +113,7 @@ const PostPage: React.FC = () => {
             </div>
 
             {isLoading && (
-              <div className="text-center py-4">
+              <div className="text-center py-6">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mx-auto"></div>
               </div>
             )}
@@ -124,13 +121,19 @@ const PostPage: React.FC = () => {
             {!isLoading &&
               !error &&
               (!filteredPosts || filteredPosts.length === 0) && (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-10 text-gray-500">
                   게시글이 없습니다.
                 </div>
               )}
           </div>
 
-          <div className="w-72 flex-shrink-0">
+          {/* 모바일에서는 카테고리 섹션이 하단에 위치 */}
+          <div className="lg:hidden w-full text-center">
+            <CategorySection />
+          </div>
+
+          {/* 데스크톱에서는 카테고리 섹션이 오른쪽에 위치 */}
+          <div className="hidden lg:block w-72 flex-shrink-0">
             <div className="sticky top-8">
               <CategorySection />
             </div>

@@ -112,44 +112,46 @@ const HorizontalPostCard = ({ post }: Props) => {
   };
 
   return (
-    <Link href={`/posts/${post.id}`} className="block max-w-5xl">
+    <Link href={`/posts/${post.id}`} className="block w-full max-w-5xl mx-auto">
       <Card className="overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-primary/20 dark:hover:border-primary/30">
         <CardContent className="p-0">
-          <div className="flex">
-            <div className="flex-1 p-2">
-              <div className="flex flex-col gap-3 items-start justify-between mb-2">
+          <div className="flex flex-col sm:flex-row">
+            <div className="flex-1 p-3 sm:p-4 md:p-6">
+              <div className="flex flex-col gap-2 sm:gap-3 items-start justify-between mb-2 sm:mb-3">
                 <Badge variant="secondary">{categoryName}</Badge>
-                <CardTitle className="text-xl font-heading truncate w-full">
+                <CardTitle className="text-lg sm:text-xl md:text-2xl font-heading truncate w-full">
                   {post.title}
                 </CardTitle>
               </div>
-              <CardDescription className="text-sm text-muted-foreground mb-4 overflow-hidden line-clamp-2 min-h-[40px]">
+              <CardDescription className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4 overflow-hidden line-clamp-2 min-h-[40px]">
                 {post.content.replace(/[#*\n]/g, ' ').trim()}
               </CardDescription>
               {post.tags && post.tags.length > 0 && (
-                <div className="flex gap-2 mb-4">
+                <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
                   {post.tags.map((tag) => (
-                    <Badge key={tag}>{tag}</Badge>
+                    <Badge key={tag} className="text-xs sm:text-sm">{tag}</Badge>
                   ))}
                 </div>
               )}
-              <CardFooter className="justify-between px-0 pt-4 border-t">
-                <div className="flex gap-2">
-                  <Badge variant="secondary">
+              <CardFooter className="flex-wrap justify-start sm:justify-between gap-2 px-0 pt-3 sm:pt-4 border-t">
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary" className="text-xs sm:text-sm">
                     {formatDate(post.createdAt)}
                   </Badge>
-                  <Badge variant="secondary">{commentCount}개의 댓글</Badge>
-                  <Badge variant="secondary">
+                  <Badge variant="secondary" className="text-xs sm:text-sm">
+                    {commentCount}개의 댓글
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs sm:text-sm">
                     조회수 {viewCount.toLocaleString()}
                   </Badge>
                 </div>
               </CardFooter>
             </div>
-            <div className="w-80 relative rounded-r-lg overflow-hidden">
+            <div className="w-full sm:w-60 md:w-80 h-48 sm:h-auto relative">
               <img
                 src={thumbnailUrl}
                 alt={post.title || '게시글 썸네일'}
-                className="absolute inset-0 w-full h-full object-cover"
+                className="w-full h-full object-cover sm:absolute sm:inset-0"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   console.log('Image load error for:', target.src);

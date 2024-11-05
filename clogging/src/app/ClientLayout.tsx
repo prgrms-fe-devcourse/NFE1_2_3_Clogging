@@ -37,7 +37,9 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
     <QueryProviders>
       <Navigation />
-      <main className="container">{children}</main>
+      <main className="container pt-[95px] sm:pt-[142px] pb-[30px] sm:pb-[50px]">
+        {children}
+      </main>
     </QueryProviders>
   );
 }

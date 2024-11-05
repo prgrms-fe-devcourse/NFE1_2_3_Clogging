@@ -44,7 +44,7 @@ export const SettingPassword = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="">
       <h1 className="text-2xl font-bold mb-6">비밀번호 변경</h1>
       <div className="w-full">
         <div className="space-y-4">

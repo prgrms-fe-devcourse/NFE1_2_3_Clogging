@@ -41,7 +41,7 @@ const HomePage: React.FC = () => {
         isDarkMode ? 'bg-gray-900 text-white' : 'bg-white'
       }`}
     >
-      <div className="container py-8">
+      <div className="">
         {/* 프로필 섹션 */}
         <Section />
 
