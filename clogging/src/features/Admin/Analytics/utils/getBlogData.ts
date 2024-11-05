@@ -29,25 +29,21 @@ export async function getBlogData(): Promise<BlogData> {
   // 현재 날짜와 올해의 첫날 계산
   const now = new Date();
   const startOfYear = new Date(now.getFullYear(), 0, 1);
-  const oneMonthAgo = new Date(
-    now.getFullYear(),
-    now.getMonth() - 1,
-    now.getDate(),
-  );
+  const fiveWeeksAgo = new Date(now.getTime() - 35 * 24 * 60 * 60 * 1000);
 
-  // 최근 한 달 데이터 쿼리
+  // 최근 5주 데이터 쿼리
   const monthPostsSnapshot = await getDocs(query(postsRef));
   const monthPosts = monthPostsSnapshot.docs;
 
-  // 주별 데이터 초기화
-  const weeklyData: WeeklyData[] = Array(4)
+  // 주별 데이터 초기화 (5주)
+  const weeklyData: WeeklyData[] = Array(5)
     .fill(null)
     .map((_, index) => {
       const weekStartDate = new Date(
-        oneMonthAgo.getTime() + index * 7 * 24 * 60 * 60 * 1000,
+        fiveWeeksAgo.getTime() + index * 7 * 24 * 60 * 60 * 1000,
       );
       return {
-        week: formatWeekDisplay(weekStartDate),
+        week: index === 4 ? '이번 주' : formatWeekDisplay(weekStartDate), // 마지막 주는 "이번 주"로 설정
         posts: 0,
         views: 0,
         comments: 0,
@@ -64,16 +60,17 @@ export async function getBlogData(): Promise<BlogData> {
       commentsByPost[postId] = (commentsByPost[postId] || 0) + 1;
     }
   });
+
   // 주별 포스팅 수, 조회수, 댓글 수 계산 (최근 한 달)
   monthPosts.forEach((doc) => {
     const postDate = (doc.data() as DocumentData).createdAt.toDate();
     const postId = doc.id;
-    if (postDate >= oneMonthAgo && postDate <= now) {
+    if (postDate >= fiveWeeksAgo && postDate <= now) {
       const weekIndex = Math.floor(
-        (postDate.getTime() - oneMonthAgo.getTime()) /
+        (postDate.getTime() - fiveWeeksAgo.getTime()) /
           (7 * 24 * 60 * 60 * 1000),
       );
-      if (weekIndex >= 0 && weekIndex < 4) {
+      if (weekIndex >= 0 && weekIndex < 5) {
         weeklyData[weekIndex].posts++;
         weeklyData[weekIndex].views +=
           (doc.data() as DocumentData).viewCount || 0;
@@ -81,6 +78,7 @@ export async function getBlogData(): Promise<BlogData> {
       }
     }
   });
+
   // 올해의 모든 날짜에 대한 초기 데이터 생성
   const calendarData: { [key: string]: CalendarDay } = {};
   for (let d = new Date(startOfYear); d <= now; d.setDate(d.getDate() + 1)) {

@@ -8,7 +8,7 @@ export default async function Page() {
     const data = await getBlogData();
 
     return (
-      <div className="p-6">
+      <div>
         <BlogAnalytics data={data} />
       </div>
     );
