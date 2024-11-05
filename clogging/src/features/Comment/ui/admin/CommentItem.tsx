@@ -1,11 +1,11 @@
-// src/features/Comment/ui/admin/CommentItem.tsx
 import React from 'react';
 import Image from 'next/image';
 import { useTheme } from '@/shared/providers/theme';
 import { adminDeleteComment } from '../../utils/adminDeleteComment';
-import ReplyList from './ReplyList'; // ReplyList를 임포트
+import ReplyList from './ReplyList';
 import { AdminComment } from '@/app/(auth)/admin/comment/page';
 import { adminDeleteReply } from '../../utils/adminDeleteReply';
+import { useRouter } from 'next/navigation';
 
 export interface Reply {
   id: string; // 답글 ID
@@ -33,6 +33,17 @@ interface CommentItemProps {
 const CommentItem: React.FC<CommentItemProps> = React.memo(
   ({ comment, onDelete }) => {
     const { isDarkMode } = useTheme();
+    const router = useRouter();
+
+    const handleClick = (postId: string) => {
+      router.push(`/posts/${postId}`);
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'smooth',
+        });
+      }, 1500);
+    };
 
     const handleDelete = async () => {
       const confirmed = confirm('댓글을 삭제하시겠습니까?');
@@ -63,22 +74,27 @@ const CommentItem: React.FC<CommentItemProps> = React.memo(
       <li
         className={`flex flex-col gap-3 rounded-lg shadow-md p-3 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
       >
-        <div className="flex items-center">
-          <div className="p-1 rounded-full overflow-hidden">
-            <Image
-              src="/icons/user.png"
-              alt={`${comment.author}`}
-              width={24}
-              height={24}
-            />
-          </div>
-          <div className="flex-1 ml-3">
-            <div className="overflow-hidden text-ellipsis mb-2">
-              {comment.content}
+        <div className="flex justify-between items-center">
+          <div
+            className="flex items-center cursor-pointer"
+            onClick={() => handleClick(comment.postId)}
+          >
+            <div className="p-1 rounded-full overflow-hidden">
+              <Image
+                src="/icons/user.png"
+                alt={`${comment.author}`}
+                width={24}
+                height={24}
+              />
             </div>
-            <div className="flex items-center text-xs text-gray-400">
-              <div className="font-bold mr-2">{comment.author}</div>
-              <div>{comment.createdAt}</div>
+            <div className="flex-1 ml-3">
+              <div className="overflow-hidden text-sm text-ellipsis mb-2">
+                {comment.content}
+              </div>
+              <div className="flex items-center text-gray-400">
+                <div className="font-bold mr-2">{comment.author}</div>
+                <div>{comment.createdAt}</div>
+              </div>
             </div>
           </div>
           <button
@@ -102,6 +118,7 @@ const CommentItem: React.FC<CommentItemProps> = React.memo(
           <ReplyList
             replies={comment.replies}
             onDeleteReply={handleDeleteReply}
+            onClickReply={handleClick}
           />
         )}
       </li>

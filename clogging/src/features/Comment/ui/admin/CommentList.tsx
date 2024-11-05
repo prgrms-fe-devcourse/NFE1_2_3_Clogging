@@ -55,7 +55,7 @@ const CommentList: React.FC<CommentListProps> = ({
 
   return (
     <div
-      className={`flex-1 rounded-lg shadow-sm p-4 sm:p-6 mb-2 text-xs ${
+      className={`flex-1 rounded-md shadow-sm p-4 mb-2 text-xs ${
         isDarkMode ? 'bg-gray-900' : 'bg-white'
       }`}
     >

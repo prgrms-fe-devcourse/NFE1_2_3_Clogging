@@ -6,7 +6,7 @@ import { AdminComment } from '@/app/(auth)/admin/comment/page';
 interface CommentSectionProps {
   comments: AdminComment[];
   totalComments: number;
-  onDelete: (commentId: string) => void;
+  onDelete: () => void;
 }
 
 const CommentSection: React.FC<CommentSectionProps> = ({

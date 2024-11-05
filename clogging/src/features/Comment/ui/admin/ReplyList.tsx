@@ -6,17 +6,23 @@ import { useTheme } from '@/shared/providers/theme';
 interface ReplyListProps {
   replies: Reply[];
   onDeleteReply: (replyId: string) => void; // 답글 삭제 핸들러
+  onClickReply: (postId: string) => void;
 }
 
-const ReplyList: React.FC<ReplyListProps> = ({ replies, onDeleteReply }) => {
+const ReplyList: React.FC<ReplyListProps> = ({
+  replies,
+  onDeleteReply,
+  onClickReply,
+}) => {
   const { isDarkMode } = useTheme(); // 테마에 따라 다크 모드 여부 확인
 
   return (
     <ul className="mt-4 space-y-2">
       {replies.map((reply) => (
         <li
+          onClick={() => onClickReply(reply.postId)}
           key={reply.id}
-          className={`flex items-center justify-between p-2 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} rounded`}
+          className={`flex items-center justify-between p-2 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} rounded cursor-pointer`}
         >
           <div className="flex flex-col">
             <span className="font-bold">{reply.author}</span>
