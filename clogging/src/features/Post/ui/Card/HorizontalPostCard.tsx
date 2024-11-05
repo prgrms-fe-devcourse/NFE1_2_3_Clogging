@@ -149,11 +149,11 @@ const HorizontalPostCard = ({ post }: Props) => {
                 </div>
               </CardFooter>
             </div>
-            <div className="w-full sm:w-48 md:w-64 lg:w-80 h-48 sm:h-auto relative rounded-b-lg sm:rounded-r-lg overflow-hidden">
+            <div className="w-full sm:w-48 md:w-64 lg:w-80 relative rounded-b-lg sm:rounded-r-lg overflow-hidden aspect-[4/3]">
               <img
                 src={thumbnailUrl}
                 alt={post.title || '게시글 썸네일'}
-                className="w-full h-full object-cover sm:absolute sm:inset-0"
+                className="w-full h-full object-cover"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   console.log('Image load error for:', target.src);
