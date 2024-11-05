@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 
 export const Content = ({ post }: { post: Post }) => {
   const [thumbnailUrls, setThumbnailUrls] = useState<string[]>([]);
+  const [renderedContent, setRenderedContent] = useState('');
 
   //1105 추가 - 마크다운
   const ReactMarkdown = dynamic(() => import('react-markdown'), {
@@ -50,6 +51,19 @@ export const Content = ({ post }: { post: Post }) => {
     loadThumbnails();
   }, [post.image]);
 
+  useEffect(() => {
+    setRenderedContent(post.content);
+  }, [post.content]);
+
+  // 마크다운 렌더링 완료 이벤트를 발생시키는 함수
+  const notifyMarkdownRendered = () => {
+    // 렌더링이 완료된 후 약간의 지연을 주어 DOM이 완전히 업데이트되도록 함
+    setTimeout(() => {
+      const event = new CustomEvent('markdownRendered');
+      document.dispatchEvent(event);
+    }, 100);
+  };
+
   return (
     <div className="mt-8">
       {thumbnailUrls.map((url, index) => (
@@ -63,14 +77,38 @@ export const Content = ({ post }: { post: Post }) => {
         />
       ))}
       {/* 1105 추가 - 마크다운적용 */}
-      <div id="post-content">
+      <div id="post-content" className="prose dark:prose-invert max-w-none">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           components={{
+            h1: ({ node, ...props }) => {
+              notifyMarkdownRendered();
+              return <h1 {...props} />;
+            },
+            h2: ({ node, ...props }) => {
+              notifyMarkdownRendered();
+              return <h2 {...props} />;
+            },
+            h3: ({ node, ...props }) => {
+              notifyMarkdownRendered();
+              return <h3 {...props} />;
+            },
+            h4: ({ node, ...props }) => {
+              notifyMarkdownRendered();
+              return <h4 {...props} />;
+            },
+            h5: ({ node, ...props }) => {
+              notifyMarkdownRendered();
+              return <h5 {...props} />;
+            },
+            h6: ({ node, ...props }) => {
+              notifyMarkdownRendered();
+              return <h6 {...props} />;
+            },
             img: () => null, //마크다운 렌더링 막아버리기
           }}
         >
-          {post.content}
+          {renderedContent}
         </ReactMarkdown>
       </div>
     </div>

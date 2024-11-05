@@ -24,11 +24,13 @@ export const Detail = ({ postId }: { postId: string }) => {
     }
   };
 
+  const hasTableOfContents = post.content.match(/^#{1,6}\s/m);
+
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="">
       <div className="grid grid-cols-12 gap-8">
-        <main className="col-span-9">
-          <article className="prose lg:prose-xl max-w-none">
+        <main className={`col-span-12 ${hasTableOfContents ? 'lg:col-span-9' : ''}`}>
+          <article className="max-w-none">
             <Header post={post} />
             <Content post={post} />
           </article>
@@ -40,19 +42,20 @@ export const Detail = ({ postId }: { postId: string }) => {
               onSuccess={() => {
                 invalidateComments();
               }}
-              editingIsPrivate={false}
             />
             <div className="mt-8">
               <CommentList postId={postId} />
             </div>
           </section>
         </main>
-        <aside className="col-span-3">
-          <TableOfContents
-            content={post.content}
-            onHeadingClick={handleHeadingClick}
-          />
-        </aside>
+        {hasTableOfContents && (
+          <aside className="hidden lg:block lg:col-span-3">
+            <TableOfContents
+              content={post.content}
+              onHeadingClick={handleHeadingClick}
+            />
+          </aside>
+        )}
       </div>
     </div>
   );

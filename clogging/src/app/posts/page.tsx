@@ -50,14 +50,11 @@ const PostPage: React.FC = () => {
   const allTags = data?.posts.flatMap((post) => post.tags || []) || [];
   const uniqueTags = [...new Set(allTags)];
 
-  // 수정된 필터링 로직
   const filteredPosts = data?.posts.filter((post) => {
-    // 카테고리 필터링 - post.category 직접 비교
     const matchesCategory = selectedCategory
       ? post.category === selectedCategory
       : true;
 
-    // 태그 필터링
     const matchesTags =
       selectedTags.length > 0
         ? selectedTags.includes('기타')
@@ -75,7 +72,7 @@ const PostPage: React.FC = () => {
       }`}
     >
       {/* 나머지 JSX는 동일 */}
-      <div className="container mx-auto py-8">
+      <div className="">
         {/* 배너 이미지 */}
         <div className="w-full h-[400px] relative overflow-hidden mb-7 rounded-lg">
           <img
@@ -94,10 +91,10 @@ const PostPage: React.FC = () => {
           <TagSection tags={uniqueTags} />
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex flex-col lg:flex-row gap-10 lg:gap-10">
           <div className="flex-1">
             {error && (
-              <div className="text-red-500 text-center py-4">
+              <div className="text-red-500 text-center py-6">
                 게시글을 불러오는데 실패했습니다.
               </div>
             )}
@@ -112,6 +109,7 @@ const PostPage: React.FC = () => {
                       ? lastPostElementRef
                       : undefined
                   }
+                  className="w-full"
                 >
                   <HorizontalPostCard post={post} />
                 </div>
@@ -119,7 +117,7 @@ const PostPage: React.FC = () => {
             </div>
 
             {isLoading && (
-              <div className="text-center py-4">
+              <div className="text-center py-6">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mx-auto"></div>
               </div>
             )}
@@ -127,7 +125,7 @@ const PostPage: React.FC = () => {
             {!isLoading &&
               !error &&
               (!filteredPosts || filteredPosts.length === 0) && (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-10 text-gray-500">
                   게시글이 없습니다.
                 </div>
               )}

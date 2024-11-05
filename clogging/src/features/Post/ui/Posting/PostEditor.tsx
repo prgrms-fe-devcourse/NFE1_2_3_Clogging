@@ -128,14 +128,13 @@ const PostEditor: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white'}`}
+      className={`min-h-screen p-4 md:p-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white'}`}
     >
       {/* 카테고리 선택 */}
       <select
         value={editorState.category}
         onChange={(e) => handleCategoryChange(e.target.value)}
-        style={{ width: '300px', height: '35px' }}
-        className="ml-4 mt-4 mb-[52px] px-4 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border-gray-200 dark:border-gray-700"
+        className="w-full md:w-[300px] h-[35px] mb-8 px-4 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border-gray-200 dark:border-gray-700"
       >
         <option value="">카테고리 선택</option>
         {categories.map((category) => (
@@ -156,25 +155,22 @@ const PostEditor: React.FC = () => {
           value={editorState.title}
           onChange={(e) => handleTitleChange(e.target.value)}
           placeholder="제목을 입력해주세요."
-          className="w-full text-[35px] font-bold text-center appearance-none border-none outline-none focus:outline-none focus:ring-0 mb-[20px] bg-transparent"
+          className="w-full text-xl md:text-[35px] font-bold text-center appearance-none border-none outline-none focus:outline-none focus:ring-0 mb-[20px] bg-transparent"
           style={{
             backgroundColor: 'transparent',
             WebkitAppearance: 'none',
             boxShadow: 'none',
           }}
         />
-        <hr
-          className="border-0 bg-blue-100 dark:bg-blue-900 h-[2px] mb-8"
-          style={{ width: '800px' }}
-        />
+        <hr className="w-full md:w-[800px] border-0 bg-blue-100 dark:bg-blue-900 h-[2px] mb-8" />
       </div>
 
       {/* 에디터 영역 */}
-      <div className="grid grid-cols-2 gap-4 h-[400px] ml-4">
+      <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 h-auto">
         {/* 마크다운 입력 */}
-        <div className="border rounded-lg overflow-hidden flex flex-col bg-white dark:bg-gray-800">
-          <div className="bg-gray-50 dark:bg-gray-700 px-4 py-2 border-b dark:border-gray-600">
-            <div className="flex gap-2">
+        <div className="border rounded-lg overflow-hidden flex flex-col bg-white dark:bg-gray-800 min-h-[300px]">
+          <div className="bg-gray-50 dark:bg-gray-700 p-2 md:px-4 md:py-2 border-b dark:border-gray-600 overflow-x-auto">
+            <div className="flex gap-2 whitespace-nowrap">
               <button
                 onClick={handleH1Click}
                 className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
@@ -262,7 +258,7 @@ const PostEditor: React.FC = () => {
         </div>
 
         {/* 미리보기 */}
-        <div className="border rounded-lg p-4 mr-4 overflow-y-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <div className="border rounded-lg p-4 overflow-y-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 min-h-[300px]">
           <div className="prose dark:prose-invert max-w-none text-gray-900 dark:text-gray-200">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {markdownText}
@@ -273,12 +269,15 @@ const PostEditor: React.FC = () => {
 
       {/* 이미지 목록 */}
       {editorState.images.length > 0 && (
-        <div className="mt-4 ml-4">
+        <div className="mt-4">
           <h3 className="font-semibold mb-4">업로드된 이미지:</h3>
           <ul className="list-disc ml-6 space-y-2">
             {editorState.images.map((imageId) => (
-              <li key={imageId} className="flex justify-between items-center">
-                <span>이미지 ID: {imageId}</span>
+              <li
+                key={imageId}
+                className="flex justify-between items-center flex-wrap gap-2"
+              >
+                <span className="break-all">이미지 ID: {imageId}</span>
                 <Button onClick={() => handleRemoveImage(imageId)}>삭제</Button>
               </li>
             ))}
@@ -287,14 +286,14 @@ const PostEditor: React.FC = () => {
       )}
 
       {/* 태그 */}
-      <div className={`dark space-y-4 mt-8 mb-8`}>
-        <div className="flex items-center gap-4">
+      <div className="space-y-4 mt-6 md:mt-8 mb-6 md:mb-8">
+        <div className="flex flex-col md:flex-row md:items-center gap-4">
           <h3
-            className={`ml-4 font-bold whitespace-nowrap ${isDarkMode ? 'text-white' : 'text-black'}`}
+            className={`font-bold whitespace-nowrap ${isDarkMode ? 'text-white' : 'text-black'}`}
           >
             저장된 태그
           </h3>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {editorState.tags.map((tag) => (
               <div
                 key={tag}
@@ -328,13 +327,13 @@ const PostEditor: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
           <h3
-            className={`ml-4 font-bold whitespace-nowrap ${isDarkMode ? 'text-white' : 'text-black'}`}
+            className={`font-bold whitespace-nowrap ${isDarkMode ? 'text-white' : 'text-black'}`}
           >
             태그 편집
           </h3>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full">
             <Input
               value={newTag}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -342,13 +341,12 @@ const PostEditor: React.FC = () => {
               }
               onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                 if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-                  //엔터하면 태그 저장되게 동작 추가
                   addTag();
                   e.preventDefault();
                 }
               }}
               placeholder="최대 5개까지 가능합니다!"
-              className={`w-48 h-8 border rounded-lg focus:outline-none`}
+              className="w-full md:w-48 h-8 border rounded-lg focus:outline-none"
               style={{
                 backgroundColor: isDarkMode ? '#374151' : '#ffffff',
                 color: isDarkMode ? '#ffffff' : '#000000',
@@ -366,23 +364,20 @@ const PostEditor: React.FC = () => {
       </div>
 
       {/* 하단 버튼 영역 */}
-      <div
-        className="flex justify-between items-center"
-        style={{ marginTop: '50px' }}
-      >
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-8">
         <Button
           variant="outline"
           size="sm"
           onClick={handleGoBack}
-          className="px-6 py-2 mr-4 rounded-lg font-sans"
+          className="w-full md:w-auto px-6 py-2 rounded-lg font-sans"
         >
           {'< 뒤로가기'}
         </Button>
-        <div className="flex gap-4">
+        <div className="flex gap-4 w-full md:w-auto">
           <Button
             variant="secondary"
             size="sm"
-            className="px-6 py-2 bg-secondary hover:secondary-hover text-primary rounded-lg font-sans"
+            className="flex-1 md:flex-none px-6 py-2 bg-secondary hover:secondary-hover text-primary rounded-lg font-sans"
           >
             임시저장
           </Button>
@@ -390,7 +385,7 @@ const PostEditor: React.FC = () => {
             variant="primary"
             size="sm"
             onClick={handleSubmit}
-            className="px-6 py-2 mr-4 bg-primary hover:primary-hover text-white rounded-lg font-sans"
+            className="flex-1 md:flex-none px-6 py-2 bg-primary hover:primary-hover text-white rounded-lg font-sans"
           >
             등록하기
           </Button>

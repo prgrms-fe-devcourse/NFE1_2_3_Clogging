@@ -31,7 +31,6 @@ export async function GET(request: Request) {
 
         const createdAtTimestamp = commentData.createdAt as Timestamp;
         const createdAtDate = createdAtTimestamp.toDate();
-        const formattedCreatedAt = `${formatDateTime(createdAtDate)}`;
 
         const repliesRef = collection(
           db,
@@ -61,7 +60,7 @@ export async function GET(request: Request) {
         return {
           id: commentDoc.id,
           ...commentData,
-          createdAt: formattedCreatedAt,
+          createdAt: createdAtDate,
           replies,
         };
       }),

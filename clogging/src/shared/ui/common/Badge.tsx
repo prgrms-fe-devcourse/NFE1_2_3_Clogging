@@ -14,12 +14,12 @@ export const Badge: React.FC<BadgeProps> = ({
     default: [
       'bg-blue-100',
       'text-blue-600',
-      'dark:bg-blue-900',
+      'dark:bg-blue-900', 
       'dark:text-blue-200',
     ],
     secondary: [
       'bg-gray-100',
-      'text-gray-600',
+      'text-gray-600', 
       'dark:bg-gray-700',
       'dark:text-gray-200',
     ],
@@ -43,13 +43,20 @@ export const Badge: React.FC<BadgeProps> = ({
         // 기본 스타일
         'inline-flex',
         'items-center',
-        'px-2',
-        'py-1',
+        'text-[10px]',
+        'sm:text-xs',
+        'px-1.5',
+        'sm:px-2',
+        'py-0.5',
+        'sm:py-1',
         'rounded',
-        'text-xs',
         'font-medium',
         'transition-colors',
         'duration-200',
+        'whitespace-nowrap',
+        'max-w-[150px]',
+        'sm:max-w-full',
+        'truncate',
         // 변형 스타일
         variants[variant],
         // 사용자 정의 클래스
