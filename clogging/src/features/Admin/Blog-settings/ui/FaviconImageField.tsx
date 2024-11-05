@@ -51,7 +51,7 @@ export default function FaviconImageField({
         {/* 이미지 미리보기 영역 */}
         <div className="flex items-center justify-center">
           <div
-            className={`${imageFieldStyle} ${file ? 'border border-gray-300' : 'border-2 border-dashed border-gray-400'} ${isDarkMode ? 'bg-gray-200' : 'bg-white'}`}
+            className={`${imageFieldStyle} ${file ? 'border border-gray-300' : 'border-2 border-dashed '} ${isDarkMode ? 'bg-gray-200' : 'bg-white'}`}
             onClick={() => fileInputRef.current?.click()} // 클릭 시 파일 선택
           >
             {localPreviewUrl !== defaultImage ? (
