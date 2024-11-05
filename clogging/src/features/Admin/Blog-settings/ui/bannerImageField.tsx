@@ -1,96 +1,94 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/shared/ui/common/Button';
 import { useTheme } from '@/shared/providers/theme';
-import SettingsDisplay from './SettingsDisplay';
-
-interface BannerImageFieldProps {
-  label: string;
-  name: string;
-  file: File | null;
-  onChange: (name: string, file: File | null) => void;
-}
+import { ImageFieldProps } from './ProfileImageField';
+import { imageFieldStyle } from './FaviconImageField';
 
 export default function BannerImageField({
   label,
   name,
   file,
+  previewUrl,
   onChange,
-}: BannerImageFieldProps) {
+  onDelete,
+  defaultImage,
+}: ImageFieldProps) {
   const { isDarkMode } = useTheme();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [localPreviewUrl, setLocalPreviewUrl] = useState(
+    previewUrl || defaultImage,
+  );
+  useEffect(() => {
+    if (file) {
+      const newPreviewUrl = URL.createObjectURL(file);
+      setLocalPreviewUrl(newPreviewUrl);
+      return () => URL.revokeObjectURL(newPreviewUrl);
+    } else {
+      setLocalPreviewUrl(previewUrl || defaultImage);
+    }
+  }, [file, previewUrl, defaultImage]);
 
   // 파일 변경 핸들러
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files[0]) {
-      const file = files[0];
-      if (file.type.startsWith('image/')) {
-        onChange(name, file); // 이미지 파일이면 onChange 호출
-      } else {
-        alert('이미지 파일만 선택할 수 있습니다.'); // 이미지가 아닐 경우 경고
-        if (fileInputRef.current) {
-          fileInputRef.current.value = ''; // 입력값 초기화
-        }
-      }
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      onChange(name, e.target.files[0], name);
     }
   };
 
-  // 파일 제거 핸들러
-  const handleRemove = () => {
-    onChange(name, null); // 파일 제거 시 null로 설정
+  const handleRomoveImage = () => {
+    onDelete();
+    setLocalPreviewUrl(defaultImage);
   };
 
   return (
     <div className="mb-4">
       <div
-        className={`flex flex-col sm:flex-row items-center border rounded-lg overflow-hidden ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
+        className={`flex flex-col pr-4 sm:flex-row items-center border rounded-lg overflow-hidden ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
       >
         {/* 이미지 미리보기 영역 */}
-        <div className="w-full sm:w-1/4 bg-gray-200 p-4 flex items-center justify-center">
+        <div className="flex items-center justify-center">
           <div
-            className={`cursor-pointer flex items-center justify-center overflow-hidden rounded-md
-            ${file ? 'border border-gray-300' : 'border-2 border-dashed border-gray-500'}`}
+            className={`${imageFieldStyle} ${file ? 'border border-gray-300' : 'border-2 border-dashed'} ${isDarkMode ? 'bg-gray-200' : 'bg-white'}`}
             onClick={() => fileInputRef.current?.click()} // 클릭 시 파일 선택
           >
-            {file ? (
+            {localPreviewUrl !== defaultImage ? (
               <Image
-                src={URL.createObjectURL(file)} // 미리보기를 위한 객체 URL 생성
+                src={localPreviewUrl} // 미리보기를 위한 객체 URL 생성
                 alt={`${label} Preview`}
-                width={160}
-                height={500}
-                className="object-cover w-full h-full"
+                width={60}
+                height={60}
+                className={`w-[90%] h-auto`}
               />
             ) : (
-              <span className="text-4xl text-gray-400">+</span>
+              <span className="text-2xl text-gray-400">+</span>
             )}
           </div>
         </div>
 
-        {/* 선택적 설정 표시 */}
-        <SettingsDisplay imageType="banner" />
-
         {/* 텍스트 및 버튼 영역 */}
-        <div className="flex-grow p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between w-full">
+        <div className="flex-grow flex flex-col sm:flex-row items-start sm:items-center justify-between w-full">
           <div className="mb-4 sm:mb-0 sm:mr-4">
-            <p
-              className={`mb-2 text-sm ${isDarkMode ? 'text-white' : 'text-[#2B3674]'}`}
+            <div
+              className={` mb-2 text-sm overflow-hidden ${isDarkMode ? 'text-white' : 'text-[#2B3674]'} truncate overflow-hidden`}
             >
-              메인 배너 : {file ? file.name : '선택된 파일 없음'}
-            </p>
+              메인 배너
+              <div className="text-xs truncate overflow-hidden">
+                {file ? file.name : ''}
+              </div>
+            </div>
             <p className="text-xs text-gray-500">
               최적 사이즈 1600 x 500 / 파일 형식 JPG, PNG
             </p>
           </div>
-
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 mt-2">
             <input
               ref={fileInputRef}
               type="file"
               id={name}
               name={name}
-              accept="image/*" // 모든 이미지 형식 허용
-              onChange={handleChange} // 파일 변경 시 핸들러 호출
+              accept="image/*"
+              onChange={handleFileChange} // 파일 변경 시 핸들러 호출
               className="hidden"
             />
             <Button
@@ -98,16 +96,15 @@ export default function BannerImageField({
               className="rounded-full text-xs"
               onClick={() => fileInputRef.current?.click()} // 버튼 클릭 시 파일 선택
             >
-              파일 선택
+              파일 변경
             </Button>
             <Button
               type="button"
               variant="outline"
               className="rounded-full text-xs"
-              onClick={handleRemove} // 제거 버튼 클릭 시 핸들러 호출
-              disabled={!file} // 파일이 없으면 비활성화
+              onClick={handleRomoveImage} // 제거 버튼 클릭 시 핸들러 호출
             >
-              이미지 제거
+              제거
             </Button>
           </div>
         </div>

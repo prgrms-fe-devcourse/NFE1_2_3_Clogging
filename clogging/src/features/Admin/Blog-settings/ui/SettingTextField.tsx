@@ -70,7 +70,7 @@ export default function SettingTextField({
           value={value}
           onChange={handleChange}
           onBlur={handleBlur}
-          className={`${inputClasses} h-32 resize-none`}
+          className={`${inputClasses} h-28 resize-none`}
           maxLength={maxLength}
           placeholder={placeholder}
         />
