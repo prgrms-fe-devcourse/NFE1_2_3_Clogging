@@ -5,11 +5,9 @@ import {
   getDocs,
   collectionGroup,
   DocumentData,
-  where,
 } from 'firebase/firestore';
-import { formatWeekDisplay } from '../utils/statisticsHelpers';
+import { formatWeekDisplay } from './statisticsHelpers';
 import { BlogData, CalendarDay, WeeklyData } from '../types';
-import { PostData } from '@/features/Post/types';
 
 export async function getBlogData(): Promise<BlogData> {
   const postsRef = collection(db, 'posts');
@@ -37,23 +35,9 @@ export async function getBlogData(): Promise<BlogData> {
     now.getDate(),
   );
 
-  // 최근 7일간의 포스트 데이터 쿼리 추가
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   // 최근 한 달 데이터 쿼리
   const monthPostsSnapshot = await getDocs(query(postsRef));
   const monthPosts = monthPostsSnapshot.docs;
-  const recentPostsQuery = query(
-    postsRef,
-    where('createdAt', '>=', sevenDaysAgo),
-  );
-  const recentPostsSnapshot = await getDocs(recentPostsQuery);
-
-  // 최근 일주일간의 포스트 데이터 배열 생성
-  const recentPosts: PostData[] = recentPostsSnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...(doc.data() as DocumentData),
-    createdAt: doc.data().createdAt.toDate(),
-  }));
 
   // 주별 데이터 초기화
   const weeklyData: WeeklyData[] = Array(4)
@@ -167,6 +151,5 @@ export async function getBlogData(): Promise<BlogData> {
     postingData,
     lineData,
     calendarData: calendarDataArray,
-    recentPosts,
   };
 }

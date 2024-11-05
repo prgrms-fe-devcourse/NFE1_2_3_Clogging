@@ -33,7 +33,6 @@ export interface BlogData {
   postingData: { week: string; posts: number }[];
   lineData: { id: string; data: { x: string; y: number }[] }[];
   calendarData: CalendarDay[];
-  recentPosts: PostData[];
 }
 
 export interface WeeklyData {
