@@ -8,12 +8,13 @@ import LoadingError from '@/features/Admin/Dashboard/ui/LoadingError';
 import PostListSection from '@/features/Admin/Dashboard/ui/PostListSection';
 import { getRecentPosts } from '@/features/Admin/Dashboard/utils/getRecentPosts';
 import { getBlogData } from '@/features/Admin/Analytics/utils/getBlogData';
+import { PostData } from '@/features/Post/types';
 
 export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [adminData, setAdminData] = useState(null);
-  const [postData, setPostData] = useState(null);
+  const [postData, setPostData] = useState<PostData[]>(null);
 
   const [commentsData, setCommentsData] = useState<{
     comments: AdminComment[];
@@ -67,11 +68,11 @@ export default function AdminPage() {
       {!loading && !error && (
         <>
           <BlogDataSection adminData={adminData} />
-          <div className="flex flex-wrap items-start justify-between w-full h-full">
-            <div className="flex-grow sp-x-2 mb-4">
+          <div className=" w-full h-full">
+            <div className="w-full mb-4">
               <PostListSection postData={postData} />
             </div>
-            <div className="flex-grow sp-x-2">
+            <div className="w-full">
               <CommentSection
                 comments={commentsData?.comments || []}
                 totalComments={commentsData?.totalComments || 0}

@@ -17,7 +17,7 @@ const BlogAnalytics: React.FC<BlogAnalyticsProps> = ({ data }) => {
 
   return (
     <div>
-      <div className="mb-10">
+      <div className="mb-4">
         <BlogDataList adminData={adminData} />
       </div>
       <div className="flex flex-col md:flex-row md:flex-wrap mb-6">

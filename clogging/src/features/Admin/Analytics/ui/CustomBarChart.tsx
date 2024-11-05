@@ -1,4 +1,3 @@
-import { Card, CardHeader } from '@/shared/ui/common/Card';
 import { ResponsiveBar } from '@nivo/bar';
 import React from 'react';
 import { useTheme } from '@/shared/providers/theme';

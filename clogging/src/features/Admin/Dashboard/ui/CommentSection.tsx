@@ -15,14 +15,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   onDelete,
 }) => {
   return (
-    <div className="">
-      <CommentList
-        initialComments={comments}
-        totalComments={totalComments}
-        onDelete={onDelete}
-        PAGE_SIZE={3}
-      />
-    </div>
+    <CommentList
+      initialComments={comments}
+      totalComments={totalComments}
+      onDelete={onDelete}
+      PAGE_SIZE={3}
+    />
   );
 };
 
