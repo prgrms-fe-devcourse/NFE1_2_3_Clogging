@@ -29,21 +29,44 @@ const HorizontalPostCard = ({ post }: Props) => {
 
   useEffect(() => {
     const loadThumbnail = async () => {
-      if (!post.image?.length) return;
+      // 이미지가 없거나 배열이 비어있는 경우 기본 이미지 사용
+      if (
+        !post.image ||
+        !Array.isArray(post.image) ||
+        post.image.length === 0
+      ) {
+        setThumbnailUrl('/images/card-thumbnail.png');
+        return;
+      }
 
       try {
-        if (post.image[0].startsWith('https://')) {
-          setThumbnailUrl(post.image[0]);
+        const imageUrl = post.image[0];
+
+        // 완전한 URL인 경우 (https:// 로 시작)
+        if (imageUrl.startsWith('https://')) {
+          setThumbnailUrl(imageUrl);
           return;
         }
 
-        if (post.image[0].length > 2) {
-          const imageRef = ref(storage, `posts/${post.image[0]}`);
-          const url = await getDownloadURL(imageRef);
-          setThumbnailUrl(url);
+        // Storage 경로가 유효한 경우에만 시도
+        if (
+          imageUrl &&
+          typeof imageUrl === 'string' &&
+          imageUrl.trim().length > 0
+        ) {
+          const imageRef = ref(storage, `posts/${imageUrl}`);
+          try {
+            const url = await getDownloadURL(imageRef);
+            setThumbnailUrl(url);
+          } catch (storageError) {
+            console.log('Storage error for:', imageUrl, storageError);
+            setThumbnailUrl('/images/card-thumbnail.png');
+          }
+        } else {
+          setThumbnailUrl('/images/card-thumbnail.png');
         }
       } catch (error) {
-        console.error('썸네일 로드 실패:', error);
+        console.error('썸네일 로드 실패:', post.image[0], error);
         setThumbnailUrl('/images/card-thumbnail.png');
       }
     };
@@ -112,7 +135,9 @@ const HorizontalPostCard = ({ post }: Props) => {
                 src={thumbnailUrl}
                 alt={post.title || '게시글 썸네일'}
                 className="absolute inset-0 w-full h-full object-cover"
-                onError={() => {
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  console.log('Image load error for:', target.src);
                   setThumbnailUrl('/images/card-thumbnail.png');
                 }}
               />
