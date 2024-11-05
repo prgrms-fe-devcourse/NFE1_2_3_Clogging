@@ -3,13 +3,14 @@ import Image from 'next/image';
 import { Button } from '@/shared/ui/common/Button';
 import { useTheme } from '@/shared/providers/theme';
 
-interface ProfileImageFieldProps {
+export interface ImageFieldProps {
   label: string;
   name: string;
   file: File | null;
   onChange: (name: string, file: File | null, url: string) => void;
-  onDelete: (type: string) => void;
+  onDelete: () => void;
   previewUrl?: string;
+  defaultImage: string;
 }
 
 export default function ProfileImageField({
@@ -19,10 +20,13 @@ export default function ProfileImageField({
   onChange,
   onDelete,
   previewUrl,
-}: ProfileImageFieldProps) {
+  defaultImage,
+}: ImageFieldProps) {
   const { isDarkMode } = useTheme();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [localPreviewUrl, setLocalPreviewUrl] = useState(previewUrl);
+  const [localPreviewUrl, setLocalPreviewUrl] = useState(
+    previewUrl || defaultImage,
+  );
 
   useEffect(() => {
     if (file) {
@@ -30,9 +34,9 @@ export default function ProfileImageField({
       setLocalPreviewUrl(newPreviewUrl);
       return () => URL.revokeObjectURL(newPreviewUrl);
     } else {
-      setLocalPreviewUrl(previewUrl);
+      setLocalPreviewUrl(previewUrl || defaultImage);
     }
-  }, [file, previewUrl]);
+  }, [file, previewUrl, defaultImage]);
 
   const getFileSize = (file: File | null) => {
     if (file) {
@@ -48,6 +52,11 @@ export default function ProfileImageField({
     }
   };
 
+  const handleRomoveImage = () => {
+    onDelete();
+    setLocalPreviewUrl(defaultImage);
+  };
+
   return (
     <div className="mb-6">
       <label className="block text-sm font-medium mb-2">{label}</label>
@@ -58,7 +67,7 @@ export default function ProfileImageField({
               isDarkMode ? 'border-gray-600' : 'border-gray-300'
             }`}
           >
-            {localPreviewUrl ? (
+            {localPreviewUrl !== defaultImage ? (
               <Image
                 src={localPreviewUrl}
                 alt={`${label} Preview`}
@@ -99,17 +108,16 @@ export default function ProfileImageField({
             >
               수정
             </Button>
-            <Button
-              variant="outline"
-              type="button"
-              onClick={() => {
-                onDelete('profileImageUrl');
-                setLocalPreviewUrl('');
-              }}
-              className="text-xs rounded-full text-gray-700"
-            >
-              삭제
-            </Button>
+            {localPreviewUrl !== defaultImage && (
+              <Button
+                variant="outline"
+                type="button"
+                onClick={handleRomoveImage}
+                className="text-xs rounded-full text-gray-700"
+              >
+                제거
+              </Button>
+            )}
           </>
         ) : (
           <Button

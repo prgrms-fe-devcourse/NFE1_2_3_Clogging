@@ -21,7 +21,11 @@ interface BlogSettings {
   faviconUrl?: string;
   bannerUrl?: string;
 }
-
+const DEFAULT_IMAGES = {
+  profileImage: '/icons/user.png',
+  faviconImage: '/favicon.ico',
+  bannerImage: '/images/banner-img.png',
+};
 export default function SettingsForm() {
   const { isDarkMode } = useTheme(); // 다크 모드 여부 확인
   const { settingsId, settingsData } = useFetchSettings(); // settings data 가져옴
@@ -61,8 +65,13 @@ export default function SettingsForm() {
     setSettings((prev) => ({ ...prev, [name]: file, [url]: profileImageUrl }));
   };
   // 사진 삭제
-  const handleDelete = (type: string) => {
-    setSettings((prev) => ({ ...prev, [type]: '' }));
+  const handleDelete = (
+    type: 'profileImageUrl' | 'faviconUrl' | 'bannerUrl',
+  ) => {
+    setSettings((prev) => ({
+      ...prev,
+      [type]: DEFAULT_IMAGES[type.replace('Url', '')],
+    }));
   };
   // 텍스트 필드 변경 핸들러
   const handleChange = (name: string, value: string) => {
@@ -141,7 +150,8 @@ export default function SettingsForm() {
         file={settings.profileImage}
         onChange={handleFileChange}
         previewUrl={settings.profileImageUrl}
-        onDelete={handleDelete}
+        onDelete={() => handleDelete('profileImageUrl')}
+        defaultImage={DEFAULT_IMAGES.profileImage}
       />
 
       <SettingTextField
@@ -168,6 +178,8 @@ export default function SettingsForm() {
         name="faviconImage"
         file={settings.faviconImage}
         onChange={handleFileChange}
+        onDelete={() => handleDelete('faviconUrl')}
+        previewUrl={settings.faviconUrl}
       />
 
       <BannerImageField
