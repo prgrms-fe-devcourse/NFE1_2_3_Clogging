@@ -19,6 +19,7 @@
     "clsx": "^2.1.1",
     "firebase": "^11.0.1",
     "firebase-admin": "^12.7.0",
+    "lodash": "^4.17.21",
     "lucide-react": "^0.453.0",
     "next": "15.0.0",
     "react": "19.0.0-rc-65a56d0e-20241020",
@@ -27,6 +28,7 @@
     "react-markdown": "^9.0.1",
     "react-tooltip": "^5.28.0",
     "recharts": "^2.13.1",
+    "remark-gfm": "^4.0.0",
     "tailwind-merge": "^2.5.4",
     "zod": "^3.23.8",
     "zustand": "^5.0.0"
@@ -34,6 +36,7 @@
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.9",
     "@tailwindcss/typography": "^0.5.15",
+    "@types/lodash": "^4.17.13",
     "@types/node": "^20.16.14",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18",
