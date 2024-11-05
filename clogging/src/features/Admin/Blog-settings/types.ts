@@ -1,8 +1,10 @@
 export interface BlogSettings {
-  id?: string;
-  profileImage: File[] | null;
-  nickname: string;
+  profileImage: File | null;
+  faviconImage: File | null;
+  bannerImage: File | null;
+  title: string;
   description: string;
-  faviconImage: File[] | null;
-  bannerImage: string[] | null;
+  profileImageUrl?: string;
+  faviconUrl?: string;
+  bannerUrl?: string;
 }

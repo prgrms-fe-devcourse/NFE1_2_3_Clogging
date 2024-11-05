@@ -19,11 +19,15 @@ export const Navigation = ({ currentPostId }: { currentPostId: string }) => {
         className={!data?.prevPost ? 'cursor-not-allowed' : ''}
       >
         <div
-          className={`p-4 border rounded ${
-            data?.prevPost ? 'hover:bg-gray-50' : 'bg-gray-100'
+          className={`p-4 border dark:border-gray-700 rounded ${
+            data?.prevPost
+              ? 'hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-white'
+              : 'bg-gray-100 dark:bg-gray-800'
           }`}
         >
-          <div className="text-sm text-gray-500 mb-4">이전 글</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            이전 글
+          </div>
           <div className="font-medium">
             {data?.prevPost ? data.prevPost.title : '이전 글이 없습니다.'}
           </div>
@@ -34,11 +38,15 @@ export const Navigation = ({ currentPostId }: { currentPostId: string }) => {
         className={!data?.nextPost ? 'cursor-not-allowed' : ''}
       >
         <div
-          className={`p-4 border rounded ${
-            data?.nextPost ? 'hover:bg-gray-50' : 'bg-gray-100'
+          className={`p-4 border dark:border-gray-700 rounded ${
+            data?.nextPost
+              ? 'hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-white'
+              : 'bg-gray-100 dark:bg-gray-800'
           }`}
         >
-          <div className="text-sm text-gray-500 mb-4">다음 글</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            다음 글
+          </div>
           <div className="font-medium">
             {data?.nextPost ? data.nextPost.title : '다음 글이 없습니다.'}
           </div>

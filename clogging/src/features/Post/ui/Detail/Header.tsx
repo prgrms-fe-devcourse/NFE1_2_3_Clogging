@@ -60,7 +60,10 @@ export const Header = ({ post }: { post: Post }) => {
           <time>{elapsedTime(new Date(post.createdAt).toISOString())}</time>
         </div>
         {post.tags?.map((tag) => (
-          <span key={tag} className="px-2 py-1 text-sm bg-gray-100 rounded">
+          <span
+            key={tag}
+            className="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-800 rounded dark:text-gray-300"
+          >
             {tag}
           </span>
         ))}

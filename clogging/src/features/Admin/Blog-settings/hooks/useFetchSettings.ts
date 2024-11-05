@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/shared/lib/firebase';
+import { BlogSettings } from '../types';
 
 export const useFetchSettings = () => {
   const [settingsId, setSettingsId] = useState<string | null>(null);
-  const [settingsData, setSettingsData] = useState<any>(null);
+  const [settingsData, setSettingsData] = useState<BlogSettings>(null);
 
   useEffect(() => {
     const fetchSettings = async () => {
