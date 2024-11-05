@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/shared/lib/firebase';
+import { debounce } from 'lodash';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { uploadImage } from '@/features/Post/utils/helpers';
 
@@ -39,17 +38,16 @@ export const usePostEditor = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const categoriesCollection = collection(db, 'categories');
-        const categorySnapshot = await getDocs(categoriesCollection);
-        const categoryList = categorySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Category[];
+        const response = await fetch('/api/categories');
+        if (!response.ok) {
+          throw new Error('카테고리 Fetch 에러났어요');
+        }
 
-        setCategories(categoryList);
-        setIsLoading(false);
+        const data = await response.json();
+        setCategories(data.categories);
       } catch (error) {
-        setError('카테고리 불러오기 실패 !');
+        setError('카테고리 불러오기 실패!');
+      } finally {
         setIsLoading(false);
       }
     };
@@ -89,6 +87,12 @@ export const usePostEditor = () => {
     }
   };
 
+  const handleContentChange = useCallback(
+    debounce((value: string) => {
+      setEditorState((prev) => ({ ...prev, content: value }));
+    }, 300), // 300ms 지연
+    [],
+  );
   const handlePaste = async (event: React.ClipboardEvent) => {
     const pasteData = event.clipboardData.getData('text');
     if (
@@ -143,7 +147,6 @@ export const usePostEditor = () => {
     }
   };
 
-  // 이미지 제거
   const handleRemoveImage = (imageId: string) => {
     setEditorState((prev) => ({
       ...prev,
@@ -154,10 +157,6 @@ export const usePostEditor = () => {
 
   const handleTitleChange = (value: string) => {
     setEditorState((prev) => ({ ...prev, title: value }));
-  };
-
-  const handleContentChange = (value: string) => {
-    setEditorState((prev) => ({ ...prev, content: value }));
   };
 
   const handleCategoryChange = (value: string) => {
@@ -183,7 +182,6 @@ export const usePostEditor = () => {
       setIsLoading(true);
       setError(null);
 
-      // 1. Validation
       if (!editorState.title.trim()) {
         setError('제목을 입력해주세요');
         return;
@@ -197,30 +195,61 @@ export const usePostEditor = () => {
         return;
       }
 
+      const tagIds = await Promise.all(
+        editorState.tags.map(async (tag) => {
+          try {
+            const tagResponse = await fetch('/api/tags/create', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ tagName: tag }),
+            });
+
+            if (!tagResponse.ok) {
+              const tagError = await tagResponse.json();
+              console.error('태그 추가 실패:', tagError);
+              return null;
+            }
+
+            const tagData = await tagResponse.json();
+            return tagData.tag.id;
+          } catch (error) {
+            console.error(`태그 '${tag}' 처리 중 오류:`, error);
+            return null;
+          }
+        }),
+      );
+
+      const validTagIds = tagIds.filter((id): id is string => id !== null);
+
+      if (validTagIds.length === 0) {
+        setError('태그 생성에 실패했습니다.');
+        return;
+      }
+
       const formData = new FormData();
       formData.append('title', editorState.title.trim());
       formData.append('content', editorState.content.trim());
       formData.append('category', editorState.category);
       formData.append('tags', JSON.stringify(editorState.tags));
+      formData.append('tagIds', JSON.stringify(validTagIds));
 
       if (editorState.currentFile) {
         formData.append('image', editorState.currentFile);
       }
 
-      editorState.images.forEach((imageId) => {
-        formData.append('imageIds', imageId);
-      });
-
       editorState.imagesToDelete.forEach((imageId) => {
         formData.append('imagesToDeleteId', imageId);
       });
 
-      console.log('Submitting form data:', {
+      console.log('데이터 확인용 :', {
         title: editorState.title,
         content: editorState.content,
         category: editorState.category,
         tagsCount: editorState.tags.length,
         imagesCount: editorState.images.length,
+        tag: editorState.tags,
       });
 
       const response = await fetch('/api/posts/create', {
@@ -239,37 +268,6 @@ export const usePostEditor = () => {
 
       const result = await response.json();
       const postId = result.post.id;
-
-      const tagResults = await Promise.all(
-        editorState.tags.map(async (tag) => {
-          try {
-            const tagResponse = await fetch('/api/tags/create', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ tagName: tag }),
-            });
-
-            if (!tagResponse.ok) {
-              const tagError = await tagResponse.json();
-              console.error('태그 추가 실패:', tagError);
-              return { success: false, tag, error: tagError };
-            }
-
-            const tagData = await tagResponse.json();
-            return { success: true, tag, data: tagData };
-          } catch (error) {
-            console.error(`태그 '${tag}' 처리 중 오류:`, error);
-            return { success: false, tag, error };
-          }
-        }),
-      );
-
-      const failedTags = tagResults.filter((result) => !result.success);
-      if (failedTags.length > 0) {
-        console.warn('일부 태그 처리 실패:', failedTags);
-      }
 
       console.log('포스트 등록 성공:', postId);
       router.push(`/posts/${postId}`);

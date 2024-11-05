@@ -13,7 +13,7 @@ import { db } from '@/shared/lib/firebase';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const pageSize = parseInt(searchParams.get('pageSize') || '10');
+    const pageSize = parseInt(searchParams.get('pageSize') || '100');
     const lastPostId = searchParams.get('lastPostId');
 
     const postsRef = collection(db, 'posts');
