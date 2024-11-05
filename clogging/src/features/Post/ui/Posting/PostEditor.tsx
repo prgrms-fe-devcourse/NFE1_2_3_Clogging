@@ -27,7 +27,6 @@ const PostEditor: React.FC = () => {
     handleSubmit,
     handleGoBack,
     handleAddTag,
-    // handlePaste,
     handleRemoveTag,
     handleRemoveImage,
     handleImageLocalSelect,
@@ -63,6 +62,8 @@ const PostEditor: React.FC = () => {
     if (newTag && editorState.tags.length < 5) {
       handleAddTag(newTag);
       setNewTag('');
+    } else if (editorState.tags.length >= 5) {
+      alert('태그는 최대 5개까지만 추가할 수 있습니다!');
     }
   };
 
@@ -71,7 +72,6 @@ const PostEditor: React.FC = () => {
   };
 
   const insertImageToMarkdown = async (imageUrl: string) => {
-    // const imageUrl = await getImageUrl(imageId);
     const imageMarkdown = `![image](${imageUrl})\n`;
     const content = editorState.content;
     const newContent =
