@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/shared/lib/firebase';
+import { debounce } from 'lodash';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { uploadImage } from '@/features/Post/utils/helpers';
 
@@ -39,17 +38,16 @@ export const usePostEditor = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const categoriesCollection = collection(db, 'categories');
-        const categorySnapshot = await getDocs(categoriesCollection);
-        const categoryList = categorySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Category[];
+        const response = await fetch('/api/categories');
+        if (!response.ok) {
+          throw new Error('카테고리 Fetch 에러났어요');
+        }
 
-        setCategories(categoryList);
-        setIsLoading(false);
+        const data = await response.json();
+        setCategories(data.categories);
       } catch (error) {
-        setError('카테고리 불러오기 실패 !');
+        setError('카테고리 불러오기 실패!');
+      } finally {
         setIsLoading(false);
       }
     };
@@ -89,6 +87,12 @@ export const usePostEditor = () => {
     }
   };
 
+  const handleContentChange = useCallback(
+    debounce((value: string) => {
+      setEditorState((prev) => ({ ...prev, content: value }));
+    }, 300), // 300ms 지연
+    [],
+  );
   const handlePaste = async (event: React.ClipboardEvent) => {
     const pasteData = event.clipboardData.getData('text');
     if (
@@ -143,7 +147,6 @@ export const usePostEditor = () => {
     }
   };
 
-  // 이미지 제거
   const handleRemoveImage = (imageId: string) => {
     setEditorState((prev) => ({
       ...prev,
@@ -154,10 +157,6 @@ export const usePostEditor = () => {
 
   const handleTitleChange = (value: string) => {
     setEditorState((prev) => ({ ...prev, title: value }));
-  };
-
-  const handleContentChange = (value: string) => {
-    setEditorState((prev) => ({ ...prev, content: value }));
   };
 
   const handleCategoryChange = (value: string) => {
