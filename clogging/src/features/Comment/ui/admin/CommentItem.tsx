@@ -81,7 +81,7 @@ const CommentItem: React.FC<CommentItemProps> = React.memo(
       >
         <div className="flex justify-between items-center">
           <div
-            className="flex items-center cursor-pointer"
+            className="flex w-full cursor-pointer"
             onClick={() => handleClick(comment.postId)}
           >
             <div className="p-1 rounded-full overflow-hidden">

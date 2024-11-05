@@ -24,7 +24,7 @@ const ReplyList: React.FC<ReplyListProps> = ({
           className={`flex items-center justify-between p-2 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} rounded cursor-pointer`}
         >
           <div className="w-full flex justify-between">
-            <div onClick={() => onClickReply(reply.postId)}>
+            <div onClick={() => onClickReply(reply.postId)} className="w-full">
               <div className="text-sm mb-4">{reply.content}</div>
               <span className="font-bold mr-4">{reply.author}</span>
               <span className="text-xs text-gray-400">{reply.createdAt}</span>
@@ -33,7 +33,7 @@ const ReplyList: React.FC<ReplyListProps> = ({
               onClick={() => onDeleteReply(reply.id)}
               className="group rounded-full transition-all duration-200 ease-in-out"
             >
-              <div className="w-6 h-6 p-1 transform transition-transform duration-200 ease-in-out group-hover:scale-110">
+              <div className="w-6 h-6 p-1 ml-4 transform transition-transform duration-200 ease-in-out group-hover:scale-110">
                 <Image
                   src={isDarkMode ? '/icons/trash_wh.png' : '/icons/trash.png'}
                   alt={'삭제'}
