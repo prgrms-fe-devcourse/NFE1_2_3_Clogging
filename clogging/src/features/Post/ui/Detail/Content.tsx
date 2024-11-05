@@ -1,4 +1,7 @@
 // 제목, 작성일 등
+// 1105 추가 - 마크다운
+import remarkGfm from 'remark-gfm';
+import dynamic from 'next/dynamic';
 
 import { Post } from '@/features/Post/types';
 import { storage } from '@/shared/lib/firebase';
@@ -8,6 +11,11 @@ import { useEffect, useState } from 'react';
 
 export const Content = ({ post }: { post: Post }) => {
   const [thumbnailUrls, setThumbnailUrls] = useState<string[]>([]);
+
+  //1105 추가 - 마크다운
+  const ReactMarkdown = dynamic(() => import('react-markdown'), {
+    ssr: false,
+  });
 
   useEffect(() => {
     const loadThumbnails = async () => {
@@ -54,7 +62,12 @@ export const Content = ({ post }: { post: Post }) => {
           className="w-auto h-auto object-contain rounded-lg mb-8 m-auto"
         />
       ))}
-      <div id="post-content">{post.content}</div>
+      {/* 1105 추가 - 마크다운적용 */}
+      <div id="post-content" className="prose dark:prose-invert max-w-none">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {post.content}
+        </ReactMarkdown>
+      </div>
     </div>
   );
 };
