@@ -4,12 +4,12 @@ import React, { useMemo, useState } from 'react';
 import CommentItem from './CommentItem';
 import EmptyComment from './EmptyComment';
 import { AdminComment } from '@/app/(auth)/admin/comment/page';
+import { Button } from '@/shared/ui/common/Button';
 
 interface CommentListProps {
   initialComments: AdminComment[]; // 초기 댓글 데이터
   totalComments: number; // 총 댓글 수
   onDelete: (commentId: string) => void; // 삭제 핸들러 추가
-
   PAGE_SIZE: number;
 }
 
@@ -29,7 +29,7 @@ const CommentList: React.FC<CommentListProps> = ({
   const memoizedComments = useMemo(
     () =>
       comments.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE),
-    [comments, currentPage],
+    [comments, currentPage, PAGE_SIZE],
   );
 
   const handleDelete = (commentId: string) => {
@@ -55,7 +55,7 @@ const CommentList: React.FC<CommentListProps> = ({
 
   return (
     <div
-      className={`flex-1 rounded-lg shadow-sm p-4 sm:p-6 mb-2 ${
+      className={`flex-1 rounded-lg shadow-sm p-4 sm:p-6 mb-2 text-xs ${
         isDarkMode ? 'bg-gray-900' : 'bg-white'
       }`}
     >
@@ -72,23 +72,27 @@ const CommentList: React.FC<CommentListProps> = ({
             ))}
           </ul>
           <div className="flex justify-between items-center mt-4">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handlePreviousPage}
               disabled={currentPage === 0}
-              className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
+              className={`rounded-lg ${currentPage === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               이전
-            </button>
+            </Button>
             <span>
-              Page {currentPage + 1} of {totalPages} {/* 현재 페이지 표시 */}
+              {currentPage + 1} / {totalPages} {/* 현재 페이지 표시 */}
             </span>
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleNextPage}
               disabled={currentPage >= totalPages - 1}
-              className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
+              className={`rounded-lg ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               다음
-            </button>
+            </Button>
           </div>
         </>
       ) : (

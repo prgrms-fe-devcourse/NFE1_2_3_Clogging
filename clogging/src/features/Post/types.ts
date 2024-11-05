@@ -33,7 +33,7 @@ export interface PostData {
   categoryId?: string;
   userId: number; // 추가
   viewCount: number; // 추가
-  isDeleted: boolean; // 추가
+  tagIds: string[]; // 추가
   tags: string[]; // 추가
   createdAt: Timestamp;
   updatedAt: Timestamp;
