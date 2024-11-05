@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { storage, db } from '@/shared/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
+import Image from 'next/image';
 
 // 설정 데이터의 타입 정의
 interface BlogSettings {
@@ -39,16 +40,18 @@ function SettingsDisplay({ imageType }: SettingsDisplayProps) {
   return (
     <div>
       {settingsList.map((setting) => (
-        <div key={setting.id} className="p-4">
+        <div key={setting.id} className="">
           {/* 선택된 이미지 타입에 따라 이미지 출력 */}
           {imageType === 'profile' && setting.profileImageUrl && (
-            <div className="w-20 h-20">
-              <h3 className="font-medium text-sm">등록한 이미지</h3>
-              <img
+            <div className="w-32 h-32 border rounded-full mr-6 mb-4">
+              <Image
+                width={120}
+                height={120}
                 src={setting.profileImageUrl}
                 alt="Profile"
-                className="w-full h-full object-cover rounded-full border"
+                className="object-cover rounded-full mb-4"
               />
+              <h3 className="font-medium text-sm">현재 등록된 이미지</h3>
             </div>
           )}
 

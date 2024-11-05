@@ -24,7 +24,7 @@ interface BlogSettings {
 
 export default function SettingsForm() {
   const { isDarkMode } = useTheme(); // 다크 모드 여부 확인
-  const { settingsId, settingsData } = useFetchSettings(); // 설정을 가져옴
+  const { settingsId, settingsData } = useFetchSettings(); // settings data 가져옴
   const { uploadFile } = useUploadImages(); // 이미지 업로드 함수
 
   const [settings, setSettings] = useState<BlogSettings>({
@@ -37,6 +37,10 @@ export default function SettingsForm() {
     faviconUrl: '',
     bannerUrl: '',
   });
+  // 이미지 URL을 저장할 변수
+  let profileImageUrl = settings.profileImageUrl;
+  let faviconUrl = settings.faviconUrl;
+  let bannerUrl = settings.bannerUrl;
 
   // 설정 데이터를 가져온 후 상태 업데이트
   useEffect(() => {
@@ -53,10 +57,13 @@ export default function SettingsForm() {
   }, [settingsData]);
 
   // 파일 변경 핸들러
-  const handleFileChange = (name: string, file: File | null) => {
-    setSettings((prev) => ({ ...prev, [name]: file }));
+  const handleFileChange = (name: string, file: File | null, url: string) => {
+    setSettings((prev) => ({ ...prev, [name]: file, [url]: profileImageUrl }));
   };
-
+  // 사진 삭제
+  const handleDelete = (type: string) => {
+    setSettings((prev) => ({ ...prev, [type]: '' }));
+  };
   // 텍스트 필드 변경 핸들러
   const handleChange = (name: string, value: string) => {
     setSettings((prev) => ({ ...prev, [name]: value }));
@@ -65,17 +72,12 @@ export default function SettingsForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // 기본 제출 이벤트 방지
 
-    // 이미지 URL을 저장할 변수
-    let profileImageUrl = settings.profileImageUrl; // 기존 URL로 초기화
-    let faviconUrl = settings.faviconUrl; // 기존 URL로 초기화
-    let bannerUrl = settings.bannerUrl; // 기존 URL로 초기화
-
     try {
       // 프로필 이미지가 변경된 경우에만 업로드
       if (settings.profileImage) {
         profileImageUrl = await uploadFile(
           settings.profileImage,
-          `settings/profileImages/${settingsId}`, // 경로 수정
+          `settings/profileImages/${settingsId}`,
         );
       }
 
@@ -83,7 +85,7 @@ export default function SettingsForm() {
       if (settings.faviconImage) {
         faviconUrl = await uploadFile(
           settings.faviconImage,
-          `settings/favicons/${settingsId}`, // 경로 수정
+          `settings/favicons/${settingsId}`,
         );
       }
 
@@ -91,7 +93,7 @@ export default function SettingsForm() {
       if (settings.bannerImage) {
         bannerUrl = await uploadFile(
           settings.bannerImage,
-          `settings/banners/${settingsId}`, // 경로 수정
+          `settings/banners/${settingsId}`,
         );
       }
 
@@ -104,7 +106,7 @@ export default function SettingsForm() {
         bannerUrl,
       };
 
-      // Firestore에 업데이트된 설정 저장
+      // Firestore에 업데이트된 settings 저장
       if (settingsId) {
         await setDoc(doc(db, 'settings', settingsId), updatedSettings);
 
@@ -116,13 +118,13 @@ export default function SettingsForm() {
           bannerUrl,
         }));
 
-        alert('설정이 저장되었습니다.'); // 저장 완료 알림
+        alert('설정이 저장되었습니다.');
         // 페이지 새로고침
-        window.location.reload(); // 페이지 새로고침
+        window.location.reload();
       }
     } catch (error) {
       console.error('Error saving settings:', error);
-      alert('설정 저장 중 오류가 발생했습니다.'); // 오류 알림
+      alert('설정 저장 중 오류가 발생했습니다.');
     }
   };
 
@@ -138,19 +140,21 @@ export default function SettingsForm() {
         name="profileImage"
         file={settings.profileImage}
         onChange={handleFileChange}
+        previewUrl={settings.profileImageUrl}
+        onDelete={handleDelete}
       />
 
       <SettingTextField
-        label="제목"
+        label="블로그 닉네임"
         name="title"
         value={settings.title}
         onChange={handleChange}
-        maxLength={50}
-        placeholder="블로그 제목을 입력하세요."
+        maxLength={20}
+        placeholder="닉네임을 입력하세요."
       />
 
       <SettingTextField
-        label="설명"
+        label="블로그 설명"
         name="description"
         value={settings.description}
         onChange={handleChange}
