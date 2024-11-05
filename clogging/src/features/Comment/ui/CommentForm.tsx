@@ -120,7 +120,7 @@ export const CommentForm = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-6">
-        <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-start md:items-center">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-start items-center">
           {!hideFields && !isAdmin && (
             <>
               <FormSectionItem className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100">
@@ -156,7 +156,9 @@ export const CommentForm = ({
               </div>
             </>
           )}
-          <FormSectionItem className="flex items-center gap-4 justify-between w-full">
+          <FormSectionItem
+            className={`flex items-center gap-4 ml-auto ${isAdmin && 'w-full'} justify-between`}
+          >
             {isAdmin && (
               <span className="text-xl font-bold text-blue-800">관리자</span>
             )}
