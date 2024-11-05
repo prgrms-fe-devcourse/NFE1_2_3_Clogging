@@ -4,7 +4,6 @@ import { Button } from '@/shared/ui/common/Button';
 import { Textarea } from '@/shared/ui/Form/Form';
 import { CommentForm } from './CommentForm';
 import { useAuth } from '@/features/Auth/hooks';
-import { elapsedTime } from '@/shared/lib/utils/elapsedTimeCalculation';
 import { CardContent, CardHeader, CardTitle } from '@/shared/ui/common/Card';
 import { commentItemProps, CommentWithReplies } from '../types';
 import { PrivateComment } from './PrivateComment';
@@ -60,7 +59,7 @@ export const CommentItem = ({
             </CardTitle>
             <div className="flex items-center gap-2">
               <time className="text-sm text-gray-500 dark:text-gray-400">
-                {elapsedTime(comment.createdAt)}
+                {comment.createdAt}
               </time>
               <Button
                 variant="secondary"
