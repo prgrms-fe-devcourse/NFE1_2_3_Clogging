@@ -4,7 +4,7 @@ import { db } from '@/shared/lib/firebase';
 
 export const useFetchSettings = () => {
   const [settingsId, setSettingsId] = useState<string | null>(null);
-  const [settingsData, setSettingsData] = useState<any>(null);
+  const [settingsData, setSettingsData] = useState(null);
 
   useEffect(() => {
     const fetchSettings = async () => {

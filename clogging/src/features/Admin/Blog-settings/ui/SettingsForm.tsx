@@ -1,37 +1,25 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import ProfileImageField from './ProfileImageField';
 import FaviconImageField from './FaviconImageField';
 import SettingTextField from './SettingTextField';
 import { Button } from '@/shared/ui/common/Button';
 import { useTheme } from '@/shared/providers/theme';
-import { useFetchSettings } from '../hooks/useFetchSettings'; // 설정을 가져오는 훅
-import { useUploadImages } from '../hooks/useUploadImages'; // 이미지를 업로드하는 훅
+import { useFetchSettings } from '../hooks/useFetchSettings';
+import { useUploadImages } from '../hooks/useUploadImages';
 import BannerImageField from './bannerImageField';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/shared/lib/firebase';
+import { useImageHandling } from '../hooks/useImageHandling';
+import { BlogSettings } from '../types';
+import { DEFAULT_IMAGES } from '../constants';
 
-interface BlogSettings {
-  profileImage: File | null;
-  faviconImage: File | null;
-  bannerImage: File | null;
-  title: string;
-  description: string;
-  profileImageUrl?: string;
-  faviconUrl?: string;
-  bannerUrl?: string;
-}
-const DEFAULT_IMAGES = {
-  profileImage: '/icons/user.png',
-  favicon: '/favicon.ico',
-  banner: '/images/banner-img.png',
-};
 export default function SettingsForm() {
-  const { isDarkMode } = useTheme(); // 다크 모드 여부 확인
-  const { settingsId, settingsData } = useFetchSettings(); // settings data 가져옴
-  const { uploadFile } = useUploadImages(); // 이미지 업로드 함수
+  const { isDarkMode } = useTheme();
+  const { settingsId, settingsData } = useFetchSettings();
+  const { uploadFile } = useUploadImages();
 
-  const [settings, setSettings] = useState<BlogSettings>({
+  const initialSettings: BlogSettings = {
     profileImage: null,
     faviconImage: null,
     bannerImage: null,
@@ -40,13 +28,11 @@ export default function SettingsForm() {
     profileImageUrl: '',
     faviconUrl: '',
     bannerUrl: '',
-  });
-  // 이미지 URL을 저장할 변수
-  let profileImageUrl = settings.profileImageUrl;
-  let faviconUrl = settings.faviconUrl;
-  let bannerUrl = settings.bannerUrl;
+  };
 
-  // 설정 데이터를 가져온 후 상태 업데이트
+  const { settings, setSettings, handleFileChange, handleDelete } =
+    useImageHandling(initialSettings);
+
   useEffect(() => {
     if (settingsData) {
       setSettings((prev) => ({
@@ -58,77 +44,23 @@ export default function SettingsForm() {
         bannerUrl: settingsData.bannerUrl || '',
       }));
     }
-  }, [settingsData]);
+  }, [settingsData, setSettings]);
 
-  // 파일 변경 핸들러
-  const handleFileChange = (name: string, file: File | null, url: string) => {
-    setSettings((prev) => ({ ...prev, [name]: file, [url]: profileImageUrl }));
-  };
-  // 사진 삭제
-  const handleDelete = (type: 'profileImage' | 'favicon' | 'banner') => {
-    setSettings((prev) => ({
-      ...prev,
-      [type + 'Url']: DEFAULT_IMAGES[type],
-    }));
-  };
-  // 텍스트 필드 변경 핸들러
   const handleChange = (name: string, value: string) => {
     setSettings((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // 기본 제출 이벤트 방지
-
+    e.preventDefault();
     try {
-      // 프로필 이미지가 변경된 경우에만 업로드
-      if (settings.profileImage) {
-        profileImageUrl = await uploadFile(
-          settings.profileImage,
-          `settings/profileImages/${settingsId}`,
-        );
-      }
-
-      // 파비콘 이미지가 변경된 경우에만 업로드
-      if (settings.faviconImage) {
-        faviconUrl = await uploadFile(
-          settings.faviconImage,
-          `settings/favicons/${settingsId}`,
-        );
-      }
-
-      // 배너 이미지가 변경된 경우에만 업로드
-      if (settings.bannerImage) {
-        bannerUrl = await uploadFile(
-          settings.bannerImage,
-          `settings/banners/${settingsId}`,
-        );
-      }
-
-      // 저장할 데이터 준비
-      const updatedSettings = {
-        title: settings.title,
-        description: settings.description,
-        profileImageUrl,
-        faviconUrl,
-        bannerUrl,
-      };
-
-      // Firestore에 업데이트된 settings 저장
-      if (settingsId) {
-        await setDoc(doc(db, 'settings', settingsId), updatedSettings);
-
-        // 로컬 상태 업데이트
-        setSettings((prev) => ({
-          ...prev,
-          profileImageUrl,
-          faviconUrl,
-          bannerUrl,
-        }));
-
-        alert('설정이 저장되었습니다.');
-        // 페이지 새로고침
-        window.location.reload();
-      }
+      const updatedSettings = await saveSettings(
+        settings,
+        settingsId,
+        uploadFile,
+      );
+      setSettings((prev) => ({ ...prev, ...updatedSettings }));
+      alert('설정이 저장되었습니다.');
+      window.location.reload();
     } catch (error) {
       console.error('Error saving settings:', error);
       alert('설정 저장 중 오류가 발생했습니다.');
@@ -178,7 +110,7 @@ export default function SettingsForm() {
         onChange={handleFileChange}
         onDelete={() => handleDelete('favicon')}
         previewUrl={settings.faviconUrl}
-        defaultImage={DEFAULT_IMAGES.faviconImage}
+        defaultImage={DEFAULT_IMAGES.favicon}
       />
 
       <BannerImageField
@@ -188,7 +120,7 @@ export default function SettingsForm() {
         onChange={handleFileChange}
         previewUrl={settings.bannerUrl}
         onDelete={() => handleDelete('banner')}
-        defaultImage={DEFAULT_IMAGES.bannerImage}
+        defaultImage={DEFAULT_IMAGES.banner}
       />
 
       <div className="mt-4 flex justify-end">
@@ -198,4 +130,49 @@ export default function SettingsForm() {
       </div>
     </form>
   );
+}
+
+async function saveSettings(
+  settings: BlogSettings,
+  settingsId: string | undefined,
+  uploadFile: (file: File, path: string) => Promise<string>,
+) {
+  let profileImageUrl = settings.profileImageUrl;
+  let faviconUrl = settings.faviconUrl;
+  let bannerUrl = settings.bannerUrl;
+
+  if (settings.profileImage) {
+    profileImageUrl = await uploadFile(
+      settings.profileImage,
+      `settings/profileImages/${settingsId}`,
+    );
+  }
+
+  if (settings.faviconImage) {
+    faviconUrl = await uploadFile(
+      settings.faviconImage,
+      `settings/favicons/${settingsId}`,
+    );
+  }
+
+  if (settings.bannerImage) {
+    bannerUrl = await uploadFile(
+      settings.bannerImage,
+      `settings/banners/${settingsId}`,
+    );
+  }
+
+  const updatedSettings = {
+    title: settings.title,
+    description: settings.description,
+    profileImageUrl,
+    faviconUrl,
+    bannerUrl,
+  };
+
+  if (settingsId) {
+    await setDoc(doc(db, 'settings', settingsId), updatedSettings);
+  }
+
+  return updatedSettings;
 }
