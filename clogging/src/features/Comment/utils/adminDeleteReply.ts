@@ -1,24 +1,29 @@
+import { doc, deleteDoc } from 'firebase/firestore';
+import { db } from '@/shared/lib/firebase';
+
 export async function adminDeleteReply(
-  commentId: string,
   replyId: string,
+  commentId: string,
   postId: string,
-  password: string,
-): Promise<boolean> {
+) {
   try {
-    const response = await fetch(
-      `/api/comments/${commentId}/delete?replyId=${replyId}&postId=${postId}&password=${password}`,
-      {
-        method: 'DELETE',
-      },
+    // 답글의 Firestore 문서 참조 생성
+    const replyRef = doc(
+      db,
+      'posts',
+      postId,
+      'comments',
+      commentId,
+      'replies',
+      replyId,
     );
 
-    if (!response.ok) {
-      throw new Error('Failed to delete reply');
-    }
+    // 답글 삭제
+    await deleteDoc(replyRef);
 
-    return true;
+    return true; // 삭제 성공 시 true 반환
   } catch (error) {
     console.error('Error deleting reply:', error);
-    return false;
+    return false; // 삭제 실패 시 false 반환
   }
 }

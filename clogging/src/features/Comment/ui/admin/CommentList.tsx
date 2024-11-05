@@ -62,7 +62,7 @@ const CommentList: React.FC<CommentListProps> = ({
       {memoizedComments.length > 0 ? (
         <>
           <h2 className="text-lg font-semibold mb-6">최신 댓글</h2>
-          <ul className="space-y-4">
+          <ul className="space-y-4 mb-8">
             {memoizedComments.map((comment) => (
               <CommentItem
                 key={comment.id}

@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { useTheme } from '@/shared/providers/theme';
 import { adminDeleteComment } from '../../utils/adminDeleteComment';
 import ReplyList from './ReplyList';
 import { AdminComment } from '@/app/(auth)/admin/comment/page';
-import { adminDeleteReply } from '../../utils/adminDeleteReply';
+import { adminDeleteReply } from '../../utils/adminDeleteReply'; // adminDeleteReply 가져오기
 import { useRouter } from 'next/navigation';
 
 export interface Reply {
@@ -34,6 +34,7 @@ const CommentItem: React.FC<CommentItemProps> = React.memo(
   ({ comment, onDelete }) => {
     const { isDarkMode } = useTheme();
     const router = useRouter();
+    const [replies, setReplies] = useState<Reply[]>(comment.replies); // 상태로 답글 목록 관리
 
     const handleClick = (postId: string) => {
       router.push(`/posts/${postId}`);
@@ -59,14 +60,18 @@ const CommentItem: React.FC<CommentItemProps> = React.memo(
     };
 
     const handleDeleteReply = async (replyId: string) => {
-      const confirmed = confirm('답글을 삭제하시겠습니까?');
-      if (confirmed) {
-        const success = await adminDeleteReply(replyId, comment.id);
-        if (success) {
-          alert('답글이 삭제되었습니다.');
-        } else {
-          alert('답글 삭제에 실패했습니다.');
-        }
+      const success = await adminDeleteReply(
+        replyId,
+        comment.id,
+        comment.postId,
+      );
+      if (success) {
+        alert('답글이 삭제되었습니다.');
+        setReplies((prevReplies) =>
+          prevReplies.filter((reply) => reply.id !== replyId),
+        ); // 삭제된 답글 제외
+      } else {
+        alert('답글 삭제에 실패했습니다.');
       }
     };
 
@@ -114,10 +119,10 @@ const CommentItem: React.FC<CommentItemProps> = React.memo(
         </div>
 
         {/* 답글 렌더링 */}
-        {comment.replies.length > 0 && (
+        {replies.length > 0 && (
           <ReplyList
-            replies={comment.replies}
-            onDeleteReply={handleDeleteReply}
+            replies={replies}
+            onDeleteReply={handleDeleteReply} // 삭제 핸들러 전달
             onClickReply={handleClick}
           />
         )}
