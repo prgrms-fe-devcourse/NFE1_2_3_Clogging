@@ -2,20 +2,22 @@
 
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
-import remarkGfm from 'remark-gfm';
-
 import { usePostEditor } from '@/features/Post/lib/hooks/usePostEditor';
-import { useMarkdown } from '@/features/Post/lib/hooks/useMarkdown';
 import { Button } from '@/shared/ui/common/Button';
 import { useTheme } from '@/shared/providers/theme';
 import { Input } from '@/shared/ui/common/Input';
+import { Post } from '@/features/Post/types';
+import { useRouter } from 'next/navigation';
 
-// CSR에서만 렌더링 되게 하기
 const ReactMarkdown = dynamic(() => import('react-markdown'), {
   ssr: false,
 });
 
-const PostEditor: React.FC = () => {
+interface EditPostEditorProps {
+  post: Post;
+}
+
+const EditPostEditor: React.FC<EditPostEditorProps> = ({ post }) => {
   const {
     editorState,
     categories,
@@ -24,39 +26,21 @@ const PostEditor: React.FC = () => {
     handleTitleChange,
     handleContentChange,
     handleCategoryChange,
-    handleSubmit,
     handleGoBack,
     handleAddTag,
     handlePaste,
     handleRemoveTag,
-    handleRemoveImage,
     handleImageSelect,
-  } = usePostEditor();
-
-  const {
-    text: markdownText,
-    setText: setMarkdownText,
-    handleH1Click,
-    handleH2Click,
-    handleH3Click,
-    handleH4Click,
-    handleBoldClick,
-    handleItalicClick,
-    handleStrikeClick,
-    handleListClick,
-    handleQuoteClick,
-    handleCodeBlockClick,
-  } = useMarkdown(editorState.content);
-
-  React.useEffect(() => {
-    handleContentChange(markdownText);
-  }, [markdownText, handleContentChange]);
+    handleRemoveImage,
+    handleSubmit,
+  } = usePostEditor('edit', post); // mode와 post 전달
 
   const { isDarkMode } = useTheme();
   const [newTag, setNewTag] = useState('');
   const [cursorPosition, setCursorPosition] = useState(0);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const addTag = () => {
     if (newTag && editorState.tags.length < 5) {
@@ -77,7 +61,7 @@ const PostEditor: React.FC = () => {
       imageMarkdown +
       content.slice(cursorPosition);
 
-    setMarkdownText(newContent);
+    handleContentChange(newContent);
 
     // 커서 위치 업데이트
     setTimeout(() => {
@@ -107,6 +91,18 @@ const PostEditor: React.FC = () => {
     }
   };
 
+  const onSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+      await handleSubmit();
+    } catch (error) {
+      console.error('포스트 수정 중 오류:', error);
+      alert('포스트 수정 중 오류가 발생했습니다.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -127,7 +123,7 @@ const PostEditor: React.FC = () => {
       <select
         value={editorState.category}
         onChange={(e) => handleCategoryChange(e.target.value)}
-        style={{ width: '300px', height: '35px' }}
+        style={{ width: '300px', height: 'auto' }}
         className="ml-4 mt-4 mb-[52px] px-4 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border-gray-200 dark:border-gray-700"
       >
         <option value="">카테고리 선택</option>
@@ -168,64 +164,34 @@ const PostEditor: React.FC = () => {
         <div className="border rounded-lg overflow-hidden flex flex-col bg-white dark:bg-gray-800">
           <div className="bg-gray-50 dark:bg-gray-700 px-4 py-2 border-b dark:border-gray-600">
             <div className="flex gap-2">
-              <button
-                onClick={handleH1Click}
-                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
-              >
+              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
                 H1
               </button>
-              <button
-                onClick={handleH2Click}
-                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
-              >
+              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
                 H2
               </button>
-              <button
-                onClick={handleH3Click}
-                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
-              >
+              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
                 H3
               </button>
-              <button
-                onClick={handleH4Click}
-                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
-              >
+              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
                 H4
               </button>
-              <button
-                onClick={handleBoldClick}
-                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
-              >
+              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
                 B
               </button>
-              <button
-                onClick={handleItalicClick}
-                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
-              >
+              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
                 I
               </button>
-              <button
-                onClick={handleStrikeClick}
-                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
-              >
+              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
                 S
               </button>
-              <button
-                onClick={handleListClick}
-                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
-              >
+              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
                 목록
               </button>
-              <button
-                onClick={handleQuoteClick}
-                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
-              >
+              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
                 인용
               </button>
-              <button
-                onClick={handleCodeBlockClick}
-                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
-              >
+              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
                 &lt;&#47;&gt;
               </button>
               <button
@@ -246,9 +212,9 @@ const PostEditor: React.FC = () => {
 
           <textarea
             ref={textareaRef}
-            value={markdownText}
+            value={editorState.content}
             onPaste={handlePaste}
-            onChange={(e) => setMarkdownText(e.target.value)}
+            onChange={(e) => handleContentChange(e.target.value)}
             className="flex-1 w-full p-4 focus:outline-none resize-none bg-transparent appearance-none border-none"
             placeholder="내용을 입력하세요!"
             style={{ backgroundColor: 'transparent' }}
@@ -258,9 +224,7 @@ const PostEditor: React.FC = () => {
         {/* 미리보기 */}
         <div className="border rounded-lg p-4 mr-4 overflow-y-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <div className="prose dark:prose-invert max-w-none text-gray-900 dark:text-gray-200">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {markdownText}
-            </ReactMarkdown>
+            <ReactMarkdown>{editorState.content}</ReactMarkdown>
           </div>
         </div>
       </div>
@@ -334,13 +298,6 @@ const PostEditor: React.FC = () => {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setNewTag(e.target.value)
               }
-              onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-                  //엔터하면 태그 저장되게 동작 추가
-                  addTag();
-                  e.preventDefault();
-                }
-              }}
               placeholder="최대 5개까지 가능합니다!"
               className={`w-48 h-8 border rounded-lg focus:outline-none`}
               style={{
@@ -359,32 +316,36 @@ const PostEditor: React.FC = () => {
         </div>
       </div>
 
-      {/* 하단 버튼 영역 */}
+      {/* 하단 버튼 영역만 수정 */}
       <div
         className="flex justify-between items-center"
         style={{ marginTop: '50px' }}
       >
-        <button
+        <Button
+          variant="outline"
+          size="sm"
           onClick={handleGoBack}
-          className="ml-4 text-gray-600 hover:text-gray-800"
+          className="px-6 py-2 mr-4 rounded-lg font-sans"
         >
           {'< 뒤로가기'}
-        </button>
+        </Button>
         <div className="flex gap-4">
           <Button
             variant="secondary"
             size="sm"
             className="px-6 py-2 bg-secondary hover:secondary-hover text-primary rounded-lg font-sans"
+            onClick={handleGoBack}
           >
-            임시저장
+            취소
           </Button>
           <Button
             variant="primary"
             size="sm"
-            onClick={handleSubmit}
+            onClick={onSubmit}
+            disabled={isSubmitting}
             className="px-6 py-2 mr-4 bg-primary hover:primary-hover text-white rounded-lg font-sans"
           >
-            등록하기
+            {isSubmitting ? '수정 중...' : '수정하기'}
           </Button>
         </div>
       </div>
@@ -392,4 +353,4 @@ const PostEditor: React.FC = () => {
   );
 };
 
-export default PostEditor;
+export default EditPostEditor;
