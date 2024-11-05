@@ -8,7 +8,7 @@ export async function DELETE(request: Request) {
 
     if (!id) {
       return NextResponse.json(
-        { error: '포스트 아이디가 필요합니다.' },
+        { error: '포스트 ID가 필요합니다.' },
         { status: 400 },
       );
     }
@@ -16,8 +16,11 @@ export async function DELETE(request: Request) {
     const postRef = doc(db, 'posts', id);
     await deleteDoc(postRef);
 
-    return NextResponse.json({ message: '포스트 삭제 성공!' }, { status: 200 });
+    return NextResponse.json({ message: '포스트 삭제 성공!' });
   } catch (error) {
-    return NextResponse.json({ error: '포스트 삭제 실패!' }, { status: 500 });
+    return NextResponse.json(
+      { error: '포스트 삭제에 실패했습니다.' },
+      { status: 500 },
+    );
   }
 }

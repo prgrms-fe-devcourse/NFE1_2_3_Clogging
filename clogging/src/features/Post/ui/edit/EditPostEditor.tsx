@@ -33,7 +33,7 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ post }) => {
     handleImageSelect,
     handleRemoveImage,
     handleSubmit,
-  } = usePostEditor('edit', post); // mode와 post 전달
+  } = usePostEditor('edit', post); // 수정 모드
 
   const { isDarkMode } = useTheme();
   const [newTag, setNewTag] = useState('');
@@ -298,6 +298,13 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ post }) => {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setNewTag(e.target.value)
               }
+              onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                  //엔터하면 태그 저장되게 동작 추가
+                  addTag();
+                  e.preventDefault();
+                }
+              }}
               placeholder="최대 5개까지 가능합니다!"
               className={`w-48 h-8 border rounded-lg focus:outline-none`}
               style={{
@@ -316,7 +323,7 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ post }) => {
         </div>
       </div>
 
-      {/* 하단 버튼 영역만 수정 */}
+      {/* 하단 버튼 영역 */}
       <div
         className="flex justify-between items-center"
         style={{ marginTop: '50px' }}

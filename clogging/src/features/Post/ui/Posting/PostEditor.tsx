@@ -31,7 +31,7 @@ const PostEditor: React.FC = () => {
     handleRemoveTag,
     handleRemoveImage,
     handleImageSelect,
-  } = usePostEditor();
+  } = usePostEditor('create'); // 생성 모드
 
   const {
     text: markdownText,
@@ -364,12 +364,14 @@ const PostEditor: React.FC = () => {
         className="flex justify-between items-center"
         style={{ marginTop: '50px' }}
       >
-        <button
+        <Button
+          variant="outline"
+          size="sm"
           onClick={handleGoBack}
-          className="ml-4 text-gray-600 hover:text-gray-800"
+          className="px-6 py-2 mr-4 rounded-lg font-sans"
         >
           {'< 뒤로가기'}
-        </button>
+        </Button>
         <div className="flex gap-4">
           <Button
             variant="secondary"

@@ -2,6 +2,24 @@ import { db } from '@/shared/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { Post } from '../types';
 
+interface CreatePostData {
+  title: string;
+  content: string;
+  image: string[];
+  category: string;
+  tags: string[];
+  tagIds: string[];
+}
+
+interface UpdatePostData {
+  postId: string;
+  title: string;
+  content: string;
+  category: string;
+  tags: string[];
+  image: string[];
+}
+
 export const getPost = async (postId: string) => {
   try {
     const postRef = doc(db, 'posts', postId);
@@ -26,6 +44,48 @@ export const getPost = async (postId: string) => {
   }
 };
 
+export const createPost = async (data: CreatePostData) => {
+  try {
+    const response = await fetch('/api/posts/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error('포스트 생성에 실패했습니다.');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('포스트 생성 중 에러:', error);
+    throw error;
+  }
+};
+
+export const updatePost = async (data: UpdatePostData) => {
+  try {
+    const response = await fetch('/api/posts/update', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error('포스트 수정에 실패했습니다.');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('포스트 수정 중 에러:', error);
+    throw error;
+  }
+};
+
 export const deletePost = async (id: string) => {
   try {
     const response = await fetch('/api/posts/delete', {
@@ -43,28 +103,6 @@ export const deletePost = async (id: string) => {
     return await response.json();
   } catch (error) {
     console.error('포스트 삭제 중 에러:', error);
-    throw error;
-  }
-};
-
-export const updatePost = async (formData: FormData) => {
-  console.log('formData 이미지 수정 요청: ', formData);
-
-  try {
-    const response = await fetch('/api/posts/update', {
-      method: 'PUT',
-      body: formData,
-    });
-
-    console.log('formData 이미지 응답 결과: ', formData);
-
-    if (!response.ok) {
-      throw new Error('포스트 수정에 실패했습니다.');
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('포스트 수정 중 에러:', error);
     throw error;
   }
 };

@@ -4,6 +4,8 @@ import { debounce } from 'lodash';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { uploadImage } from '@/features/Post/utils/helpers';
+import { Post } from '../../types';
+import { createPost, updatePost } from '../../api/postApi';
 
 interface BlogEditorState {
   title: string;
@@ -20,23 +22,28 @@ interface Category {
   name: string;
 }
 
-export const usePostEditor = () => {
+export const usePostEditor = (
+  mode: 'create' | 'edit' = 'create',
+  post?: Post,
+) => {
   const router = useRouter();
-  const [editorState, setEditorState] = useState<BlogEditorState>({
-    title: '',
-    content: '',
-    category: '',
-    tags: [],
-    images: [],
+  // 초기 상태 설정을 모드에 따라 다르게 처리
+  const [editorState, setEditorState] = useState<BlogEditorState>(() => ({
+    title: mode === 'edit' ? post?.title || '' : '',
+    content: mode === 'edit' ? post?.content || '' : '',
+    category: mode === 'edit' ? post?.category || post?.categoryId || '' : '',
+    tags: mode === 'edit' ? post?.tags || [] : [],
+    images: mode === 'edit' ? post?.image || [] : [],
     imagesToDelete: [],
     currentFile: null,
-  });
+  }));
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const init = async () => {
       try {
         const response = await fetch('/api/categories');
         if (!response.ok) {
@@ -45,6 +52,21 @@ export const usePostEditor = () => {
 
         const data = await response.json();
         setCategories(data.categories);
+
+        // 편집 모드일 경우 초기 데이터 설정
+        if (mode === 'edit' && post) {
+          setEditorState({
+            title: post.title || '',
+            content: post.content || '',
+            category: post.category || post.categoryId || '',
+            tags: post.tags || [],
+            images: post.image || [],
+            imagesToDelete: [],
+            currentFile: null,
+          });
+        }
+
+        // setIsLoading(false);
       } catch (error) {
         setError('카테고리 불러오기 실패!');
       } finally {
@@ -52,7 +74,7 @@ export const usePostEditor = () => {
       }
     };
 
-    fetchCategories();
+    init();
   }, []);
 
   const handleImageSelect = async (file: File): Promise<string | null> => {
@@ -80,9 +102,13 @@ export const usePostEditor = () => {
         images: updatedImageIds,
       }));
 
-      return downloadURL;
+      // 파일명 생성
+      const timestamp = Date.now();
+      const fileName = `${timestamp}-${file.name}`;
+      return fileName;
     } catch (error) {
-      setError('이미지 업로드에 실패했습니다.');
+      console.error('Image selection error:', error);
+      setError('이미지 선택에 실패했습니다.');
       return null;
     }
   };
@@ -147,6 +173,7 @@ export const usePostEditor = () => {
     }
   };
 
+  // 이미지 제거
   const handleRemoveImage = (imageId: string) => {
     setEditorState((prev) => ({
       ...prev,
@@ -182,98 +209,65 @@ export const usePostEditor = () => {
       setIsLoading(true);
       setError(null);
 
-      if (!editorState.title.trim()) {
-        setError('제목을 입력해주세요');
-        return;
-      }
-      if (!editorState.content.trim()) {
-        setError('내용을 입력해주세요');
-        return;
-      }
-      if (!editorState.category) {
-        setError('카테고리를 선택해주세요');
-        return;
-      }
+      // 유효성 검사
+      if (!editorState.title.trim()) throw new Error('제목을 입력해주세요');
+      if (!editorState.content.trim()) throw new Error('내용을 입력해주세요');
+      if (!editorState.category) throw new Error('카테고리를 선택해주세요');
 
-      const tagIds = await Promise.all(
-        editorState.tags.map(async (tag) => {
+      if (mode === 'edit' && post?.id) {
+        // 수정 모드
+        const updateData = {
+          postId: post.id,
+          title: editorState.title.trim(),
+          content: editorState.content.trim(),
+          category: editorState.category,
+          tags: editorState.tags,
+          image: editorState.images,
+        };
+
+        const result = await updatePost(updateData);
+
+        if (result.message === '포스트 수정 성공!') {
+          // 태그 처리 (필요한 경우)
           try {
-            const tagResponse = await fetch('/api/tags/create', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ tagName: tag }),
-            });
-
-            if (!tagResponse.ok) {
-              const tagError = await tagResponse.json();
-              console.error('태그 추가 실패:', tagError);
-              return null;
-            }
-
-            const tagData = await tagResponse.json();
-            return tagData.tag.id;
-          } catch (error) {
-            console.error(`태그 '${tag}' 처리 중 오류:`, error);
-            return null;
+            await Promise.all(
+              editorState.tags.map(async (tag) => {
+                await fetch('/api/tags/create', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ tagName: tag }),
+                });
+              }),
+            );
+          } catch (tagError) {
+            console.error('태그 처리 중 오류:', tagError);
+            // 태그 처리 실패는 전체 실패로 처리하지 않음
           }
-        }),
-      );
 
-      const validTagIds = tagIds.filter((id): id is string => id !== null);
+          router.push(`/posts/${post.id}`);
+        }
+      } else {
+        // 생성 모드 (기존 코드 유지)
+        const createData = {
+          title: editorState.title.trim(),
+          content: editorState.content.trim(),
+          category: editorState.category,
+          tags: editorState.tags,
+          tagIds: [], // 서버에서 처리
+          image: editorState.images,
+        };
 
-      if (validTagIds.length === 0) {
-        setError('태그 생성에 실패했습니다.');
-        return;
+        const result = await createPost(createData);
+        router.push(`/posts/${result.post.id}`);
       }
-
-      const formData = new FormData();
-      formData.append('title', editorState.title.trim());
-      formData.append('content', editorState.content.trim());
-      formData.append('category', editorState.category);
-      formData.append('tags', JSON.stringify(editorState.tags));
-      formData.append('tagIds', JSON.stringify(validTagIds));
-
-      if (editorState.currentFile) {
-        formData.append('image', editorState.currentFile);
-      }
-
-      editorState.imagesToDelete.forEach((imageId) => {
-        formData.append('imagesToDeleteId', imageId);
-      });
-
-      console.log('데이터 확인용 :', {
-        title: editorState.title,
-        content: editorState.content,
-        category: editorState.category,
-        tagsCount: editorState.tags.length,
-        imagesCount: editorState.images.length,
-        tag: editorState.tags,
-      });
-
-      const response = await fetch('/api/posts/create', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Response status:', response.status);
-        console.error('Error details:', errorData);
-        throw new Error(
-          `포스트 등록 실패: ${errorData.message || '알 수 없는 오류'}`,
-        );
-      }
-
-      const result = await response.json();
-      const postId = result.post.id;
-
-      console.log('포스트 등록 성공:', postId);
-      router.push(`/posts/${postId}`);
     } catch (error) {
-      console.error('포스트 등록 처리 중 오류:', error);
-      setError(error instanceof Error ? error.message : '포스트 등록 실패');
+      console.error('Post submission error:', error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : `포스트 ${mode === 'edit' ? '수정' : '생성'} 중 오류가 발생했습니다`,
+      );
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -285,6 +279,7 @@ export const usePostEditor = () => {
 
   return {
     editorState,
+    setEditorState,
     categories,
     isLoading,
     error,

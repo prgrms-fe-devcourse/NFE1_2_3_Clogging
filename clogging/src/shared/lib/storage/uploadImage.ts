@@ -1,45 +1,64 @@
-import { ref, uploadBytes, deleteObject } from 'firebase/storage';
+import {
+  ref,
+  uploadBytes,
+  deleteObject,
+  getDownloadURL,
+} from 'firebase/storage';
 import { storage } from '@/shared/lib/firebase';
 
 interface UploadImageResult {
   updatedImageIds: string[];
 }
 
-export async function uploadImage(
-  image: File | null,
+export const uploadImage = async (
+  file: File | null,
   existingImagePaths: string[],
-  imagesToDeleteId: string[] | null,
-): Promise<UploadImageResult> {
-  const uploadedImageIds: string[] = [];
-
+  imagesToDelete: string[] = [], // 기본값 추가
+): Promise<{ imageId: string; updatedImageIds: string[] }> => {
   try {
-    if (imagesToDeleteId && imagesToDeleteId.length > 0) {
+    // 삭제할 이미지 처리
+    if (imagesToDelete && imagesToDelete.length > 0) {
       await Promise.all(
-        imagesToDeleteId.map(async (imagePath) => {
-          const existingImageRef = ref(storage, `posts/${imagePath}`);
-          await deleteObject(existingImageRef);
+        imagesToDelete.map(async (imagePath) => {
+          const imageRef = ref(storage, `posts/${imagePath}`);
+          try {
+            await deleteObject(imageRef);
+          } catch (error) {
+            console.error('이미지 삭제 실패:', error);
+          }
         }),
       );
     }
 
-    if (image) {
+    // 새 이미지 업로드
+    let imageId = '';
+    if (file) {
       const timestamp = Date.now();
-      const fileName = `${timestamp}-${image.name}`;
-      const newImageRef = ref(storage, `posts/${fileName}`);
-      await uploadBytes(newImageRef, image);
-      uploadedImageIds.push(fileName);
+      const fileName = `${timestamp}-${file.name}`;
+      const storageRef = ref(storage, `posts/${fileName}`);
+
+      // 파일 업로드
+      await uploadBytes(storageRef, file);
+      // URL 가져오기 (필요한 경우)
+      // const downloadURL = await getDownloadURL(storageRef);
+
+      imageId = fileName;
     }
 
-    const updatedImageIds = existingImagePaths.filter(
-      (path) => !imagesToDeleteId?.includes(path),
-    );
+    // 업데이트된 이미지 ID 목록 생성
+    const updatedImageIds = [
+      ...(existingImagePaths || []).filter(
+        (id) => !imagesToDelete?.includes(id),
+      ),
+      ...(imageId ? [imageId] : []),
+    ];
+
     return {
-      updatedImageIds: [...updatedImageIds, ...uploadedImageIds],
+      imageId,
+      updatedImageIds,
     };
   } catch (error) {
-    console.error('Error in uploadImage:', error);
-    throw new Error(
-      `Upload image failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    );
+    console.error('Image upload error:', error);
+    throw error;
   }
-}
+};

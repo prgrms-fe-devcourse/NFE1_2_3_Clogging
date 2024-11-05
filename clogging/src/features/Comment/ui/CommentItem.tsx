@@ -32,6 +32,8 @@ export const CommentItem = ({
   const { isAdmin } = useAuth();
   const hasReplies = comment.replies && comment.replies.length > 0;
 
+  console.log('comment', comment);
+
   return (
     <div className="comment-thread">
       {/* 댓글 카드 */}

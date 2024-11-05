@@ -1,73 +1,55 @@
-import { uploadImage } from '@/features/Post/utils/helpers';
 import { db } from '@/shared/lib/firebase';
-import { doc, getDoc, Timestamp, updateDoc } from 'firebase/firestore';
+import { doc, Timestamp, updateDoc } from 'firebase/firestore';
 import { NextResponse } from 'next/server';
 
 export async function PUT(request: Request) {
   try {
-    const formData = await request.formData();
+    const body = await request.json();
+    const { postId, title, content, image, category, tags } = body; // category와 tags 추가
 
-    // 기본 데이터 추출
-    const postId = formData.get('postId') as string;
-    const title = formData.get('title') as string;
-    const content = formData.get('content') as string;
-    const categoryId = formData.get('categoryId') as string;
-    const tags = JSON.parse(formData.get('tags') as string);
-
-    // 이미지 관련 데이터 추출
-    const image = formData.get('image') as File | null;
-    const imageIds = JSON.parse(formData.get('imageIds') as string);
-    const imagesToDeleteId = JSON.parse(
-      formData.get('imagesToDeleteId') as string,
-    );
-
-    // 포스트 존재 확인
-    const postRef = doc(db, 'posts', postId);
-    const postSnapshot = await getDoc(postRef);
-
-    if (!postSnapshot.exists()) {
+    if (!postId || !title || !content) {
       return NextResponse.json(
-        { error: '해당 포스트를 찾을 수 없습니다.' },
-        { status: 404 },
+        { message: '포스트 수정 실패!' },
+        { status: 400 },
       );
     }
 
-    // 이미지 처리
-    const { updatedImageIds } = await uploadImage(
-      image,
-      imageIds,
-      imagesToDeleteId,
-    );
-
-    // 포스트 데이터 업데이트
-    const updatedData = {
+    console.log('Updating post with data:', {
+      postId,
       title,
       content,
-      categoryId,
+      image,
+      category,
       tags,
-      image: updatedImageIds,
+    });
+
+    const postRef = doc(db, 'posts', postId);
+    const updateData = {
+      title,
+      content,
+      image,
+      categoryId: category, // categoryId로 저장
+      tags: tags || [], // 빈 배열 기본값 설정
       updatedAt: Timestamp.now(),
     };
 
-    await updateDoc(postRef, updatedData);
+    await updateDoc(postRef, updateData);
 
-    return NextResponse.json(
-      {
-        message: '포스트 수정 성공!',
-        post: {
-          id: postId,
-          ...updatedData,
-          createdAt: postSnapshot.data().createdAt,
-        },
+    return NextResponse.json({
+      message: '포스트 수정 성공!',
+      post: {
+        id: postId,
+        ...updateData,
+        createdAt: Timestamp.now().toDate().toISOString(), // 생성 시간 추가
+        updatedAt: updateData.updatedAt.toDate().toISOString(),
       },
-      { status: 200 },
-    );
+    });
   } catch (error) {
     console.error('Update error:', error);
     return NextResponse.json(
       {
-        error: '포스트 수정 실패!',
-        details: error instanceof Error ? error.message : '알 수 없는 오류',
+        message: '포스트 수정 실패!',
+        error: error instanceof Error ? error.message : '알 수 없는 오류',
       },
       { status: 500 },
     );
