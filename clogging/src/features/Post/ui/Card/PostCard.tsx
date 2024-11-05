@@ -42,13 +42,17 @@ const PostCard = ({ post }: Props) => {
 
         // 파일명만 있는 경우 Storage에서 URL 가져오기
         if (post.image[0].length > 2) {
-          // 최소 유효성 검사
           const imageRef = ref(storage, `posts/${post.image[0]}`);
-          const url = await getDownloadURL(imageRef);
-          setThumbnailUrl(url);
+          try {
+            const url = await getDownloadURL(imageRef);
+            setThumbnailUrl(url);
+          } catch {
+            // 에러 로깅 제거하고 조용히 기본 이미지로 대체
+            setThumbnailUrl('/images/card-thumbnail.png');
+          }
         }
-      } catch (error) {
-        console.error('썸네일 로드 실패:', error);
+      } catch {
+        // 에러 로깅 제거하고 조용히 기본 이미지로 대체
         setThumbnailUrl('/images/card-thumbnail.png');
       }
     };
