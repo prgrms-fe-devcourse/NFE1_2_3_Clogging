@@ -1,12 +1,13 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getBlogData } from '@/features/Admin/Analytics/hooks/getBlogData';
 import { getAllComments } from '@/features/Comment/api/getAllComments';
 import { AdminComment } from './comment/page';
 import BlogDataSection from '@/features/Admin/Dashboard/ui/BlogDataSection';
 import CommentSection from '@/features/Admin/Dashboard/ui/CommentSection';
 import LoadingError from '@/features/Admin/Dashboard/ui/LoadingError';
 import PostListSection from '@/features/Admin/Dashboard/ui/PostListSection';
+import { getRecentPosts } from '@/features/Admin/Dashboard/utils/getRecentPosts';
+import { getBlogData } from '@/features/Admin/Analytics/utils/getBlogData';
 
 export default function AdminPage() {
   const [loading, setLoading] = useState(true);
@@ -23,8 +24,9 @@ export default function AdminPage() {
     const fetchBlogData = async () => {
       try {
         const data = await getBlogData();
+        const recentData = await getRecentPosts();
         setAdminData(data.adminData);
-        setPostData(data.recentPosts);
+        setPostData(recentData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
       }

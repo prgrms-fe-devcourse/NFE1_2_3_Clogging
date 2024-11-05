@@ -1,6 +1,6 @@
 // Page.tsx
 
-import { getBlogData } from '@/features/Admin/Analytics/hooks/getBlogData';
+import { getBlogData } from '@/features/Admin/Analytics/utils/getBlogData';
 import BlogAnalytics from '@/features/Admin/Analytics/ui/BlogAnalytics';
 
 export default async function Page() {
