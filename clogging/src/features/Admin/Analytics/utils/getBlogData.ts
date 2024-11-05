@@ -6,28 +6,9 @@ import {
   collectionGroup,
   DocumentData,
 } from 'firebase/firestore';
-import { formatWeekDisplay } from '../utils/statisticsHelpers';
+import { formatWeekDisplay } from './statisticsHelpers';
+import { BlogData, CalendarDay, WeeklyData } from '../types';
 
-interface WeeklyData {
-  week: string;
-  posts: number;
-  views: number;
-  comments: number;
-  startDate: Date;
-}
-
-interface CalendarDay {
-  date: string;
-  count: number;
-  level: number;
-}
-
-interface BlogData {
-  adminData: { label: string; value: string }[];
-  postingData: { week: string; posts: number }[];
-  lineData: { id: string; data: { x: string; y: number }[] }[];
-  calendarData: CalendarDay[];
-}
 export async function getBlogData(): Promise<BlogData> {
   const postsRef = collection(db, 'posts');
 

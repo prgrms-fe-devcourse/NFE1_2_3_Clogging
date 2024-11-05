@@ -2,7 +2,8 @@ import { Timestamp } from 'firebase/firestore';
 
 export interface Post {
   id: string;
-  categoryId: string;
+  category?: string;
+  categoryId?: string;
   userId: number;
   title: string;
   content: string;
@@ -28,7 +29,8 @@ export interface PostData {
   title: string;
   content: string;
   image: string[];
-  categoryId: number; // 추가
+  category?: string;
+  categoryId?: string;
   userId: number; // 추가
   viewCount: number; // 추가
   isDeleted: boolean; // 추가

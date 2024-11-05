@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
+import remarkGfm from 'remark-gfm';
 
 import { usePostEditor } from '@/features/Post/lib/hooks/usePostEditor';
+import { useMarkdown } from '@/features/Post/lib/hooks/useMarkdown';
 import { Button } from '@/shared/ui/common/Button';
 import { useTheme } from '@/shared/providers/theme';
 import { Input } from '@/shared/ui/common/Input';
@@ -31,6 +33,25 @@ const PostEditor: React.FC = () => {
     handleImageSelect,
   } = usePostEditor();
 
+  const {
+    text: markdownText,
+    setText: setMarkdownText,
+    handleH1Click,
+    handleH2Click,
+    handleH3Click,
+    handleH4Click,
+    handleBoldClick,
+    handleItalicClick,
+    handleStrikeClick,
+    handleListClick,
+    handleQuoteClick,
+    handleCodeBlockClick,
+  } = useMarkdown(editorState.content);
+
+  React.useEffect(() => {
+    handleContentChange(markdownText);
+  }, [markdownText, handleContentChange]);
+
   const { isDarkMode } = useTheme();
   const [newTag, setNewTag] = useState('');
   const [cursorPosition, setCursorPosition] = useState(0);
@@ -56,7 +77,7 @@ const PostEditor: React.FC = () => {
       imageMarkdown +
       content.slice(cursorPosition);
 
-    handleContentChange(newContent);
+    setMarkdownText(newContent);
 
     // 커서 위치 업데이트
     setTimeout(() => {
@@ -147,34 +168,64 @@ const PostEditor: React.FC = () => {
         <div className="border rounded-lg overflow-hidden flex flex-col bg-white dark:bg-gray-800">
           <div className="bg-gray-50 dark:bg-gray-700 px-4 py-2 border-b dark:border-gray-600">
             <div className="flex gap-2">
-              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
+              <button
+                onClick={handleH1Click}
+                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
+              >
                 H1
               </button>
-              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
+              <button
+                onClick={handleH2Click}
+                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
+              >
                 H2
               </button>
-              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
+              <button
+                onClick={handleH3Click}
+                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
+              >
                 H3
               </button>
-              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
+              <button
+                onClick={handleH4Click}
+                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
+              >
                 H4
               </button>
-              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
+              <button
+                onClick={handleBoldClick}
+                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
+              >
                 B
               </button>
-              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
+              <button
+                onClick={handleItalicClick}
+                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
+              >
                 I
               </button>
-              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
+              <button
+                onClick={handleStrikeClick}
+                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
+              >
                 S
               </button>
-              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
+              <button
+                onClick={handleListClick}
+                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
+              >
                 목록
               </button>
-              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
+              <button
+                onClick={handleQuoteClick}
+                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
+              >
                 인용
               </button>
-              <button className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100">
+              <button
+                onClick={handleCodeBlockClick}
+                className="px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-900 dark:text-gray-100"
+              >
                 &lt;&#47;&gt;
               </button>
               <button
@@ -195,9 +246,9 @@ const PostEditor: React.FC = () => {
 
           <textarea
             ref={textareaRef}
-            value={editorState.content}
+            value={markdownText}
             onPaste={handlePaste}
-            onChange={(e) => handleContentChange(e.target.value)}
+            onChange={(e) => setMarkdownText(e.target.value)}
             className="flex-1 w-full p-4 focus:outline-none resize-none bg-transparent appearance-none border-none"
             placeholder="내용을 입력하세요!"
             style={{ backgroundColor: 'transparent' }}
@@ -207,7 +258,9 @@ const PostEditor: React.FC = () => {
         {/* 미리보기 */}
         <div className="border rounded-lg p-4 mr-4 overflow-y-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <div className="prose dark:prose-invert max-w-none text-gray-900 dark:text-gray-200">
-            <ReactMarkdown>{editorState.content}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {markdownText}
+            </ReactMarkdown>
           </div>
         </div>
       </div>
@@ -281,6 +334,13 @@ const PostEditor: React.FC = () => {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setNewTag(e.target.value)
               }
+              onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                  //엔터하면 태그 저장되게 동작 추가
+                  addTag();
+                  e.preventDefault();
+                }
+              }}
               placeholder="최대 5개까지 가능합니다!"
               className={`w-48 h-8 border rounded-lg focus:outline-none`}
               style={{
