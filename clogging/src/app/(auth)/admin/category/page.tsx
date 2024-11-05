@@ -3,7 +3,7 @@ import { CategoryManagement } from '@/features/Category/ui/admin/CategoryManagem
 
 export default function CategoriesPage() {
   return (
-    <div className="container mx-auto p-4">
+    <div className="my-8">
       <Suspense fallback={<div>Loading...</div>}>
         <CategoryManagement />
       </Suspense>

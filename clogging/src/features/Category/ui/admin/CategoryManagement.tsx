@@ -5,7 +5,6 @@ import { CategoryForm } from './CategoryForm';
 import { CategoryList } from './CategoryList';
 import { CategoryOrderList } from './CategoryOrderList';
 import { useTheme } from '@/shared/providers/theme';
-import { Category } from '../../types';
 
 export const CategoryManagement: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
