@@ -73,7 +73,7 @@ export const Header = ({ post }: { post: Post }) => {
           </Button>
         </div>
       </div>
-      <div className="flex flex-row md:flex-col justify-between gap-3 md:gap-4 text-sm text-gray-500 mt-3 md:mt-4">
+      <div className="flex flex-col justify-between gap-3 md:gap-4 text-sm text-gray-500 mt-3 md:mt-4">
         <div className="flex flex-wrap gap-2 md:gap-4 text-sm text-gray-500 items-center">
           <Badge>{categoryName}</Badge>
           <span className="hidden md:inline text-gray-400">|</span>
@@ -85,7 +85,7 @@ export const Header = ({ post }: { post: Post }) => {
           {post.tags?.map((tag) => (
             <Badge
               key={tag}
-              className="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-800 rounded dark:text-gray-300"
+              className="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-800 rounded dark:text-gray-300 max-w-full"
             >
               {tag}
             </Badge>

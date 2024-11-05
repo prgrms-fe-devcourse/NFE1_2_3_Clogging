@@ -95,18 +95,15 @@ export const CommentForm = ({
 
       if (mode === 'create') {
         if (parentCommentId) {
-          // 답글 생성
           await createReply.mutateAsync({
             ...commonData,
             commentId: parentCommentId,
             replyId: '',
           });
         } else {
-          // 댓글 생성
           await createComment.mutateAsync(commonData);
         }
       } else {
-        // 수정
         await updateComment.mutateAsync({
           commentId: commentId!,
           ...commonData,
@@ -123,41 +120,46 @@ export const CommentForm = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-6">
-        <div className="flex gap-6 items-center">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-start md:items-center">
           {!hideFields && !isAdmin && (
             <>
               <FormSectionItem className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100">
                 <UserIcon className="w-5 h-5 text-gray-500" />
               </FormSectionItem>
-              <FormSectionItem
-                title="닉네임"
-                className="flex items-center gap-4"
-              >
-                <Input
-                  type="text"
-                  placeholder="닉네임을 입력하세요"
-                  value={form.author}
-                  onChange={(e) => setForm({ author: e.target.value })}
-                  className="flex-1 p-2 border rounded"
-                  required={!isAdmin}
-                />
-              </FormSectionItem>
-              <FormSectionItem
-                title="비밀번호"
-                className="flex items-center gap-4"
-              >
-                <Input
-                  type="password"
-                  placeholder="비밀번호를 입력하세요"
-                  value={form.password}
-                  onChange={(e) => setForm({ password: e.target.value })}
-                  className="flex-1 p-2 border rounded"
-                  required={!isAdmin}
-                />
-              </FormSectionItem>
+              <div className="flex flex-col md:flex-row gap-4 md:gap-6 w-full md:w-auto">
+                <FormSectionItem
+                  title="닉네임"
+                  className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 w-full md:w-auto"
+                >
+                  <Input
+                    type="text"
+                    placeholder="닉네임을 입력하세요"
+                    value={form.author}
+                    onChange={(e) => setForm({ author: e.target.value })}
+                    className="w-full md:w-[200px] p-2 border rounded"
+                    required={!isAdmin}
+                  />
+                </FormSectionItem>
+                <FormSectionItem
+                  title="비밀번호"
+                  className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 w-full md:w-auto"
+                >
+                  <Input
+                    type="password"
+                    placeholder="비밀번호를 입력하세요"
+                    value={form.password}
+                    onChange={(e) => setForm({ password: e.target.value })}
+                    className="w-full md:w-[200px] p-2 border rounded"
+                    required={!isAdmin}
+                  />
+                </FormSectionItem>
+              </div>
             </>
           )}
-          <FormSectionItem className="flex items-center gap-4">
+          <FormSectionItem className="flex items-center gap-4 justify-between w-full">
+            {isAdmin && (
+              <span className="text-xl font-bold text-blue-800">관리자</span>
+            )}
             <PrivateComment
               isPrivate={form.isPrivate}
               onChange={handlePrivacyChange}

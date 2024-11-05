@@ -39,31 +39,41 @@ export const CommentItem = ({
       {/* 댓글 카드 */}
       <div
         className={`relative ${
-          level > 0 
-            ? 'ml-1 sm:ml-2 md:ml-4 pl-1 sm:pl-2 md:pl-4 border-l border-gray-200 dark:border-gray-700' 
+          level > 0
+            ? 'ml-1 sm:ml-2 md:ml-4 pl-1 sm:pl-2 md:pl-4 border-l border-gray-200 dark:border-gray-700'
             : ''
         }`}
       >
         <CardContent
           className={`p-2 sm:p-3 md:p-4 rounded-lg ${
             level > 0
-              ? isDarkMode ? 'bg-gray-800' : 'bg-gray-50'
-              : isDarkMode ? 'bg-gray-900' : 'bg-white'
+              ? isDarkMode
+                ? 'bg-gray-800'
+                : 'bg-gray-50'
+              : isDarkMode
+                ? 'bg-gray-900'
+                : 'bg-white'
           } border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} transition-colors duration-200`}
         >
           <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 sm:mb-3 md:mb-4 gap-2 sm:gap-2">
             <CardTitle className="flex items-center gap-2 sm:gap-2 mb-2 sm:mb-0">
-              <span className={`font-bold text-sm sm:text-base ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+              <span
+                className={`font-bold text-sm sm:text-base ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}
+              >
                 {comment.author}
               </span>
               {comment.author === '관리자' && (
-                <span className={`px-1 sm:px-2 py-0.5 ${isDarkMode ? 'bg-blue-900 text-blue-100' : 'bg-blue-100 text-blue-800'} text-xs sm:text-sm rounded`}>
+                <span
+                  className={`px-1 sm:px-2 py-0.5 ${isDarkMode ? 'bg-blue-900 text-blue-100' : 'bg-blue-100 text-blue-800'} text-xs sm:text-sm rounded`}
+                >
                   작성자
                 </span>
               )}
             </CardTitle>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-2 w-full sm:w-auto">
-              <time className={`text-xs sm:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-2 sm:mb-0`}>
+              <time
+                className={`text-xs sm:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-2 sm:mb-0`}
+              >
                 {elapsedTime(new Date(comment.createdAt).toISOString())}
               </time>
               <div className="flex gap-2 sm:gap-2 w-full sm:w-auto">
@@ -119,9 +129,9 @@ export const CommentItem = ({
                   >
                     수정 완료
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={onEditCancel}
                     className="text-xs sm:text-sm flex-1 sm:flex-none"
                   >
@@ -131,7 +141,9 @@ export const CommentItem = ({
               </div>
             </div>
           ) : (
-            <p className={`${isDarkMode ? 'text-gray-200' : 'text-gray-800'} break-words text-sm sm:text-base`}>
+            <p
+              className={`${isDarkMode ? 'text-gray-200' : 'text-gray-800'} break-words text-sm sm:text-base`}
+            >
               {comment.isPrivate && !isAdmin && !isEditing
                 ? '비공개 댓글입니다.'
                 : comment.content}
@@ -141,7 +153,9 @@ export const CommentItem = ({
 
         {/* 답글 작성 폼 */}
         {isReplying && (
-          <CardContent className={`p-2 sm:p-3 md:p-4 rounded-lg mt-3 sm:mt-3 md:mt-4 ml-1 sm:ml-2 md:ml-4 border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+          <CardContent
+            className={`p-2 sm:p-3 md:p-4 rounded-lg mt-3 sm:mt-3 md:mt-4 ml-1 sm:ml-2 md:ml-4 border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}
+          >
             <CommentForm
               postId={postId}
               onSuccess={() =>
@@ -154,9 +168,9 @@ export const CommentItem = ({
               defaultIsPrivate={comment.isPrivate}
             />
             <div className="flex justify-end mt-3 sm:mt-3 md:mt-4">
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={onReplyCancel}
                 className="text-xs sm:text-sm w-full sm:w-auto"
               >
