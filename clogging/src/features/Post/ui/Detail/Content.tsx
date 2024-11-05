@@ -63,8 +63,13 @@ export const Content = ({ post }: { post: Post }) => {
         />
       ))}
       {/* 1105 추가 - 마크다운적용 */}
-      <div id="post-content" className="prose dark:prose-invert max-w-none">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+      <div id="post-content">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            img: () => null, //마크다운 렌더링 막아버리기
+          }}
+        >
           {post.content}
         </ReactMarkdown>
       </div>
