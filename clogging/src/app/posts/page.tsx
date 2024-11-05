@@ -76,6 +76,7 @@ const PostPage: React.FC = () => {
     >
       {/* 나머지 JSX는 동일 */}
       <div className="container mx-auto py-8">
+        {/* 배너 이미지 */}
         <div className="w-full h-[400px] relative overflow-hidden mb-7 rounded-lg">
           <img
             src={settingsData?.bannerUrl || '/images/banner-img.png'}
@@ -88,6 +89,7 @@ const PostPage: React.FC = () => {
           />
         </div>
 
+        {/* 태그 섹션 */}
         <div className="py-8">
           <TagSection tags={uniqueTags} />
         </div>
@@ -100,6 +102,7 @@ const PostPage: React.FC = () => {
               </div>
             )}
 
+            {/* 게시글 목록 */}
             <div className="space-y-6">
               {filteredPosts?.map((post, index) => (
                 <div
@@ -130,11 +133,17 @@ const PostPage: React.FC = () => {
               )}
           </div>
 
-          <div className="w-72 flex-shrink-0">
+          {/* 큰 화면에서 사이드바로 카테고리 표시 */}
+          <div className="hidden lg:block w-72 flex-shrink-0">
             <div className="sticky top-8">
               <CategorySection />
             </div>
           </div>
+        </div>
+
+        {/* 작은 화면에서 하단에 카테고리 표시 */}
+        <div className="block lg:hidden mt-8">
+          <CategorySection />
         </div>
       </div>
     </div>
