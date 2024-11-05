@@ -32,11 +32,10 @@ export const CategoryManagement: React.FC = () => {
     // 입력된 카테고리 이름에서 띄어쓰기 제거 및 소문자로 변환
     const inputName = name.replace(/\s+/g, '').toLowerCase();
 
-    // 카테고리 목록에서 대소문자 및 띄어쓰기 무시하고 중복 확인
+    // 카테고리 목록에서 띄어쓰기 무시하고 중복 확인
     if (
       categories.some(
-        (category) =>
-          category.name.replace(/\s+/g, '').toLowerCase() === inputName,
+        (category) => category.name.replace(/\s+/g, '') === inputName,
       )
     ) {
       alert('이미 존재하는 카테고리 이름입니다. 다른 이름을 입력해주세요.');
@@ -53,7 +52,7 @@ export const CategoryManagement: React.FC = () => {
   const handleUpdateCategory = async (id: string, name: string) => {
     try {
       await updateCategory(id, name);
-      await fetchCategories(); // 업데이트 후 목록 새로고침
+      await fetchCategories();
     } catch (error) {
       console.error('카테고리 업데이트 실패:', error);
     }
