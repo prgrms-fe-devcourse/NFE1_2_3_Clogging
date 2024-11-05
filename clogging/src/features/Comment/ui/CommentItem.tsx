@@ -7,6 +7,7 @@ import { useAuth } from '@/features/Auth/hooks';
 import { CardContent, CardHeader, CardTitle } from '@/shared/ui/common/Card';
 import { commentItemProps, CommentWithReplies } from '../types';
 import { PrivateComment } from './PrivateComment';
+import { elapsedTime } from '@/shared/lib/utils/elapsedTimeCalculation';
 
 export const CommentItem = ({
   comment,
@@ -57,7 +58,7 @@ export const CommentItem = ({
             </CardTitle>
             <div className="flex items-center gap-2">
               <time className="text-sm text-gray-500 dark:text-gray-400">
-                {comment.createdAt}
+                {elapsedTime(new Date(comment.createdAt).toISOString())}
               </time>
               <Button
                 variant="secondary"
