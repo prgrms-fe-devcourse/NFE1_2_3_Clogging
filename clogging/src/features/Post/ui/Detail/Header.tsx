@@ -55,7 +55,9 @@ export const Header = ({ post }: { post: Post }) => {
   return (
     <header className="mb-4 md:mb-8">
       <div className="flex sm:flex-row sm:items-center gap-4 justify-between">
-        <h1 className="text-2xl md:text-4xl font-bold break-words">{post.title}</h1>
+        <h1 className="text-2xl md:text-4xl font-bold break-words">
+          {post.title}
+        </h1>
         <div className="flex gap-2 items-center shrink-0">
           <Button onClick={handleEdit} variant="ghost" size="sm">
             수정
@@ -72,14 +74,14 @@ export const Header = ({ post }: { post: Post }) => {
         </div>
       </div>
       <div className="flex flex-row md:flex-col justify-between gap-3 md:gap-4 text-sm text-gray-500 mt-3 md:mt-4">
-        <div className="flex flex-wrap gap-2 md:gap-4 text-sm text-gray-500">
+        <div className="flex flex-wrap gap-2 md:gap-4 text-sm text-gray-500 items-center">
           <Badge>{categoryName}</Badge>
-          <span className="hidden md:inline">|</span>
+          <span className="hidden md:inline text-gray-400">|</span>
           <Badge variant="secondary">조회수 {viewCount.toLocaleString()}</Badge>
-          <span className="hidden md:inline">|</span>
+          <span className="hidden md:inline text-gray-400">|</span>
           <time>{elapsedTime(new Date(post.createdAt).toISOString())}</time>
         </div>
-        <div className="flex flex-wrap gap-2 md:gap-4 text-sm text-gray-500">
+        <div className="flex flex-wrap gap-2 md:gap-4 text-sm text-gray-500 items-center">
           {post.tags?.map((tag) => (
             <Badge
               key={tag}
