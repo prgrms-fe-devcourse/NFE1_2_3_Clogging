@@ -52,7 +52,9 @@ export const Header = ({ post }: { post: Post }) => {
   return (
     <header className="mb-8">
       <div className="flex justify-between items-start">
-        <h1 className="text-4xl font-bold mt-4">{post.title}</h1>
+        <h1 className="text-4xl font-bold mt-4 dark:text-white">
+          {post.title}
+        </h1>
         <div className="flex gap-2">
           <Button onClick={handleEdit}>수정</Button>
           <Button
@@ -66,15 +68,20 @@ export const Header = ({ post }: { post: Post }) => {
       </div>
       <div className="flex items-center gap-4 text-sm text-gray-500 mt-4">
         <Badge>{getCategoryName(post.categoryId)}</Badge>
-        <h1 className="text-4xl font-bold mt-4">{post.title}</h1>
-        <div className="flex items-center gap-4 text-sm text-gray-500">
+        <h1 className="text-4xl font-bold mt-4 dark:text-white">
+          {post.title}
+        </h1>
+        <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
           <Badge>{categoryName}</Badge>
           <span>|</span>
           <span>|</span>
           <time>{elapsedTime(new Date(post.createdAt).toISOString())}</time>
         </div>
         {post.tags?.map((tag) => (
-          <span key={tag} className="px-2 py-1 text-sm bg-gray-100 rounded">
+          <span
+            key={tag}
+            className="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-800 rounded dark:text-gray-300"
+          >
             {tag}
           </span>
         ))}

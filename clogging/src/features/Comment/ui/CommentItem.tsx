@@ -36,14 +36,20 @@ export const CommentItem = ({
     <div className="comment-thread">
       {/* 댓글 카드 */}
       <div
-        className={`relative ${level > 0 ? 'ml-4 pl-4 border-l border-gray-200' : ''}`}
+        className={`relative ${level > 0 ? 'ml-4 pl-4 border-l border-gray-200 dark:border-gray-700' : ''}`}
       >
         <CardContent
-          className={`p-4 rounded-lg ${level > 0 ? 'bg-gray-50' : 'bg-white'} border`}
+          className={`p-4 rounded-lg ${
+            level > 0
+              ? 'bg-gray-50 dark:bg-gray-800'
+              : 'bg-white dark:bg-gray-900'
+          } border dark:border-gray-700`}
         >
           <CardHeader className="flex justify-between items-center mb-4">
             <CardTitle className="flex items-center gap-2">
-              <span className="font-bold">{comment.author}</span>
+              <span className="font-bold dark:text-white">
+                {comment.author}
+              </span>
               {comment.author === '관리자' && (
                 <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-sm rounded">
                   작성자
@@ -51,7 +57,7 @@ export const CommentItem = ({
               )}
             </CardTitle>
             <div className="flex items-center gap-2">
-              <time className="text-sm text-gray-500">
+              <time className="text-sm text-gray-500 dark:text-gray-400">
                 {elapsedTime(comment.createdAt)}
               </time>
               <Button
@@ -68,7 +74,7 @@ export const CommentItem = ({
               >
                 삭제
               </Button>
-              {level === 0 && ( // 최상위 댓글에만 답글 버튼 표시
+              {level === 0 && (
                 <Button
                   variant="secondary"
                   size="sm"
@@ -105,7 +111,7 @@ export const CommentItem = ({
               </div>
             </div>
           ) : (
-            <p className="text-gray-800">
+            <p className="text-gray-800 dark:text-gray-200">
               {comment.isPrivate && !isAdmin && !isEditing
                 ? '비공개 댓글입니다.'
                 : comment.content}
@@ -115,7 +121,7 @@ export const CommentItem = ({
 
         {/* 답글 작성 폼 */}
         {isReplying && (
-          <div className="mt-4 ml-4 border">
+          <div className="mt-4 ml-4 border dark:border-gray-700">
             <CommentForm
               postId={postId}
               onSuccess={() =>
