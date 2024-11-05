@@ -8,36 +8,33 @@ interface CategoryItemProps {
   category: Category;
   handleUpdateCategory: (id: string, name: string) => void;
   deleteCategory: (id: string) => void;
+  isEditing: boolean; // 현재 수정 중인지 여부
+  onEditClick: (id: string) => void; // 수정 버튼 클릭 핸들러
+  onCancelEdit: () => void; // 수정 취소 핸들러
 }
 
 export const CategoryItem: React.FC<CategoryItemProps> = ({
   category,
   handleUpdateCategory,
   deleteCategory,
+  isEditing,
+  onEditClick,
+  onCancelEdit,
 }) => {
   const { isDarkMode } = useTheme();
-  const [isEditing, setIsEditing] = useState(false);
   const [editingName, setEditingName] = useState(category.name);
-
-  const handleItemClick = () => {
-    if (!isEditing) {
-      setIsEditing(true);
-      setEditingName(category.name);
-    }
-  };
 
   const handleEditSubmit = () => {
     if (isCategoryNameValid(editingName)) {
       handleUpdateCategory(category.id, editingName);
-      setIsEditing(false);
+      onCancelEdit();
     }
   };
 
-  const handleEditCancel = () => {
-    setIsEditing(false);
+  const handleCancelEdit = () => {
     setEditingName(category.name);
+    onCancelEdit();
   };
-
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setEditingName(e.target.value);
   };
@@ -52,7 +49,10 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
 
   return (
     <li className={`flex items-center justify-between`}>
-      <div className="flex-grow" onClick={handleItemClick}>
+      <div
+        className="flex-grow"
+        onClick={() => !isEditing && onEditClick(category.id)}
+      >
         {isEditing ? (
           <input
             type="text"
@@ -60,6 +60,7 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
             onChange={handleInputChange}
             className={`p-1 rounded-lg w-full border-none focus:outline-none ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-[#EFF8FF] text-black'}`}
             autoFocus
+            onBlur={handleCancelEdit} // 입력 필드가 포커스를 잃었을 때 취소
           />
         ) : (
           <div
@@ -79,7 +80,7 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
               저장
             </button>
             <button
-              onClick={handleEditCancel}
+              onClick={handleCancelEdit}
               className="p-1 bg-gray-200 text-black rounded mr-1"
             >
               취소

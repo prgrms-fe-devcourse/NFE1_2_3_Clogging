@@ -11,22 +11,25 @@ export const Sidebar = () => {
 
   return (
     <div
-      className={`${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white'} w-full lg:w-64 p-4`}
+      className={`w-full lg:w-64 p-4 mr-4 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white'}`}
     >
       <h1 className="pb-4 text-2xl font-bold mb-6 border-b-2 border-[#636a99]">
         Admin
       </h1>
       <nav>
         <ul
-          className={`flex flex-wrap md:flex-nowrap md:flex-col gap-2 md:gap-4 text-sm ${
+          className={`flex flex-wrap lg:flex-nowrap md:flex-col mb-4 gap-2 md:gap-4 text-sm ${
             isDarkMode ? 'text-gray-400' : 'text-[#A3AED0]'
           }`}
         >
           {menuItems.map((item) => (
-            <li key={item.name} className="w-auto md:w-full mb-2 md:mb-0 mr-4">
+            <li
+              key={item.name}
+              className="w-auto md:w-full md:mb-0 pr-8 md:pr-4"
+            >
               <Link href={item.href}>
                 <div
-                  className={`flex items-center whitespace-nowrap ${
+                  className={`flex items-center py-1 whitespace-nowrap ${
                     pathname === item.href
                       ? isDarkMode
                         ? 'text-white font-bold'

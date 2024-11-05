@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { isCategoryNameValid } from '../../utils/categoryValidator';
 import { useTheme } from '@/shared/providers/theme';
 import Image from 'next/image';
-import { useCategories } from '../../hooks'; // useCategories 훅을 임포트
 
 interface CategoryFormProps {
   onSubmit: (name: string) => void;
@@ -10,7 +9,6 @@ interface CategoryFormProps {
 
 export const CategoryForm: React.FC<CategoryFormProps> = ({ onSubmit }) => {
   const { isDarkMode } = useTheme();
-  const { addCategory } = useCategories(); // 훅에서 addCategory 가져오기
 
   const [categoryName, setCategoryName] = useState('');
   const [error, setError] = useState('');

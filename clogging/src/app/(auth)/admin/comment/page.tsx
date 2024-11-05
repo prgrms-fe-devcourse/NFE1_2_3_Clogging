@@ -2,6 +2,7 @@
 import CommentList from '@/features/Comment/ui/admin/CommentList';
 import { getAllComments } from '@/features/Comment/api/getAllComments';
 import React, { useEffect, useState } from 'react';
+import { Reply } from '@/features/Comment/ui/admin/CommentItem';
 
 // Comment 인터페이스 정의
 export interface AdminComment {
@@ -11,7 +12,7 @@ export interface AdminComment {
   createdAt: string;
   author?: string;
   isPrivate?: boolean;
-  replies?: AdminComment[]; // 댓글의 답글도 AdminComment 타입으로 정의
+  replies?: Reply[];
 }
 
 // CommentManagePage 컴포넌트 정의
