@@ -71,7 +71,6 @@ export async function createPostData(
     existingImageIds,
     imagesToDeleteId || [],
   );
-  // const { updatedImageIds } = await uploadImage(image, [], imagesToDeleteId);
 
   const postData: PostData = {
     title,
