@@ -9,8 +9,9 @@ import {
 import { Badge } from '@/shared/ui/common/Badge';
 import { Post } from '@/features/Post/types';
 import { useState, useEffect } from 'react';
-import { storage } from '@/shared/lib/firebase';
+import { storage, db } from '@/shared/lib/firebase';
 import { ref, getDownloadURL } from 'firebase/storage';
+import { doc, getDoc } from 'firebase/firestore';
 import { useCommentCount } from '@/features/Comment/api/useCommentCount';
 import { useRealtimeViewCount } from '@/features/Post/hooks';
 
@@ -22,28 +23,67 @@ const HorizontalPostCard = ({ post }: Props) => {
   const [thumbnailUrl, setThumbnailUrl] = useState<string>(
     '/images/card-thumbnail.png',
   );
+  const [categoryName, setCategoryName] = useState<string>('카테고리');
   const { data: viewCount = post.viewCount ?? 0 } = useRealtimeViewCount(
     post.id,
   );
   const { data: commentCount = 0 } = useCommentCount(post.id);
 
   useEffect(() => {
-    const loadThumbnail = async () => {
-      if (!post.image?.length) return;
+    const loadCategoryName = async () => {
+      if (!post.category) return;
 
       try {
-        if (post.image[0].startsWith('https://')) {
-          setThumbnailUrl(post.image[0]);
+        const categoryDoc = await getDoc(doc(db, 'categories', post.category));
+        if (categoryDoc.exists()) {
+          const categoryData = categoryDoc.data();
+          setCategoryName(categoryData.name || '카테고리');
+        }
+      } catch (error) {
+        console.error('카테고리 로드 실패:', error);
+      }
+    };
+
+    loadCategoryName();
+  }, [post.category]);
+
+  useEffect(() => {
+    const loadThumbnail = async () => {
+      if (
+        !post.image ||
+        !Array.isArray(post.image) ||
+        post.image.length === 0
+      ) {
+        setThumbnailUrl('/images/card-thumbnail.png');
+        return;
+      }
+
+      try {
+        const imageUrl = post.image[0];
+
+        if (imageUrl.startsWith('https://')) {
+          setThumbnailUrl(imageUrl);
           return;
         }
 
-        if (post.image[0].length > 2) {
-          const imageRef = ref(storage, `posts/${post.image[0]}`);
-          const url = await getDownloadURL(imageRef);
-          setThumbnailUrl(url);
+        if (
+          imageUrl &&
+          typeof imageUrl === 'string' &&
+          imageUrl.trim().length > 0
+        ) {
+          const imageRef = ref(storage, `posts/${imageUrl}`);
+          try {
+            const url = await getDownloadURL(imageRef);
+            setThumbnailUrl(url);
+          } catch (storageError) {
+            console.log('Storage error for:', imageUrl, storageError);
+            setThumbnailUrl('/images/card-thumbnail.png');
+          }
+        } else {
+          setThumbnailUrl('/images/card-thumbnail.png');
         }
       } catch (error) {
-        console.error('썸네일 로드 실패:', error);
+        console.error('썸네일 로드 실패:', post.image[0], error);
         setThumbnailUrl('/images/card-thumbnail.png');
       }
     };
@@ -78,9 +118,7 @@ const HorizontalPostCard = ({ post }: Props) => {
           <div className="flex">
             <div className="flex-1 p-2">
               <div className="flex flex-col gap-3 items-start justify-between mb-2">
-                <Badge variant="secondary">
-                  {post.categoryId || '카테고리'}
-                </Badge>
+                <Badge variant="secondary">{categoryName}</Badge>
                 <CardTitle className="text-xl font-heading truncate w-full">
                   {post.title}
                 </CardTitle>
@@ -112,7 +150,9 @@ const HorizontalPostCard = ({ post }: Props) => {
                 src={thumbnailUrl}
                 alt={post.title || '게시글 썸네일'}
                 className="absolute inset-0 w-full h-full object-cover"
-                onError={() => {
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  console.log('Image load error for:', target.src);
                   setThumbnailUrl('/images/card-thumbnail.png');
                 }}
               />

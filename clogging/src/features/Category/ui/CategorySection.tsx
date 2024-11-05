@@ -1,23 +1,43 @@
-import React, { useEffect, useMemo } from 'react'; // useMemo 추가
+import React, { useEffect } from 'react';
 import { useTheme } from '@/shared/providers/theme';
 import { useCategoryStore } from '@/store/useCategoryStore';
 import { useCategories } from '../hooks';
+import { collection, query, getDocs } from 'firebase/firestore';
+import { db } from '@/shared/lib/firebase';
+import { useQuery } from '@tanstack/react-query';
 
 const CategorySection: React.FC = () => {
   const { isDarkMode } = useTheme();
   const { selectedCategory, setSelectedCategory } = useCategoryStore();
   const { categories, fetchCategories } = useCategories();
 
+  // 실제 포스트 수를 가져오는 쿼리
+  const { data: postsData } = useQuery({
+    queryKey: ['posts'],
+    queryFn: async () => {
+      const postsRef = collection(db, 'posts');
+      const snapshot = await getDocs(postsRef);
+      const categoryCounts: Record<string, number> = { total: 0 };
+
+      snapshot.docs.forEach((doc) => {
+        const post = doc.data();
+        categoryCounts.total += 1;
+
+        if (post.category) {
+          categoryCounts[post.category] =
+            (categoryCounts[post.category] || 0) + 1;
+        }
+      });
+
+      return categoryCounts;
+    },
+    staleTime: 1000 * 60, // 1분
+    refetchOnWindowFocus: true,
+  });
+
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
-
-  // 모든 카테고리의 postCount 합계 계산
-  const totalPosts = useMemo(() => {
-    return categories.reduce((total, category) => {
-      return total + (category.postCount || 0);
-    }, 0);
-  }, [categories]);
 
   return (
     <div>
@@ -40,7 +60,7 @@ const CategorySection: React.FC = () => {
                   } hover:text-primary hover:border-b-2 hover:border-primary`
             }`}
           >
-            전체 ({totalPosts}) {/* categories.length 대신 totalPosts 사용 */}
+            전체 ({postsData?.total || 0})
           </button>
         </li>
         {categories.map((category) => (
@@ -55,7 +75,7 @@ const CategorySection: React.FC = () => {
                     } hover:text-primary hover:border-b-2 hover:border-primary`
               }`}
             >
-              {category.name} ({category.postCount || 0})
+              {category.name} ({postsData?.[category.id] || 0})
             </button>
           </li>
         ))}
