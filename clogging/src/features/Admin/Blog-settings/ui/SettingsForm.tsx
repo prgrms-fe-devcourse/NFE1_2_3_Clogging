@@ -23,8 +23,8 @@ interface BlogSettings {
 }
 const DEFAULT_IMAGES = {
   profileImage: '/icons/user.png',
-  faviconImage: '/favicon.ico',
-  bannerImage: '/images/banner-img.png',
+  favicon: '/favicon.ico',
+  banner: '/images/banner-img.png',
 };
 export default function SettingsForm() {
   const { isDarkMode } = useTheme(); // 다크 모드 여부 확인
@@ -65,12 +65,10 @@ export default function SettingsForm() {
     setSettings((prev) => ({ ...prev, [name]: file, [url]: profileImageUrl }));
   };
   // 사진 삭제
-  const handleDelete = (
-    type: 'profileImageUrl' | 'faviconUrl' | 'bannerUrl',
-  ) => {
+  const handleDelete = (type: 'profileImage' | 'favicon' | 'banner') => {
     setSettings((prev) => ({
       ...prev,
-      [type]: DEFAULT_IMAGES[type.replace('Url', '')],
+      [type + 'Url']: DEFAULT_IMAGES[type],
     }));
   };
   // 텍스트 필드 변경 핸들러
@@ -150,7 +148,7 @@ export default function SettingsForm() {
         file={settings.profileImage}
         onChange={handleFileChange}
         previewUrl={settings.profileImageUrl}
-        onDelete={() => handleDelete('profileImageUrl')}
+        onDelete={() => handleDelete('profileImage')}
         defaultImage={DEFAULT_IMAGES.profileImage}
       />
 
@@ -178,8 +176,9 @@ export default function SettingsForm() {
         name="faviconImage"
         file={settings.faviconImage}
         onChange={handleFileChange}
-        onDelete={() => handleDelete('faviconUrl')}
+        onDelete={() => handleDelete('favicon')}
         previewUrl={settings.faviconUrl}
+        defaultImage={DEFAULT_IMAGES.faviconImage}
       />
 
       <BannerImageField
@@ -187,10 +186,13 @@ export default function SettingsForm() {
         name="bannerImage"
         file={settings.bannerImage}
         onChange={handleFileChange}
+        previewUrl={settings.bannerUrl}
+        onDelete={() => handleDelete('banner')}
+        defaultImage={DEFAULT_IMAGES.bannerImage}
       />
 
       <div className="mt-4 flex justify-end">
-        <Button type="submit" className="rounded-full">
+        <Button type="submit" className="rounded-full text-sm">
           저장하기
         </Button>
       </div>

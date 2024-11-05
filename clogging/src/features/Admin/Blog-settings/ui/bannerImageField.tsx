@@ -32,7 +32,7 @@ export default function BannerImageField({
   // 파일 변경 핸들러
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      onChange(name, e.target.files[0], 'faviconImageUrl');
+      onChange(name, e.target.files[0], name);
     }
   };
 
@@ -49,7 +49,7 @@ export default function BannerImageField({
         {/* 이미지 미리보기 영역 */}
         <div className="flex items-center justify-center">
           <div
-            className={`${imageFieldStyle} ${file ? 'border border-gray-300' : 'border-2 border-dashed border-gray-400'} ${isDarkMode ? 'bg-gray-200' : 'bg-white'}`}
+            className={`${imageFieldStyle} ${file ? 'border border-gray-300' : 'border-2 border-dashed'} ${isDarkMode ? 'bg-gray-200' : 'bg-white'}`}
             onClick={() => fileInputRef.current?.click()} // 클릭 시 파일 선택
           >
             {localPreviewUrl !== defaultImage ? (
@@ -67,16 +67,19 @@ export default function BannerImageField({
         </div>
 
         {/* 텍스트 및 버튼 영역 */}
-        <div className="flex justify-between flex-grow">
-          <div>
-            <p
-              className={`mb-2 text-sm ${isDarkMode ? 'text-white' : 'text-[#2B3674]'}`}
+        <div className="flex-grow flex flex-col sm:flex-row items-start sm:items-center justify-between w-full">
+          <div className="mb-4 sm:mb-0 sm:mr-4">
+            <div
+              className={` mb-2 text-sm overflow-hidden ${isDarkMode ? 'text-white' : 'text-[#2B3674]'} truncate overflow-hidden`}
             >
               메인 배너
-              <br />
-              <span className="text-xs">{file ? file.name : ''}</span>
+              <div className="text-xs truncate overflow-hidden">
+                {file ? file.name : ''}
+              </div>
+            </div>
+            <p className="text-xs text-gray-500">
+              최적 사이즈 1600 x 500 / 파일 형식 JPG, PNG
             </p>
-            <p className="text-xs text-gray-500">파일 형식 ICO</p>
           </div>
           <div className="flex space-x-2 mt-2">
             <input
@@ -84,7 +87,7 @@ export default function BannerImageField({
               type="file"
               id={name}
               name={name}
-              accept=".ico"
+              accept="image/*"
               onChange={handleFileChange} // 파일 변경 시 핸들러 호출
               className="hidden"
             />
