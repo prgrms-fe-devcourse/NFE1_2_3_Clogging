@@ -9,8 +9,9 @@ import {
 import { Badge } from '@/shared/ui/common/Badge';
 import { Post } from '@/features/Post/types';
 import { useState, useEffect } from 'react';
-import { storage } from '@/shared/lib/firebase';
+import { storage, db } from '@/shared/lib/firebase';
 import { ref, getDownloadURL } from 'firebase/storage';
+import { doc, getDoc } from 'firebase/firestore';
 import { useCommentCount } from '@/features/Comment/api/useCommentCount';
 import { useRealtimeViewCount } from '@/features/Post/hooks';
 
@@ -22,14 +23,32 @@ const HorizontalPostCard = ({ post }: Props) => {
   const [thumbnailUrl, setThumbnailUrl] = useState<string>(
     '/images/card-thumbnail.png',
   );
+  const [categoryName, setCategoryName] = useState<string>('카테고리');
   const { data: viewCount = post.viewCount ?? 0 } = useRealtimeViewCount(
     post.id,
   );
   const { data: commentCount = 0 } = useCommentCount(post.id);
 
   useEffect(() => {
+    const loadCategoryName = async () => {
+      if (!post.category) return;
+
+      try {
+        const categoryDoc = await getDoc(doc(db, 'categories', post.category));
+        if (categoryDoc.exists()) {
+          const categoryData = categoryDoc.data();
+          setCategoryName(categoryData.name || '카테고리');
+        }
+      } catch (error) {
+        console.error('카테고리 로드 실패:', error);
+      }
+    };
+
+    loadCategoryName();
+  }, [post.category]);
+
+  useEffect(() => {
     const loadThumbnail = async () => {
-      // 이미지가 없거나 배열이 비어있는 경우 기본 이미지 사용
       if (
         !post.image ||
         !Array.isArray(post.image) ||
@@ -42,13 +61,11 @@ const HorizontalPostCard = ({ post }: Props) => {
       try {
         const imageUrl = post.image[0];
 
-        // 완전한 URL인 경우 (https:// 로 시작)
         if (imageUrl.startsWith('https://')) {
           setThumbnailUrl(imageUrl);
           return;
         }
 
-        // Storage 경로가 유효한 경우에만 시도
         if (
           imageUrl &&
           typeof imageUrl === 'string' &&
@@ -101,9 +118,7 @@ const HorizontalPostCard = ({ post }: Props) => {
           <div className="flex">
             <div className="flex-1 p-2">
               <div className="flex flex-col gap-3 items-start justify-between mb-2">
-                <Badge variant="secondary">
-                  {post.categoryId || '카테고리'}
-                </Badge>
+                <Badge variant="secondary">{categoryName}</Badge>
                 <CardTitle className="text-xl font-heading truncate w-full">
                   {post.title}
                 </CardTitle>
