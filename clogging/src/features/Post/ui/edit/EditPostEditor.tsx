@@ -2,18 +2,22 @@
 
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
-
 import { usePostEditor } from '@/features/Post/lib/hooks/usePostEditor';
 import { Button } from '@/shared/ui/common/Button';
 import { useTheme } from '@/shared/providers/theme';
 import { Input } from '@/shared/ui/common/Input';
+import { Post } from '@/features/Post/types';
+import { useRouter } from 'next/navigation';
 
-// CSR에서만 렌더링 되게 하기
 const ReactMarkdown = dynamic(() => import('react-markdown'), {
   ssr: false,
 });
 
-const PostEditor: React.FC = () => {
+interface EditPostEditorProps {
+  post: Post;
+}
+
+const EditPostEditor: React.FC<EditPostEditorProps> = ({ post }) => {
   const {
     editorState,
     categories,
@@ -22,20 +26,21 @@ const PostEditor: React.FC = () => {
     handleTitleChange,
     handleContentChange,
     handleCategoryChange,
-    handleSubmit,
     handleGoBack,
     handleAddTag,
     handlePaste,
     handleRemoveTag,
-    handleRemoveImage,
     handleImageSelect,
-  } = usePostEditor();
+    handleRemoveImage,
+    handleSubmit,
+  } = usePostEditor('edit', post); // mode와 post 전달
 
   const { isDarkMode } = useTheme();
   const [newTag, setNewTag] = useState('');
   const [cursorPosition, setCursorPosition] = useState(0);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const addTag = () => {
     if (newTag && editorState.tags.length < 5) {
@@ -86,6 +91,18 @@ const PostEditor: React.FC = () => {
     }
   };
 
+  const onSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+      await handleSubmit();
+    } catch (error) {
+      console.error('포스트 수정 중 오류:', error);
+      alert('포스트 수정 중 오류가 발생했습니다.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -106,7 +123,7 @@ const PostEditor: React.FC = () => {
       <select
         value={editorState.category}
         onChange={(e) => handleCategoryChange(e.target.value)}
-        style={{ width: '300px', height: '35px' }}
+        style={{ width: '300px', height: 'auto' }}
         className="ml-4 mt-4 mb-[52px] px-4 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 border-gray-200 dark:border-gray-700"
       >
         <option value="">카테고리 선택</option>
@@ -299,32 +316,36 @@ const PostEditor: React.FC = () => {
         </div>
       </div>
 
-      {/* 하단 버튼 영역 */}
+      {/* 하단 버튼 영역만 수정 */}
       <div
         className="flex justify-between items-center"
         style={{ marginTop: '50px' }}
       >
-        <button
+        <Button
+          variant="outline"
+          size="sm"
           onClick={handleGoBack}
-          className="ml-4 text-gray-600 hover:text-gray-800"
+          className="px-6 py-2 mr-4 rounded-lg font-sans"
         >
           {'< 뒤로가기'}
-        </button>
+        </Button>
         <div className="flex gap-4">
           <Button
             variant="secondary"
             size="sm"
             className="px-6 py-2 bg-secondary hover:secondary-hover text-primary rounded-lg font-sans"
+            onClick={handleGoBack}
           >
-            임시저장
+            취소
           </Button>
           <Button
             variant="primary"
             size="sm"
-            onClick={handleSubmit}
+            onClick={onSubmit}
+            disabled={isSubmitting}
             className="px-6 py-2 mr-4 bg-primary hover:primary-hover text-white rounded-lg font-sans"
           >
-            등록하기
+            {isSubmitting ? '수정 중...' : '수정하기'}
           </Button>
         </div>
       </div>
@@ -332,4 +353,4 @@ const PostEditor: React.FC = () => {
   );
 };
 
-export default PostEditor;
+export default EditPostEditor;
