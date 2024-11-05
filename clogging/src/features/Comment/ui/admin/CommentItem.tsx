@@ -6,6 +6,7 @@ import ReplyList from './ReplyList';
 import { AdminComment } from '@/app/(auth)/admin/comment/page';
 import { adminDeleteReply } from '../../utils/adminDeleteReply'; // adminDeleteReply 가져오기
 import { useRouter } from 'next/navigation';
+import { useFetchSettings } from '@/features/Admin/Blog-settings/hooks/useFetchSettings';
 
 export interface Reply {
   id: string; // 답글 ID
@@ -32,6 +33,7 @@ interface CommentItemProps {
 
 const CommentItem: React.FC<CommentItemProps> = React.memo(
   ({ comment, onDelete }) => {
+    const { settingsData } = useFetchSettings(); // Fetch settings data
     const { isDarkMode } = useTheme();
     const router = useRouter();
     const [replies, setReplies] = useState<Reply[]>(comment.replies); // 상태로 답글 목록 관리
@@ -81,15 +83,20 @@ const CommentItem: React.FC<CommentItemProps> = React.memo(
       >
         <div className="flex justify-between items-center">
           <div
-            className="flex w-full cursor-pointer"
+            className="flex w-full cursor-pointer items-center"
             onClick={() => handleClick(comment.postId)}
           >
-            <div className="p-1 rounded-full overflow-hidden">
+            <div className="w-8 h-8 rounded-full overflow-hidden">
               <Image
-                src="/icons/user.png"
+                src={
+                  comment.author === '관리자'
+                    ? settingsData?.profileImageUrl || '/icons/user.png'
+                    : '/icons/user.png'
+                }
                 alt={`${comment.author}`}
-                width={24}
-                height={24}
+                width={30}
+                height={30}
+                className="rounded-full"
               />
             </div>
             <div className="flex-1 ml-3">
