@@ -1,45 +1,86 @@
-// 관리자 전용 페이지들
+'use client';
+import { useEffect, useState } from 'react';
+import { getAllComments } from '@/features/Comment/api/getAllComments';
+import { AdminComment } from './comment/page';
+import BlogDataSection from '@/features/Admin/Dashboard/ui/BlogDataSection';
+import CommentSection from '@/features/Admin/Dashboard/ui/CommentSection';
+import LoadingError from '@/features/Admin/Dashboard/ui/LoadingError';
+import PostListSection from '@/features/Admin/Dashboard/ui/PostListSection';
+import { getRecentPosts } from '@/features/Admin/Dashboard/utils/getRecentPosts';
+import { getBlogData } from '@/features/Admin/Analytics/utils/getBlogData';
 
-import { Metadata } from 'next';
-import { Card, CardContent } from '@/shared/ui/common/Card';
-import { cn } from '@/shared/lib/utils';
-
-export const metadata: Metadata = {
-  title: 'Admin',
-};
-// 데이터 정의
-const adminData = [
-  { label: '포스트 수', value: '100 개' },
-  { label: '댓글 수', value: '121 개' },
-  { label: '총 조회 수', value: '121 회' },
-  { label: '인기포스트 조회수', value: '121 회' },
-  { label: '포스팅 수', value: '12 회' },
-];
 export default function AdminPage() {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [adminData, setAdminData] = useState(null);
+  const [postData, setPostData] = useState(null);
+
+  const [commentsData, setCommentsData] = useState<{
+    comments: AdminComment[];
+    totalComments: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const fetchBlogData = async () => {
+      try {
+        const data = await getBlogData();
+        const recentData = await getRecentPosts();
+        setAdminData(data.adminData);
+        setPostData(recentData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+      }
+    };
+
+    fetchBlogData();
+  }, []);
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const data = await getAllComments();
+        setCommentsData(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchComments();
+  }, []);
+
+  const handleDeleteComment = (commentId: string) => {
+    if (commentsData) {
+      setCommentsData((prevData) => ({
+        comments: prevData.comments.filter(
+          (comment) => comment.id !== commentId,
+        ),
+        totalComments: prevData.totalComments - 1,
+      }));
+    }
+  };
+
   return (
-    <div className="flex flex-wrap justify-start gap-4">
-      {adminData.map((item, index) => (
-        <Card
-          key={index}
-          className={cn(
-            'p-3 flex-grow w-full sm:w-[calc(50%-8px)] md:w-[calc(20%-16px)] lg:w-[calc(20%-16px)] xl:w-[calc(20%-16px)]',
-          )}
-        >
-          <CardContent className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-[#F4F7FE] flex items-center justify-center mr-3">
-              <img
-                src="/icons/admin_analytics.png"
-                alt={item.label}
-                className="w-6 h-6"
+    <div>
+      <LoadingError loading={loading} error={error} />
+      {!loading && !error && (
+        <>
+          <BlogDataSection adminData={adminData} />
+          <div className="flex flex-wrap items-start justify-between w-full h-full">
+            <div className="flex-grow sp-x-2 mb-4">
+              <PostListSection postData={postData} />
+            </div>
+            <div className="flex-grow sp-x-2">
+              <CommentSection
+                comments={commentsData?.comments || []}
+                totalComments={commentsData?.totalComments || 0}
+                onDelete={handleDeleteComment}
               />
             </div>
-            <div>
-              <div className="text-xs text-gray-400">{item.label}</div>
-              <div className="text-lg font-semibold">{item.value}</div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
