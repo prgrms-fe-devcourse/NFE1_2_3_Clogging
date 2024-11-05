@@ -71,8 +71,10 @@ const PostPage: React.FC = () => {
         isDarkMode ? 'bg-gray-900 text-white' : 'bg-white'
       }`}
     >
-      <div className="py-8 sm:py-12">
-        <div className="w-full h-[200px] sm:h-[300px] md:h-[400px] relative overflow-hidden mb-6 sm:mb-10 rounded-lg">
+      {/* 나머지 JSX는 동일 */}
+      <div className="">
+        {/* 배너 이미지 */}
+        <div className="w-full h-[400px] relative overflow-hidden mb-7 rounded-lg">
           <img
             src={settingsData?.bannerUrl || '/images/banner-img.png'}
             alt="Feed Banner"
@@ -84,7 +86,8 @@ const PostPage: React.FC = () => {
           />
         </div>
 
-        <div className="py-6 sm:py-10">
+        {/* 태그 섹션 */}
+        <div className="py-8">
           <TagSection tags={uniqueTags} />
         </div>
 
@@ -96,7 +99,8 @@ const PostPage: React.FC = () => {
               </div>
             )}
 
-            <div className="space-y-6 sm:space-y-8">
+            {/* 게시글 목록 */}
+            <div className="space-y-6">
               {filteredPosts?.map((post, index) => (
                 <div
                   key={post.id}
@@ -127,17 +131,17 @@ const PostPage: React.FC = () => {
               )}
           </div>
 
-          {/* 모바일에서는 카테고리 섹션이 하단에 위치 */}
-          <div className="lg:hidden w-full text-center">
-            <CategorySection />
-          </div>
-
-          {/* 데스크톱에서는 카테고리 섹션이 오른쪽에 위치 */}
+          {/* 큰 화면에서 사이드바로 카테고리 표시 */}
           <div className="hidden lg:block w-72 flex-shrink-0">
             <div className="sticky top-8">
               <CategorySection />
             </div>
           </div>
+        </div>
+
+        {/* 작은 화면에서 하단에 카테고리 표시 */}
+        <div className="block lg:hidden mt-8">
+          <CategorySection />
         </div>
       </div>
     </div>

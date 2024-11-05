@@ -105,6 +105,7 @@ export const Content = ({ post }: { post: Post }) => {
               notifyMarkdownRendered();
               return <h6 {...props} />;
             },
+            img: () => null, //마크다운 렌더링 막아버리기
           }}
         >
           {renderedContent}

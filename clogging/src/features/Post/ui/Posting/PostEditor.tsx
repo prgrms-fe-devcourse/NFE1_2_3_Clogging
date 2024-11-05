@@ -27,10 +27,10 @@ const PostEditor: React.FC = () => {
     handleSubmit,
     handleGoBack,
     handleAddTag,
-    handlePaste,
+    // handlePaste,
     handleRemoveTag,
     handleRemoveImage,
-    handleImageSelect,
+    handleImageLocalSelect,
   } = usePostEditor('create'); // 생성 모드
 
   const {
@@ -55,6 +55,7 @@ const PostEditor: React.FC = () => {
   const { isDarkMode } = useTheme();
   const [newTag, setNewTag] = useState('');
   const [cursorPosition, setCursorPosition] = useState(0);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
@@ -69,8 +70,9 @@ const PostEditor: React.FC = () => {
     fileInputRef.current?.click();
   };
 
-  const insertImageToMarkdown = (imageId: string) => {
-    const imageMarkdown = `![image](/storage/posts/${imageId})\n`;
+  const insertImageToMarkdown = async (imageUrl: string) => {
+    // const imageUrl = await getImageUrl(imageId);
+    const imageMarkdown = `![image](${imageUrl})\n`;
     const content = editorState.content;
     const newContent =
       content.slice(0, cursorPosition) +
@@ -78,6 +80,7 @@ const PostEditor: React.FC = () => {
       content.slice(cursorPosition);
 
     setMarkdownText(newContent);
+    setImageUrls([...imageUrls, imageUrl]);
 
     // 커서 위치 업데이트
     setTimeout(() => {
@@ -100,9 +103,13 @@ const PostEditor: React.FC = () => {
         setCursorPosition(textareaRef.current.selectionStart);
       }
 
-      const imageId = await handleImageSelect(file);
-      if (imageId) {
-        insertImageToMarkdown(imageId);
+      try {
+        const imageUrl = await handleImageLocalSelect(file);
+        if (imageUrl) {
+          insertImageToMarkdown(imageUrl);
+        }
+      } catch (error) {
+        console.error('이미지 업로드 실패:', error);
       }
     }
   };
@@ -243,7 +250,6 @@ const PostEditor: React.FC = () => {
           <textarea
             ref={textareaRef}
             value={markdownText}
-            onPaste={handlePaste}
             onChange={(e) => setMarkdownText(e.target.value)}
             className="flex-1 w-full p-4 focus:outline-none resize-none bg-transparent appearance-none border-none"
             placeholder="내용을 입력하세요!"

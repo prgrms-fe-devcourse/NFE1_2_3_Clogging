@@ -29,9 +29,21 @@ export const CategoryManagement: React.FC = () => {
   }, [fetchCategories]);
 
   const handleAddCategory = async (name: string) => {
+    // 입력된 카테고리 이름에서 띄어쓰기 제거 및 소문자로 변환
+    const inputName = name.replace(/\s+/g, '').toLowerCase();
+
+    // 카테고리 목록에서 띄어쓰기 무시하고 중복 확인
+    if (
+      categories.some(
+        (category) => category.name.replace(/\s+/g, '') === inputName,
+      )
+    ) {
+      alert('이미 존재하는 카테고리 이름입니다. 다른 이름을 입력해주세요.');
+      return;
+    }
     try {
       await addCategory(name);
-      await fetchCategories(); // 카테고리 추가 후 목록 새로고침
+      await fetchCategories(); // 추가 후 목록 새로고침
     } catch (error) {
       console.error('카테고리 추가 실패:', error);
     }
@@ -40,7 +52,7 @@ export const CategoryManagement: React.FC = () => {
   const handleUpdateCategory = async (id: string, name: string) => {
     try {
       await updateCategory(id, name);
-      await fetchCategories(); // 카테고리 업데이트 후 목록 새로고침
+      await fetchCategories();
     } catch (error) {
       console.error('카테고리 업데이트 실패:', error);
     }
@@ -49,7 +61,7 @@ export const CategoryManagement: React.FC = () => {
   const handleDeleteCategory = async (id: string) => {
     try {
       await deleteCategory(id);
-      await fetchCategories(); // 카테고리 삭제 후 목록 새로고침
+      await fetchCategories(); // 삭제 후 목록 새로고침
     } catch (error) {
       console.error('카테고리 삭제 실패:', error);
     }
@@ -58,7 +70,7 @@ export const CategoryManagement: React.FC = () => {
   const handleReorder = async (fromIndex: number, toIndex: number) => {
     try {
       await reorderCategories(fromIndex, toIndex);
-      await fetchCategories(); // 카테고리 순서 변경 후 목록 새로고침
+      await fetchCategories(); // 순서 변경 후 목록 새로고침
     } catch (error) {
       console.error('카테고리 순서 변경 실패:', error);
     }

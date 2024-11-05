@@ -55,14 +55,14 @@ const CommentList: React.FC<CommentListProps> = ({
 
   return (
     <div
-      className={`flex-1 rounded-lg shadow-sm p-4 sm:p-6 mb-2 text-xs ${
+      className={`flex-1 rounded-md shadow-sm p-4 mb-2 text-xs ${
         isDarkMode ? 'bg-gray-900' : 'bg-white'
       }`}
     >
       {memoizedComments.length > 0 ? (
         <>
           <h2 className="text-lg font-semibold mb-6">최신 댓글</h2>
-          <ul className="space-y-4">
+          <ul className="space-y-4 mb-8">
             {memoizedComments.map((comment) => (
               <CommentItem
                 key={comment.id}

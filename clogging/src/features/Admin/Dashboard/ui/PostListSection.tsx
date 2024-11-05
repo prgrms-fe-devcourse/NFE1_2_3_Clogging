@@ -19,7 +19,7 @@ const PostListSection = ({ postData }) => {
   };
 
   return (
-    <Card className="rounded-lg shadow-md bg-gray-50 dark:bg-gray-900">
+    <Card className="rounded-lg shadow-sm bg-white dark:bg-gray-900">
       <CardHeader>
         <CardTitle>최근 포스트</CardTitle>
       </CardHeader>

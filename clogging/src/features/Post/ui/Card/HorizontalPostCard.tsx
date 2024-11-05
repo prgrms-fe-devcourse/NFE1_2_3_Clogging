@@ -112,14 +112,14 @@ const HorizontalPostCard = ({ post }: Props) => {
   };
 
   return (
-    <Link href={`/posts/${post.id}`} className="block w-full max-w-5xl mx-auto">
+    <Link href={`/posts/${post.id}`} className="block max-w-full">
       <Card className="overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-primary/20 dark:hover:border-primary/30">
         <CardContent className="p-0">
           <div className="flex flex-col sm:flex-row">
-            <div className="flex-1 p-3 sm:p-4 md:p-6">
-              <div className="flex flex-col gap-2 sm:gap-3 items-start justify-between mb-2 sm:mb-3">
+            <div className="flex-1 p-2">
+              <div className="flex flex-col gap-3 items-start justify-between mb-2">
                 <Badge variant="secondary">{categoryName}</Badge>
-                <CardTitle className="text-lg sm:text-xl md:text-2xl font-heading truncate w-full">
+                <CardTitle className="text-lg md:text-xl font-heading truncate w-full">
                   {post.title}
                 </CardTitle>
               </div>
@@ -129,7 +129,9 @@ const HorizontalPostCard = ({ post }: Props) => {
               {post.tags && post.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
                   {post.tags.map((tag) => (
-                    <Badge key={tag} className="text-xs sm:text-sm">{tag}</Badge>
+                    <Badge key={tag} className="text-xs sm:text-sm">
+                      {tag}
+                    </Badge>
                   ))}
                 </div>
               )}
@@ -147,7 +149,7 @@ const HorizontalPostCard = ({ post }: Props) => {
                 </div>
               </CardFooter>
             </div>
-            <div className="w-full sm:w-60 md:w-80 h-48 sm:h-auto relative">
+            <div className="w-full sm:w-48 md:w-64 lg:w-80 h-48 sm:h-auto relative rounded-b-lg sm:rounded-r-lg overflow-hidden">
               <img
                 src={thumbnailUrl}
                 alt={post.title || '게시글 썸네일'}

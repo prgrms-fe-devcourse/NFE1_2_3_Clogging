@@ -3,9 +3,11 @@
 import { debounce } from 'lodash';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { uploadImage } from '@/features/Post/utils/helpers';
+// import { uploadImage } from '@/features/Post/utils/helpers';
 import { Post } from '../../types';
 import { createPost, updatePost } from '../../api/postApi';
+import { storage } from '@/shared/lib/firebase';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 interface BlogEditorState {
   title: string;
@@ -77,101 +79,71 @@ export const usePostEditor = (
     init();
   }, []);
 
-  const handleImageSelect = async (file: File): Promise<string | null> => {
-    if (!file.type.startsWith('image/')) {
-      setError('이미지 파일만 업로드 가능합니다.');
-      return null;
-    }
+  // const handleImageSelect = async (file: File): Promise<string | null> => {
+  //   if (!file.type.startsWith('image/')) {
+  //     setError('이미지 파일만 업로드 가능합니다.');
+  //     return null;
+  //   }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setError('파일 크기는 5MB 이하여야 합니다.');
-      return null;
-    }
+  //   if (file.size > 5 * 1024 * 1024) {
+  //     setError('파일 크기는 5MB 이하여야 합니다.');
+  //     return null;
+  //   }
 
+  //   try {
+  //     const { downloadURL, updatedImageIds } = await uploadImage(
+  //       // 이미지 url 수정중
+  //       file,
+  //       editorState.images,
+  //       editorState.imagesToDelete,
+  //     );
+
+  //     setEditorState((prev) => ({
+  //       ...prev,
+  //       currentFile: file,
+  //       images: updatedImageIds,
+  //     }));
+
+  //     // 파일명 생성
+  //     const timestamp = Date.now();
+  //     const fileName = `${timestamp}-${file.name}`;
+  //     return fileName;
+  //   } catch (error) {
+  //     console.error('Image selection error:', error);
+  //     setError('이미지 선택에 실패했습니다.');
+  //     return null;
+  //   }
+  // };
+
+  // 컴퓨터에서 이미지 첨부
+  const handleImageLocalSelect = async (file: File): Promise<string> => {
     try {
-      const { downloadURL, updatedImageIds } = await uploadImage(
-        // 이미지 url 수정중
-        file,
-        editorState.images,
-        editorState.imagesToDelete,
-      );
+      // 파일 이름에 타임스탬프 추가하여 고유하게 설정
+      const uniqueFileName = `${Date.now()}-${file.name}`;
+      const storageRef = ref(storage, `posts/${uniqueFileName}`);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
 
+      // images 배열에 중복되지 않도록 URL 추가
       setEditorState((prev) => ({
         ...prev,
-        currentFile: file,
-        images: updatedImageIds,
+        images: prev.images.includes(url) ? prev.images : [...prev.images, url],
       }));
 
-      // 파일명 생성
-      const timestamp = Date.now();
-      const fileName = `${timestamp}-${file.name}`;
-      return fileName;
+      return url;
     } catch (error) {
-      console.error('Image selection error:', error);
-      setError('이미지 선택에 실패했습니다.');
-      return null;
+      console.error('이미지 업로드 실패:', error);
+      throw error;
     }
   };
 
+  // 내용 변경 핸들링
   const handleContentChange = useCallback(
     debounce((value: string) => {
       setEditorState((prev) => ({ ...prev, content: value }));
     }, 300), // 300ms 지연
     [],
   );
-  const handlePaste = async (event: React.ClipboardEvent) => {
-    const pasteData = event.clipboardData.getData('text');
-    if (
-      pasteData.startsWith('http') &&
-      (pasteData.endsWith('.png') ||
-        pasteData.endsWith('.jpg') ||
-        pasteData.endsWith('.jpeg') ||
-        pasteData.endsWith('.gif'))
-    ) {
-      const imageMarkdown = `![image](${pasteData})\n`;
-      const cursorPos = (event.target as HTMLTextAreaElement).selectionStart;
-
-      const newContent =
-        editorState.content.slice(0, cursorPos) +
-        imageMarkdown +
-        editorState.content.slice(cursorPos);
-
-      handleContentChange(newContent);
-      event.preventDefault();
-      return;
-    }
-
-    const items = event.clipboardData.items;
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.type.indexOf('image') !== -1) {
-        event.preventDefault();
-
-        const file = item.getAsFile();
-        if (!file) continue;
-
-        try {
-          const cursorPos = (event.target as HTMLTextAreaElement)
-            .selectionStart;
-
-          const imageId = await handleImageSelect(file);
-          if (imageId) {
-            const imageMarkdown = `![image](/storage/posts/${imageId})\n`;
-            const newContent =
-              editorState.content.slice(0, cursorPos) +
-              imageMarkdown +
-              editorState.content.slice(cursorPos);
-
-            handleContentChange(newContent);
-          }
-        } catch (error) {
-          console.error('이미지 붙여넣기 실패:', error);
-          setError('이미지 붙여넣기에 실패했습니다.');
-        }
-        break;
-      }
-    }
-  };
 
   // 이미지 제거
   const handleRemoveImage = (imageId: string) => {
@@ -288,9 +260,10 @@ export const usePostEditor = (
     handleCategoryChange,
     handleAddTag,
     handleRemoveTag,
-    handleImageSelect,
+    // handleImageSelect,
+    handleImageLocalSelect,
     handleRemoveImage,
-    handlePaste,
+    // handlePaste,
     handleSubmit,
     handleGoBack,
   };

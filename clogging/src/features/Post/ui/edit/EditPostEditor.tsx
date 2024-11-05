@@ -2,13 +2,14 @@
 
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
+import remarkGfm from 'remark-gfm';
+
 import { usePostEditor } from '@/features/Post/lib/hooks/usePostEditor';
 import { useMarkdown } from '@/features/Post/lib/hooks/useMarkdown';
 import { Button } from '@/shared/ui/common/Button';
 import { useTheme } from '@/shared/providers/theme';
 import { Input } from '@/shared/ui/common/Input';
 import { Post } from '@/features/Post/types';
-import { useRouter } from 'next/navigation';
 
 const ReactMarkdown = dynamic(() => import('react-markdown'), {
   ssr: false,
@@ -29,9 +30,9 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ post }) => {
     handleCategoryChange,
     handleGoBack,
     handleAddTag,
-    handlePaste,
     handleRemoveTag,
-    handleImageSelect,
+    // handleImageSelect,
+    handleImageLocalSelect,
     handleRemoveImage,
     handleSubmit,
   } = usePostEditor('edit', post); // 수정 모드
@@ -53,7 +54,7 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ post }) => {
 
   const { isDarkMode } = useTheme();
   const [newTag, setNewTag] = useState('');
-  const [cursorPosition, setCursorPosition] = useState(0);
+  // const [cursorPosition, setCursorPosition] = useState(0);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,53 +70,49 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ post }) => {
     fileInputRef.current?.click();
   };
 
-  const insertImageToMarkdown = (imageId: string) => {
-    const imageMarkdown = `![image](/storage/posts/${imageId})\n`;
-    const content = editorState.content;
-    const newContent =
-      content.slice(0, cursorPosition) +
-      imageMarkdown +
-      content.slice(cursorPosition);
+  // const insertImageToMarkdown = async (imageUrl: string) => {
+  //   const imageMarkdown = `![image](${imageUrl})\n`;
+  //   const content = editorState.content;
+  //   const newContent =
+  //     content.slice(0, cursorPosition) +
+  //     imageMarkdown +
+  //     content.slice(cursorPosition);
 
-    handleContentChange(newContent);
+  //   handleContentChange(newContent);
 
-    // 커서 위치 업데이트
-    setTimeout(() => {
-      if (textareaRef.current) {
-        const newPosition = cursorPosition + imageMarkdown.length;
-        textareaRef.current.selectionStart = newPosition;
-        textareaRef.current.selectionEnd = newPosition;
-        textareaRef.current.focus();
-      }
-    }, 0);
-  };
+  //   // 커서 위치 업데이트
+  //   setTimeout(() => {
+  //     if (textareaRef.current) {
+  //       const newPosition = cursorPosition + imageMarkdown.length;
+  //       textareaRef.current.selectionStart = newPosition;
+  //       textareaRef.current.selectionEnd = newPosition;
+  //       textareaRef.current.focus();
+  //     }
+  //   }, 0);
+  // };
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (file) {
-      // 현재 커서 위치 저장
-      if (textareaRef.current) {
-        setCursorPosition(textareaRef.current.selectionStart);
-      }
-
-      const imageId = await handleImageSelect(file);
-      if (imageId) {
-        insertImageToMarkdown(imageId);
+      try {
+        const imageUrl = await handleImageLocalSelect(file);
+        if (imageUrl) {
+          handleContentChange(`${editorState.content}\n![image](${imageUrl})`);
+        }
+      } catch (error) {
+        console.error('이미지 업로드 실패:', error);
       }
     }
   };
 
   const onSubmit = async () => {
     try {
-      setIsSubmitting(true);
       await handleSubmit();
     } catch (error) {
       console.error('포스트 수정 중 오류:', error);
       alert('포스트 수정 중 오류가 발생했습니다.');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -255,7 +252,6 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ post }) => {
           <textarea
             ref={textareaRef}
             value={editorState.content}
-            onPaste={handlePaste}
             onChange={(e) => handleContentChange(e.target.value)}
             className="flex-1 w-full p-4 focus:outline-none resize-none bg-transparent appearance-none border-none"
             placeholder="내용을 입력하세요!"
@@ -266,7 +262,9 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ post }) => {
         {/* 미리보기 */}
         <div className="border rounded-lg p-4 overflow-y-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 min-h-[300px]">
           <div className="prose dark:prose-invert max-w-none text-gray-900 dark:text-gray-200">
-            <ReactMarkdown>{editorState.content}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {editorState.content}
+            </ReactMarkdown>
           </div>
         </div>
       </div>

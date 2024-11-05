@@ -17,10 +17,8 @@ export const MainContent = ({ children }: MainContentProps) => {
     menuItems.find((item) => item.href === pathname) || menuItems[0];
 
   return (
-    <div className="w-full lg:mt-4 flex-grow">
-      <Card
-        className={cn(`h-full ${isDarkMode ? 'bg-gray-800' : 'bg-[#F4F7FE]'}`)}
-      >
+    <div className="w-full lg:mt-4 mb-8">
+      <Card className={cn(`${isDarkMode ? 'bg-gray-800' : 'bg-[#F4F7FE]'}`)}>
         <h1 className="text-2xl font-bold mb-6">{currentMenuItem.name}</h1>
         {children}
       </Card>
