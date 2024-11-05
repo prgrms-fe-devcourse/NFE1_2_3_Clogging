@@ -7,6 +7,7 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/shared/lib/firebase';
+import { formatDateTime } from '@/shared/lib/utils/formatDateTime';
 
 export async function GET(request: Request) {
   try {
@@ -30,9 +31,7 @@ export async function GET(request: Request) {
 
         const createdAtTimestamp = commentData.createdAt as Timestamp;
         const createdAtDate = createdAtTimestamp.toDate();
-        const formattedCreatedAt = `${createdAtDate.getFullYear()}${String(
-          createdAtDate.getMonth() + 1,
-        ).padStart(2, '0')}${String(createdAtDate.getDate()).padStart(2, '0')}`;
+        const formattedCreatedAt = `${formatDateTime(createdAtDate)}`;
 
         const repliesRef = collection(
           db,
@@ -50,12 +49,7 @@ export async function GET(request: Request) {
           const replyData = replyDoc.data();
           const replyCreatedAtTimestamp = replyData.createdAt as Timestamp;
           const replyCreatedAtDate = replyCreatedAtTimestamp.toDate();
-          const formattedReplyCreatedAt = `${replyCreatedAtDate.getFullYear()}${String(
-            replyCreatedAtDate.getMonth() + 1,
-          ).padStart(
-            2,
-            '0',
-          )}${String(replyCreatedAtDate.getDate()).padStart(2, '0')}`;
+          const formattedReplyCreatedAt = `${formatDateTime(replyCreatedAtDate)}`;
 
           return {
             id: replyDoc.id,
