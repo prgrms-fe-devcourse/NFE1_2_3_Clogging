@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 
 import { usePostEditor } from '@/features/Post/lib/hooks/usePostEditor';
 import { useMarkdown } from '@/features/Post/lib/hooks/useMarkdown';
@@ -260,7 +261,7 @@ const PostEditor: React.FC = () => {
         {/* 미리보기 */}
         <div className="border rounded-lg p-4 overflow-y-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 min-h-[300px]">
           <div className="prose dark:prose-invert max-w-none text-gray-900 dark:text-gray-200">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
               {markdownText}
             </ReactMarkdown>
           </div>

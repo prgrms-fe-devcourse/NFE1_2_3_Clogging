@@ -1,6 +1,7 @@
 // 제목, 작성일 등
 // 1105 추가 - 마크다운
 import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 import dynamic from 'next/dynamic';
 
 import { Post } from '@/features/Post/types';
@@ -79,7 +80,7 @@ export const Content = ({ post }: { post: Post }) => {
       {/* 1105 추가 - 마크다운적용 */}
       <div id="post-content" className="prose dark:prose-invert max-w-none">
         <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
+          remarkPlugins={[remarkGfm, remarkBreaks]}
           components={{
             h1: ({ node, ...props }) => {
               notifyMarkdownRendered();
