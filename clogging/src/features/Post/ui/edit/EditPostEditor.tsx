@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 
 import { usePostEditor } from '@/features/Post/lib/hooks/usePostEditor';
 import { useMarkdown } from '@/features/Post/lib/hooks/useMarkdown';
@@ -52,17 +53,24 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ post }) => {
     handleCodeBlockClick,
   } = useMarkdown(editorState.content);
 
+  React.useEffect(() => {
+    handleContentChange(markdownText);
+  }, [markdownText, handleContentChange]);
+
   const { isDarkMode } = useTheme();
   const [newTag, setNewTag] = useState('');
-  // const [cursorPosition, setCursorPosition] = useState(0);
+  const [cursorPosition, setCursorPosition] = useState(0);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting] = useState(false);
 
   const addTag = () => {
     if (newTag && editorState.tags.length < 5) {
       handleAddTag(newTag);
       setNewTag('');
+    } else if (editorState.tags.length >= 5) {
+      alert('태그는 최대 5개까지만 추가할 수 있습니다!');
     }
   };
 
@@ -70,36 +78,42 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ post }) => {
     fileInputRef.current?.click();
   };
 
-  // const insertImageToMarkdown = async (imageUrl: string) => {
-  //   const imageMarkdown = `![image](${imageUrl})\n`;
-  //   const content = editorState.content;
-  //   const newContent =
-  //     content.slice(0, cursorPosition) +
-  //     imageMarkdown +
-  //     content.slice(cursorPosition);
+  const insertImageToMarkdown = async (imageUrl: string) => {
+    const imageMarkdown = `![image](${imageUrl})\n`;
+    const content = editorState.content;
+    const newContent =
+      content.slice(0, cursorPosition) +
+      imageMarkdown +
+      content.slice(cursorPosition);
 
-  //   handleContentChange(newContent);
+    setMarkdownText(newContent);
+    setImageUrls([...imageUrls, imageUrl]);
 
-  //   // 커서 위치 업데이트
-  //   setTimeout(() => {
-  //     if (textareaRef.current) {
-  //       const newPosition = cursorPosition + imageMarkdown.length;
-  //       textareaRef.current.selectionStart = newPosition;
-  //       textareaRef.current.selectionEnd = newPosition;
-  //       textareaRef.current.focus();
-  //     }
-  //   }, 0);
-  // };
+    // 커서 위치 업데이트
+    setTimeout(() => {
+      if (textareaRef.current) {
+        const newPosition = cursorPosition + imageMarkdown.length;
+        textareaRef.current.selectionStart = newPosition;
+        textareaRef.current.selectionEnd = newPosition;
+        textareaRef.current.focus();
+      }
+    }, 0);
+  };
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (file) {
+      // 현재 커서 위치 저장
+      if (textareaRef.current) {
+        setCursorPosition(textareaRef.current.selectionStart);
+      }
+
       try {
         const imageUrl = await handleImageLocalSelect(file);
         if (imageUrl) {
-          handleContentChange(`${editorState.content}\n![image](${imageUrl})`);
+          insertImageToMarkdown(imageUrl);
         }
       } catch (error) {
         console.error('이미지 업로드 실패:', error);
@@ -251,8 +265,8 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ post }) => {
 
           <textarea
             ref={textareaRef}
-            value={editorState.content}
-            onChange={(e) => handleContentChange(e.target.value)}
+            value={markdownText}
+            onChange={(e) => setMarkdownText(e.target.value)}
             className="flex-1 w-full p-4 focus:outline-none resize-none bg-transparent appearance-none border-none"
             placeholder="내용을 입력하세요!"
             style={{ backgroundColor: 'transparent' }}
@@ -262,7 +276,7 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ post }) => {
         {/* 미리보기 */}
         <div className="border rounded-lg p-4 overflow-y-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 min-h-[300px]">
           <div className="prose dark:prose-invert max-w-none text-gray-900 dark:text-gray-200">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
               {editorState.content}
             </ReactMarkdown>
           </div>
