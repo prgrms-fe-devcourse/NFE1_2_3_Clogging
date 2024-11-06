@@ -13,7 +13,12 @@ export const Detail = ({ postId }: { postId: string }) => {
   const { data: post, isLoading, error } = usePost(postId);
   const invalidateComments = useInvalidateComments(postId);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading)
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
+      </div>
+    );
   if (error) return <div>Error: {error.message}</div>;
   if (!post) return null;
 
@@ -29,7 +34,9 @@ export const Detail = ({ postId }: { postId: string }) => {
   return (
     <div className="">
       <div className="grid grid-cols-12 gap-8">
-        <main className={`col-span-12 ${hasTableOfContents ? 'lg:col-span-9' : ''}`}>
+        <main
+          className={`col-span-12 ${hasTableOfContents ? 'lg:col-span-9' : ''}`}
+        >
           <article className="max-w-none">
             <Header post={post} />
             <Content post={post} />
