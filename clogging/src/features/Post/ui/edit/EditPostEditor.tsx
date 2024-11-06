@@ -118,8 +118,8 @@ const EditPostEditor: React.FC<EditPostEditorProps> = ({ post }) => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        에디터를 불러오고 있습니다,, 잠시만 기다려주세요
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
       </div>
     );
   }

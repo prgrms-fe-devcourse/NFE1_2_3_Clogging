@@ -75,7 +75,11 @@ export default function AdminInitPage() {
   };
 
   if (isInitialized === null) {
-    return <div>로딩 중...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
+      </div>
+    );
   }
 
   return (
