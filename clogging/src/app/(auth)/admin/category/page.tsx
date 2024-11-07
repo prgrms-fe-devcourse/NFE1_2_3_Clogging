@@ -4,7 +4,13 @@ import { CategoryManagement } from '@/features/Category/ui/admin/CategoryManagem
 export default function CategoriesPage() {
   return (
     <div className="my-8">
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense
+        fallback={
+          <div className="flex justify-center items-center min-h-screen">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
+          </div>
+        }
+      >
         <CategoryManagement />
       </Suspense>
     </div>

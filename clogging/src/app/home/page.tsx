@@ -41,7 +41,7 @@ const HomePage: React.FC = () => {
         isDarkMode ? 'bg-gray-900 text-white' : 'bg-white'
       }`}
     >
-      <div className="container py-8">
+      <div className="">
         {/* 프로필 섹션 */}
         <Section />
 
@@ -94,8 +94,8 @@ const HomePage: React.FC = () => {
 
         {/* 로딩 상태 */}
         {isLoading && (
-          <div className="text-center py-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mx-auto"></div>
+          <div className="flex justify-center items-center min-h-screen">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
           </div>
         )}
 

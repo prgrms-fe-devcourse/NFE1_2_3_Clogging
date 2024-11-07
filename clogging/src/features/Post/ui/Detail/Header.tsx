@@ -6,13 +6,16 @@ import { Button } from '@/shared/ui/common/Button';
 import { deletePost } from '../../api/postApi';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useRealtimeViewCount } from '../../hooks';
 
 export const Header = ({ post }: { post: Post }) => {
   const { categories, fetchCategories } = useCategories();
   const [categoryName, setCategoryName] = useState<string>('카테고리');
-  const { getCategoryName } = useCategories();
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
+  const { data: viewCount = post.viewCount ?? 0 } = useRealtimeViewCount(
+    post.id,
+  );
 
   useEffect(() => {
     // 컴포넌트 마운트 시 카테고리 데이터 불러오기
@@ -50,32 +53,43 @@ export const Header = ({ post }: { post: Post }) => {
   };
 
   return (
-    <header className="mb-8">
-      <div className="flex items-center gap-4 text-sm text-gray-500 mt-4">
-        <h1 className="text-4xl font-bold mt-4">{post.title}</h1>
-        <div className="flex items-center gap-4 text-sm text-gray-500">
-          <Badge>{categoryName}</Badge>
-          <span>|</span>
-          <span>|</span>
-          <time>{elapsedTime(new Date(post.createdAt).toISOString())}</time>
-        </div>
-        {post.tags?.map((tag) => (
-          <span
-            key={tag}
-            className="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-800 rounded dark:text-gray-300"
-          >
-            {tag}
-          </span>
-        ))}
-        <div className="flex gap-2">
-          <Button onClick={handleEdit}>수정</Button>
+    <header className="mb-4 md:mb-8">
+      <div className="flex sm:flex-row sm:items-center gap-4 justify-between">
+        <h1 className="text-2xl md:text-4xl font-bold break-words">
+          {post.title}
+        </h1>
+        <div className="flex gap-2 items-center shrink-0">
+          <Button onClick={handleEdit} variant="ghost" size="sm">
+            수정
+          </Button>
+          <span className="text-gray-400">|</span>
           <Button
             onClick={handleDelete}
             disabled={isDeleting}
-            className="px-4 py-2 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+            variant="ghost"
+            size="sm"
           >
             {isDeleting ? '삭제 중...' : '삭제'}
           </Button>
+        </div>
+      </div>
+      <div className="flex flex-col justify-between gap-3 md:gap-4 text-sm text-gray-500 mt-3 md:mt-4">
+        <div className="flex flex-wrap gap-2 md:gap-4 text-sm text-gray-500 items-center">
+          <Badge>{categoryName}</Badge>
+          <span className="hidden md:inline text-gray-400">|</span>
+          <Badge variant="secondary">조회수 {viewCount.toLocaleString()}</Badge>
+          <span className="hidden md:inline text-gray-400">|</span>
+          <time>{elapsedTime(new Date(post.createdAt).toISOString())}</time>
+        </div>
+        <div className="flex flex-wrap gap-2 md:gap-4 text-sm text-gray-500 items-center">
+          {post.tags?.map((tag) => (
+            <Badge
+              key={tag}
+              className="px-2 py-1 text-sm bg-gray-100 dark:bg-gray-800 rounded dark:text-gray-300 max-w-full"
+            >
+              {tag}
+            </Badge>
+          ))}
         </div>
       </div>
     </header>

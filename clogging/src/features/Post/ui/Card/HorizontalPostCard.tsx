@@ -123,33 +123,37 @@ const HorizontalPostCard = ({ post }: Props) => {
                   {post.title}
                 </CardTitle>
               </div>
-              <CardDescription className="text-sm text-muted-foreground mb-4 overflow-hidden line-clamp-2 min-h-[40px]">
+              <CardDescription className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4 overflow-hidden line-clamp-2 min-h-[40px]">
                 {post.content.replace(/[#*\n]/g, ' ').trim()}
               </CardDescription>
               {post.tags && post.tags.length > 0 && (
-                <div className="flex gap-2 mb-4">
+                <div className="flex flex-wrap gap-2 mb-3 sm:mb-4">
                   {post.tags.map((tag) => (
-                    <Badge key={tag}>{tag}</Badge>
+                    <Badge key={tag} className="text-xs sm:text-sm">
+                      {tag}
+                    </Badge>
                   ))}
                 </div>
               )}
-              <CardFooter className="justify-between px-0 pt-4 border-t">
-                <div className="flex gap-2">
-                  <Badge variant="secondary">
+              <CardFooter className="flex-wrap justify-start sm:justify-between gap-2 px-0 pt-3 sm:pt-4 border-t">
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary" className="text-xs sm:text-sm">
                     {formatDate(post.createdAt)}
                   </Badge>
-                  <Badge variant="secondary">{commentCount}개의 댓글</Badge>
-                  <Badge variant="secondary">
+                  <Badge variant="secondary" className="text-xs sm:text-sm">
+                    {commentCount}개의 댓글
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs sm:text-sm">
                     조회수 {viewCount.toLocaleString()}
                   </Badge>
                 </div>
               </CardFooter>
             </div>
-            <div className="w-full sm:w-48 md:w-64 lg:w-80 h-48 sm:h-auto relative rounded-b-lg sm:rounded-r-lg overflow-hidden">
+            <div className="w-full sm:w-48 md:w-64 lg:w-80 relative rounded-b-lg sm:rounded-r-lg overflow-hidden aspect-[4/3]">
               <img
                 src={thumbnailUrl}
                 alt={post.title || '게시글 썸네일'}
-                className="absolute inset-0 w-full h-full object-cover"
+                className="w-full h-full object-cover"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   console.log('Image load error for:', target.src);

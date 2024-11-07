@@ -19,13 +19,13 @@ export const Navigation = ({ currentPostId }: { currentPostId: string }) => {
         className={!data?.prevPost ? 'cursor-not-allowed' : ''}
       >
         <div
-          className={`p-4 border dark:border-gray-700 rounded ${
+          className={`p-4 border dark:border-gray-700 rounded h-full ${
             data?.prevPost
               ? 'hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-white'
               : 'bg-gray-100 dark:bg-gray-800'
           }`}
         >
-          <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          <div className="text-sm text-gray-500 dark:text-gray-400 mb-4 f-">
             이전 글
           </div>
           <div className="font-medium">
@@ -38,7 +38,7 @@ export const Navigation = ({ currentPostId }: { currentPostId: string }) => {
         className={!data?.nextPost ? 'cursor-not-allowed' : ''}
       >
         <div
-          className={`p-4 border dark:border-gray-700 rounded ${
+          className={`p-4 border dark:border-gray-700 rounded h-full ${
             data?.nextPost
               ? 'hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-white'
               : 'bg-gray-100 dark:bg-gray-800'

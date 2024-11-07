@@ -52,7 +52,11 @@ const CommentManagePage: React.FC = () => {
   };
 
   if (loading) {
-    return <div>Loading comments...</div>; // 로딩 중 메시지 표시
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
+      </div>
+    ); // 로딩 중 메시지 표시
   }
 
   if (error) {
