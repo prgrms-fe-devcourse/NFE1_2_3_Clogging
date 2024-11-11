@@ -8,7 +8,7 @@ const PostListSection = ({ postData }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 4;
 
-  const totalPages = Math.ceil(postData.length / postsPerPage);
+  const totalPages = Math.ceil(Number(postData.length) / postsPerPage);
 
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
